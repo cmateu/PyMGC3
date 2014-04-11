@@ -46,7 +46,6 @@ In a terminal run the following command:
 sudo python setup.py install
 
 
-
 PROGRAM mgc3.py
 ---------------
 
@@ -72,7 +71,7 @@ Running the mgc3.py without any arguments will provide a short description
 of the required syntax and ask the user whether a sample parameter file
 should be printed.
 
-  > mgc3.py
+   mgc3.py
 
    usage: mgc3.py [-h] [-farea] [-ppar] [-v] [-doc]
                infile.par infile.dat ext_prefix
