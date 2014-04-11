@@ -48,7 +48,7 @@ sudo python setup.py install
 
 
 PROGRAM mgc3.py
-—————
+---------------
 
 
 *DESCRIPTION:*
@@ -126,8 +126,7 @@ using either 3D spherical mode (left) or aitoff map mode (right). See below
 on how to plot the maps and detect maxima.
 
 Program mgc3_get_pole_stars.py
-———
-
+------------------------------
 
 *DESCRIPTION:*
 
