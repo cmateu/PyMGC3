@@ -17,7 +17,7 @@ structures'; mGC3 makes use of full 6D data and
 nGC3 uses positional and proper motion data.
 
 
-REQUIREMENTS:
+**REQUIREMENTS:**
 
  - Python modules required are NUMPY and SCIPY.
  - This programs makes use of the coordinate transformation library
@@ -46,13 +46,12 @@ In a terminal run the following command:
 sudo python setup.py install
 
 
-================================================================================================
+
 1- PROGRAM mgc3.py
-================================================================================================
+======
 
 
-DESCRIPTION:
-===========
+*DESCRIPTION:*
 
 This program is used to apply the mGC3 method to an observations catalogue
 supplied by the user. The catalogue must have all 6D information for each
@@ -65,9 +64,9 @@ SYNTAX:
 
 The required command line arguments are:
 
-i) parameter_file: the name of the parameter file to be used
-ii) data_file: the name of catalogue/data file to be used
-iii) outfile_extension: an extension to be used for the output file
+1- parameter_file: the name of the parameter file to be used
+2- data_file: the name of catalogue/data file to be used
+3- outfile_extension: an extension to be used for the output file
 
 Running the mgc3.py without any arguments will provide a short description
 of the required syntax and ask the user whether a sample parameter file
@@ -91,73 +90,17 @@ the output file will be mgc3_sample.par
 
 INPUTS AND OUTPUTS:
 
-i) parameter_file
+1- parameter_file
 
 The parameter file indicates the structure of the input catalogue,
-as well as the values to be used for mGC3 parameters. The structure
-is as follows (# indicates comment lines):
+as well as the values to be used for mGC3 parameters. Each parameter
+is explained briefly by a comment in the sample parameter file header. 
 
-    #=============================================================================================
-    #Paramameter file (NOTE: Column numbers are Fortran-style, i.e. 1 is the first column)
-    #=============================================================================================
-    #deg         =  If True, lat,lon in degrees. If False, radians
-    #lon_col     =  Longitude column
-    #lat_col     =  Latitude  column
-    #coo_glactc  =  If True, lat,lot AND corresponding proper motions 
-    #               assumed to be galactic (l,b), if not, assumed to be equatorial (RA,DEC)
-    #par_col     =  Parallax column
-    #par_muas    =  If True units for parallax assumed to be muas, if False mas
-    #---------------------------------
-    #pm_lon      =  Column for proper motion in longitude direction
-    #pm_lon_red  =  If True, mu_l is reduced proper motion (i.e. mu_l*cos(b))
-    #pm_lat_col  =  Column for proper motion in latitude direction
-    #vrad_col    =  Radial Velocity column
-    #pm_muas     =  If True units for proper motions assumed to be muas/yr, if False mas/yr
-    #---------------------------------
-    #tol_r       =  r-tolerance for mgc3 pole-counting
-    #tol_v       =  v-tolerance for mgc3 pole-counting
-    #tol_deg     =  If True, tolerances are assumed to be in degrees. If False, radians
-    #grid_step   =  Step (in same units as tol) for pole grid
-    #grid_lon_o  =  Initial lon for pole grid
-    #grid_lon_f  =  Final lon for pole grid
-    #grid_lat_o  =  Initial lat for pole grid
-    #grid_lat_f  =  Final lat for pole grid
-    #---------------------------------
-    #AUX1_col    =  Auxiliary column. Catalogue ata with AUX1_o<AUX1<AUX1_f will be selected
-    #AUX1_o      =  Any number of AUX? cols can be used.
-    #AUX1_f      =  For multiple AUX? columns, the criteria is combined with boolean AND 
-    #=============================================================================================
-    #----------------Coordinate params------------------
-    deg         True
-    lon_col     1
-    lat_col     2
-    coo_glactc  True
-    par_col     3
-    par_muas    False
-    #----------------Proper motion params---------------
-    pm_lon_col  5
-    pm_lon_red  True
-    pm_lat_col  6
-    pm_muas  False
-    vrad_col    4
-    #----------------mGC3 params------------------------
-    tol_r       2.
-    tol_v       2.
-    tol_deg     True
-    grid_step   2.0   #All grid parameters should be in degrees
-    grid_lon_o  0.
-    grid_lon_f  360.
-    grid_lat_o  0.
-    grid_lat_f  90.
-    #----------------end--------------------------------
-
-Each parameter is explained briefly by a comment in the sample parameter file header. 
-
-ii) data_file
+2- data_file
 
 Name of the input catalogue file. Assumed to be ascii format, with comments preceeded by #.
 
-iii) ext_prefix
+3- ext_prefix
 
 The output file returned by mgc3.py will be a file called data_file.ext_prefix.mgc3.cts. It will
 contain (phi,theta) and pole counts np_mgc3_gal (MGC3), np_gc3gal (GC3), np_ngc3gal (nGC3)
