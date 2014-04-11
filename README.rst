@@ -19,9 +19,9 @@ nGC3 uses positional and proper motion data.
 
 **REQUIREMENTS:**
 
- - Python modules required are NUMPY and SCIPY.
- - This programs makes use of the coordinate transformation library
-   bovy_coords.py by Jo Bovy (2011). It is supplied with this bundle.
+- Python modules required are NUMPY and SCIPY.
+- This programs makes use of the coordinate transformation library
+  bovy_coords.py by Jo Bovy (2011). It is supplied with this bundle.
 
 **FILES PROVIDED**:
 
