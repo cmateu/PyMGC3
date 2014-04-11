@@ -1,0 +1,207 @@
+=================
+PyMGC3 Package
+=================
+
+DESCRIPTION:
+
+This package supplies code to apply the mGC3/nGC3/GC3 methods. The mGC3
+method is developed in Mateu et al. 2011 (MNRAS, 415, 214-224). The nGC3
+method is introduced in Abedi et al. 2014 (MNRAS, submitted).
+
+REQUIREMENTS:
+
+ - Python modules required are NUMPY and SCIPY.
+ - This programs makes use of the coordinate transformation library
+   bovy_coords.py by Jo Bovy (2011). It is supplied with the mgc3 bundle
+
+FILES PROVIDED:
+
+ - Executable programs:
+     mgc3.py
+     mgc3_get_pole_stars.py
+ - Documentation:
+     README.txt
+ - Libraries
+     bovy_coords.py
+     mgc3_lib.py
+ - Example data:
+     example_data.dat
+     example_data.par
+     example_data.pls
+     example_output.png
+
+INSTALLATION:
+
+In a terminal run the following command:
+
+sudo python setup.py install
+
+
+================================================================================================
+1- PROGRAM mgc3.py
+================================================================================================
+
+
+DESCRIPTION:
+===========
+
+This program is used to apply the mGC3 method to an observations catalogue
+supplied by the user. The catalogue must have all 6D information for each
+star, i.e. position angles and proper motions (galactic or equatorial),
+parallax and radial velocity. The program returns mGC3, nGC3 and GC3 pole
+counts. For details on the mGC3/nGC3/GC3 methods see Mateu et al. 2011
+and Abedi et al. 2014.
+
+SYNTAX:
+
+The required command line arguments are:
+
+i) parameter_file: the name of the parameter file to be used
+ii) data_file: the name of catalogue/data file to be used
+iii) outfile_extension: an extension to be used for the output file
+
+Running the mgc3.py without any arguments will provide a short description
+of the required syntax and ask the user whether a sample parameter file
+should be printed.
+
+  mgc3.py
+
+usage: mgc3.py [-h] [-farea] [-ppar] [-v] [-doc]
+               infile.par infile.dat ext_prefix
+mgc3.py: error: too few arguments
+
+Run with -h or --help argument for full help like so
+
+  mgc3.py -h
+
+Run with -ppar flag to print a sample parameter file
+
+ mgc3.py -ppar
+
+the output file will be mgc3_sample.par
+
+INPUTS AND OUTPUTS:
+
+i) parameter_file
+
+The parameter file indicates the structure of the input catalogue,
+as well as the values to be used for mGC3 parameters. The structure
+is as follows (# indicates comment lines):
+
+    #=============================================================================================
+    #Paramameter file (NOTE: Column numbers are Fortran-style, i.e. 1 is the first column)
+    #=============================================================================================
+    #deg         =  If True, lat,lon in degrees. If False, radians
+    #lon_col     =  Longitude column
+    #lat_col     =  Latitude  column
+    #coo_glactc  =  If True, lat,lot AND corresponding proper motions 
+    #               assumed to be galactic (l,b), if not, assumed to be equatorial (RA,DEC)
+    #par_col     =  Parallax column
+    #par_muas    =  If True units for parallax assumed to be muas, if False mas
+    #---------------------------------
+    #pm_lon      =  Column for proper motion in longitude direction
+    #pm_lon_red  =  If True, mu_l is reduced proper motion (i.e. mu_l*cos(b))
+    #pm_lat_col  =  Column for proper motion in latitude direction
+    #vrad_col    =  Radial Velocity column
+    #pm_muas     =  If True units for proper motions assumed to be muas/yr, if False mas/yr
+    #---------------------------------
+    #tol_r       =  r-tolerance for mgc3 pole-counting
+    #tol_v       =  v-tolerance for mgc3 pole-counting
+    #tol_deg     =  If True, tolerances are assumed to be in degrees. If False, radians
+    #grid_step   =  Step (in same units as tol) for pole grid
+    #grid_lon_o  =  Initial lon for pole grid
+    #grid_lon_f  =  Final lon for pole grid
+    #grid_lat_o  =  Initial lat for pole grid
+    #grid_lat_f  =  Final lat for pole grid
+    #---------------------------------
+    #AUX1_col    =  Auxiliary column. Catalogue ata with AUX1_o<AUX1<AUX1_f will be selected
+    #AUX1_o      =  Any number of AUX? cols can be used.
+    #AUX1_f      =  For multiple AUX? columns, the criteria is combined with boolean AND 
+    #=============================================================================================
+    #----------------Coordinate params------------------
+    deg         True
+    lon_col     1
+    lat_col     2
+    coo_glactc  True
+    par_col     3
+    par_muas    False
+    #----------------Proper motion params---------------
+    pm_lon_col  5
+    pm_lon_red  True
+    pm_lat_col  6
+    pm_muas  False
+    vrad_col    4
+    #----------------mGC3 params------------------------
+    tol_r       2.
+    tol_v       2.
+    tol_deg     True
+    grid_step   2.0   #All grid parameters should be in degrees
+    grid_lon_o  0.
+    grid_lon_f  360.
+    grid_lat_o  0.
+    grid_lat_f  90.
+    #----------------end--------------------------------
+
+Each parameter is explained briefly by a comment in the sample parameter file header. 
+
+ii) data_file
+
+Name of the input catalogue file. Assumed to be ascii format, with comments preceeded by #.
+
+iii) ext_prefix
+
+The output file returned by mgc3.py will be a file called data_file.ext_prefix.mgc3.cts. It will
+contain (phi,theta) and pole counts np_mgc3_gal (MGC3), np_gc3gal (GC3), np_ngc3gal (nGC3)
+for an uniform pole grid with a step given by grid_step. 
+It also contains mgc3 heliocentric (np_mgc3hel) pole counts, these
+are useful for experimentation sometimes. Note the pole grid covers one hemisphere, 
+as the information given by the other hemisphere is redundant.
+
+Note: a program for plotting and detecting maxima in pole count maps will be provided
+with the mgc3 bundle. You can also plot with Topcat if prefered (it is advisable to use an Aitoff or Sin projection)
+
+EXAMPLE:
+
+To test mgc3.py, use the provided example data, running mgc3.py with this command line:
+
+  ./mgc3.py example_data.par example_data.short.dat  my_test
+
+The output file will be example_data.my_test.mgc3.cts. The output pole maps 
+should look like those shown on example_output.png when plotted with Topcat
+using either 3D spherical mode (left) or aitoff map mode (right). See below
+on how to plot the maps and detect maxima.
+
+================================================================================================
+3- Program mgc3_get_pole_stars.py
+================================================================================================
+
+DESCRIPTION:
+
+This program extracts stars corresponding to poles given in an input list.
+
+Run without arguments for a short help message to explain inputs and optional arguments:
+
+  ./get_mgc3pole_stars.py
+
+  usage: mgc3_get_pole_stars.py [-h] [-ppar] [-v] [-doc]
+                              infile.par infile.dat pole.list
+  mgc3_get_pole_stars.py: error: too few arguments
+
+Run with -h or --help for full help
+
+  ./get_mgc3pole_stars.py -h
+
+OUTPUT:
+
+ The output file infile.mgc3.pst is identical to the input catalogue, but including only stars associated 
+ with the given poles and with an additional column at the end indicating the pole_ID for the pole
+ each star is associated with.
+
+EXAMPLE:
+
+Use the pole count map and pole list examples as the input for this program:
+
+ ./mgc3_get_pole_stars.py example_data.par example_data.dat example_data.mgc3.pls
+
+
+
