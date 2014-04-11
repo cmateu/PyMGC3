@@ -25,19 +25,19 @@ nGC3 uses positional and proper motion data.
 
 **FILES PROVIDED**:
 
- - Executable programs:
-     mgc3.py
-     mgc3_get_pole_stars.py
- - Documentation:
-     README.md
- - Libraries
-     bovy_coords.py
-     mgc3_lib.py
- - Example data:
-     example_data.dat
-     example_data.par
-     example_data.pls
-     example_output.png
+- Executable programs:
+    mgc3.py
+    mgc3_get_pole_stars.py
+- Documentation:
+    README.md
+- Libraries
+    bovy_coords.py
+    mgc3_lib.py
+- Example data:
+    example_data.dat
+    example_data.par
+    example_data.pls
+    example_output.png
 
 **INSTALLATION:**
 
