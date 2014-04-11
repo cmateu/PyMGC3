@@ -74,9 +74,9 @@ should be printed.
 
   > mgc3.py
 
-  $ usage: mgc3.py [-h] [-farea] [-ppar] [-v] [-doc]
+  > usage: mgc3.py [-h] [-farea] [-ppar] [-v] [-doc]
   >             infile.par infile.dat ext_prefix
-  $ mgc3.py: error: too few arguments
+  > mgc3.py: error: too few arguments
 
 Run with -h or --help argument for full help like so
 
