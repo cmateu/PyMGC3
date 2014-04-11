@@ -43,7 +43,7 @@ nGC3 uses positional and proper motion data.
 
 In a terminal run the following command:
 
-> sudo python setup.py install
+  > sudo python setup.py install
 
 
 PROGRAM mgc3.py
