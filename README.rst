@@ -17,29 +17,29 @@ structures'; mGC3 makes use of full 6D data and
 nGC3 uses positional and proper motion data.
 
 
-**REQUIREMENTS:**
+**REQUIREMENTS**
 
 - Python modules required are NUMPY and SCIPY.
 - This programs makes use of the coordinate transformation library
   bovy_coords.py by Jo Bovy (2011). It is supplied with this bundle.
 
-**FILES PROVIDED**:
+**FILES PROVIDED**
 
-- Executable programs:
+- Executable programs
     mgc3.py
     mgc3_get_pole_stars.py
-- Documentation:
+- Documentation
     README.md
 - Libraries
     bovy_coords.py
     mgc3_lib.py
-- Example data:
+- Example data
     example_data.dat
     example_data.par
     example_data.pls
     example_output.png
 
-**INSTALLATION:**
+**INSTALLATION**
 
 In a terminal run the following command:
 
