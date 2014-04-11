@@ -1,0 +1,16 @@
+To install this package use:
+
+python setup.py install
+
+If you do not have root access the following should work:
+
+python setup.py install --user
+
+The installation will then end up in the ~/.local folder
+
+WARNING: the setup uses the distribute_setup package which requires an internet
+connection. If you do not have an internet connection, in the setup.py script,
+comment out the following lines:
+
+from distribute_setup import use_setuptools
+use_setuptools()
