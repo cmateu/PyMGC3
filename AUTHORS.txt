@@ -1,10 +1,10 @@
 Author:
 
-Cecilia Mateu <cmateu@astrosen.unam.mx>
+Cecilia Mateu <cmateu at astrosen.unam.mx>
 
 Direct contributions to the code base:
 
-(none)
+...
 
 Bug reports:
 
