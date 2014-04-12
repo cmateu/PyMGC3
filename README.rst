@@ -134,7 +134,7 @@ as the information from the other hemisphere is redundant.
 
 Note: a program for plotting and detecting maxima in pole count maps will be provided
 with the mgc3 bundle in an upcoming version. In the mean time you can quickly
-plot using Topcat (`<www.star.bris.ac.uk/~mbt/topcat/>`_), it is recommended to
+plot using Topcat (`<http://www.star.bris.ac.uk/~mbt/topcat/>`_), it is recommended to
 use an Aitoff or Sin projection.
 
 **EXAMPLE:**
