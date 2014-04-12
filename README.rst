@@ -45,6 +45,23 @@ In a terminal run the following command::
 
     sudo python setup.py install
 
+Quick Guide
+-----------
+
+If you just want to start running the programs follow these quick-and-dirty recipe
+using the example data provided::
+
+    #Go to the examples directory
+    cd examples
+    #Print sample parameter file
+    mgc3.py --par
+    #Run mgc3 to get pole count maps
+    mgc3.py mgc3_sample.par example_data.dat test01
+    #Use the pole list provided with the example to extract stars associated
+    #to the maxima in the pole count map
+    mgc3_get_pole_stars.py mgc3_sample.par example_data.dat example_data.mgc3.pls
+   
+
 Program mgc3.py
 ---------------
 
