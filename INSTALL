@@ -1,12 +1,13 @@
-To install this package use:
+To install this package, run the following command:
 
-python setup.py install
+    sudo python setup.py install
 
-If you do not have root access the following should work:
+If you do not have root access, install in a custom directory using the --prefix option::
 
-python setup.py install --user
+    python setup.py install --prefix=path_to_dir
 
-The installation will then end up in the ~/.local folder
+After installing, add path_to_dir/PyMGC3/bin to your PATH in your .csrhc or .bashrc file.
+Also add path_to_dir/PyMGC3/bin and path_to_dir/PyMGC3/ to PYTHONPATH also in your .cshrc/.bashrc file.
 
 WARNING: the setup uses the distribute_setup package which requires an internet
 connection. If you do not have an internet connection, in the setup.py script,
