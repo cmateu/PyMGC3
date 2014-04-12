@@ -34,16 +34,16 @@ nGC3 uses positional and proper motion data.
     bovy_coords.py
     mgc3_lib.py
 - Example data
-    example_data.dat
+   * example_data.dat
     example_data.par
     example_data.pls
     example_output.png
 
 **INSTALLATION**
 
-In a terminal run the following command:
+In a terminal run the following command::
 
-  > sudo python setup.py install
+    sudo python setup.py install
 
 
 PROGRAM mgc3.py
@@ -144,9 +144,9 @@ Run with -h or --help for full help::
 
 *OUTPUT:*
 
- The output file infile.mgc3.pst is identical to the input catalogue, but including only stars associated 
- with the given poles and with an additional column at the end indicating the pole_ID for the pole
- each star is associated with.
+The output file infile.mgc3.pst is identical to the input catalogue, but including only stars associated 
+with the given poles and with an additional column at the end indicating the pole_ID for the pole
+each star is associated with.
 
 *EXAMPLE:*
 
