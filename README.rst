@@ -87,7 +87,7 @@ and Abedi et al. 2014.
 
 The required command line arguments are:
 
-1- parameter_file: the name of the parameter file to be used
+1- `parameter_file`: the name of the parameter file to be used
 2- data_file: the name of catalogue/data file to be used
 3- outfile_extension: an extension to be used for the output file
 
