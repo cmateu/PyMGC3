@@ -45,6 +45,13 @@ In a terminal run the following command::
 
     sudo python setup.py install
 
+If you do not have root access, install in a custom directory using the --prefix option::
+
+    python setup.py install --prefix=path_to_dir
+
+After installing, add path_to_dir/PyMGC3/bin to your PATH in your .csrhc or .bashrc file.
+Also add path_to_dir/PyMGC3/bin and path_to_dir/PyMGC3/ to PYTHONPATH also in your .cshrc/.bashrc file.
+
 Quick Guide
 -----------
 
