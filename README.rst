@@ -77,13 +77,13 @@ should be printed::
                infile.par infile.dat ext_prefix
     mgc3.py: error: too few arguments
 
-Run with -h or --help argument for full help like so
+Run with -h or --help argument for full help like this::
 
-  mgc3.py -h
+    mgc3.py -h
 
-Run with -ppar flag to print a sample parameter file
+Run with -ppar flag to print a sample parameter file::
 
- mgc3.py -ppar
+    mgc3.py -ppar
 
 the output file will be mgc3_sample.par
 
@@ -115,9 +115,9 @@ it is advisable to use an Aitoff or Sin projection.
 
 *EXAMPLE:*
 
-To test mgc3.py, use the provided example data, running mgc3.py with this command line:
+To test mgc3.py, use the provided example data, running mgc3.py with this command line::
 
-  ./mgc3.py example_data.par example_data.short.dat  my_test
+    mgc3.py example_data.par example_data.short.dat  my_test
 
 The output file will be example_data.my_test.mgc3.cts. The output pole maps 
 should look like those shown on example_output.png when plotted with Topcat
@@ -131,29 +131,26 @@ Program mgc3_get_pole_stars.py
 
 This program extracts stars corresponding to poles given in an input list.
 
-Run without arguments for a short help message to explain inputs and optional arguments:
+Run without arguments for a short help message to explain inputs and optional arguments::
 
-  ./get_mgc3pole_stars.py
+    get_mgc3pole_stars.py
+    usage: mgc3_get_pole_stars.py [-h] [-ppar] [-v] [-doc]
+                                infile.par infile.dat pole.list
+    mgc3_get_pole_stars.py: error: too few arguments
 
-  usage: mgc3_get_pole_stars.py [-h] [-ppar] [-v] [-doc]
-                              infile.par infile.dat pole.list
-  mgc3_get_pole_stars.py: error: too few arguments
+Run with -h or --help for full help::
 
-Run with -h or --help for full help
+    get_mgc3pole_stars.py -h
 
-  ./get_mgc3pole_stars.py -h
-
-OUTPUT:
+*OUTPUT:*
 
  The output file infile.mgc3.pst is identical to the input catalogue, but including only stars associated 
  with the given poles and with an additional column at the end indicating the pole_ID for the pole
  each star is associated with.
 
-EXAMPLE:
+*EXAMPLE:*
 
 Use the pole count map and pole list examples as the input for this program:
 
  ./mgc3_get_pole_stars.py example_data.par example_data.dat example_data.mgc3.pls
-
-
 
