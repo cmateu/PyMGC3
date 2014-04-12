@@ -49,16 +49,21 @@ Quick Guide
 -----------
 
 If you just want to start running the programs follow these quick-and-dirty recipe
-using the example data provided::
+using the example data provided. For more details on the Python scripts provided,
+goto the next section in this README.
 
-    #Go to the examples directory
+Go to the examples directory::
     cd examples
-    #Print sample parameter file
+
+Print sample parameter file::
     mgc3.py --par
-    #Run mgc3 to get pole count maps
+
+Run mgc3 to get pole count maps::
     mgc3.py mgc3_sample.par example_data.dat test01
-    #Use the pole list provided with the example to extract stars associated
-    #to the maxima in the pole count map
+
+Use the pole list provided with the example to extract stars associated
+to the maxima in the pole count map::
+
     mgc3_get_pole_stars.py mgc3_sample.par example_data.dat example_data.mgc3.pls
    
 
