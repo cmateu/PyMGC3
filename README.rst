@@ -37,7 +37,8 @@ nGC3 uses positional and proper motion data.
    * example_data.dat
    * example_data.par
    * example_data.pls
-   * example_output.png
+   * example_cts_output.png
+   * example_pst_output.png
 
 **INSTALLATION**
 
@@ -95,7 +96,9 @@ and Abedi et al. 2014.
 The required command line arguments are:
 
 1- *parameter_file*: the name of the parameter file to be used
+
 2- *data_file*: the name of catalogue/data file to be used
+
 3- *outfile_extension*: an extension to be used for the output file
 
 Running the mgc3.py without any arguments will provide a short description
@@ -105,7 +108,7 @@ should be printed::
     mgc3.py
 
     usage: mgc3.py [-h] [-farea] [-ppar] [-v] [-doc]
-               infile.par infile.dat ext_prefix
+               parameter_file data_file outfile_extension
     mgc3.py: error: too few arguments
 
 Run with -h or --help argument for full help like this::
@@ -148,7 +151,7 @@ use an Aitoff or Sin projection.
 
 To test mgc3.py, use the provided example data, running mgc3.py with this command line::
 
-    mgc3.py example_data.par example_data.short.dat  my_test
+    mgc3.py example_data.par example_data.dat  my_test
 
 The output file will be example_data.my_test.mgc3.cts. The output pole maps 
 should look like those shown on example_output.png when plotted with Topcat
@@ -168,7 +171,8 @@ Run without arguments for a short help message to explain inputs and optional ar
 
     get_mgc3pole_stars.py
     usage: mgc3_get_pole_stars.py [-h] [-ppar] [-m {mGC3,nGC3,GC3}] [-v] [-doc]
-                                infile.par infile.dat pole.list
+                                  parameter_file data_file outfile_ext pole_list
+
     mgc3_get_pole_stars.py: error: too few arguments
 
 Run with -h or --help for full help::
@@ -185,7 +189,10 @@ each star is associated with.
 
 Use the pole count map and pole list examples as the input for this program::
 
-    mgc3_get_pole_stars.py example_data.par example_data.dat example_data.mgc3.pls
+    mgc3_get_pole_stars.py example_data.par example_data.dat example_data.mgc3.pls my_test
+
+The output file will be example_data.my_test.mgc3.dat. Try running with the -m nGC3 and -m GC3 flags
+to get \*.ngc3.dat and \*.gc3.dat outouts.
 
 Attribution
 -----------
