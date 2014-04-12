@@ -53,12 +53,15 @@ using the example data provided. For more details on the Python scripts provided
 goto the next section in this README.
 
 Go to the examples directory::
+
     cd examples
 
 Print sample parameter file::
+
     mgc3.py --par
 
 Run mgc3 to get pole count maps::
+
     mgc3.py mgc3_sample.par example_data.dat test01
 
 Use the pole list provided with the example to extract stars associated
