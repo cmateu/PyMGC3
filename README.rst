@@ -69,13 +69,13 @@ The required command line arguments are:
 
 Running the mgc3.py without any arguments will provide a short description
 of the required syntax and ask the user whether a sample parameter file
-should be printed.
+should be printed::
 
-   mgc3.py
+    mgc3.py
 
-   usage: mgc3.py [-h] [-farea] [-ppar] [-v] [-doc]
+    usage: mgc3.py [-h] [-farea] [-ppar] [-v] [-doc]
                infile.par infile.dat ext_prefix
-   mgc3.py: error: too few arguments
+    mgc3.py: error: too few arguments
 
 Run with -h or --help argument for full help like so
 
