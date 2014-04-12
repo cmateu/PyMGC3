@@ -75,7 +75,7 @@ Run mgc3 to get pole count maps::
 Use the pole list provided with the example to extract stars associated
 to the maxima in the pole count map::
 
-    mgc3_get_pole_stars.py mgc3_sample.par example_data.dat example_data.mgc3.pls
+    mgc3_get_pole_stars.py mgc3_sample.par example_data.dat example_data.mgc3.pls test01
    
 
 Program mgc3.py
