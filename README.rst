@@ -95,11 +95,11 @@ and Abedi et al. 2014.
 
 The required command line arguments are:
 
-1- *parameter_file*: the name of the parameter file to be used
+*parameter_file*: the name of the parameter file to be used
 
-2- *data_file*: the name of catalogue/data file to be used
+*data_file*: the name of catalogue/data file to be used
 
-3- *outfile_extension*: an extension to be used for the output file
+*outfile_extension*: an extension to be used for the output file
 
 Running the mgc3.py without any arguments will provide a short description
 of the required syntax and ask the user whether a sample parameter file
@@ -123,17 +123,17 @@ the output file will be mgc3_sample.par
 
 **INPUTS AND OUTPUTS:**
 
-1- *parameter_file*
+*parameter_file*
 
 The parameter file indicates the structure of the input catalogue,
 as well as the values to be used for mGC3 parameters. Each parameter
 is explained briefly by a comment in the sample parameter file header. 
 
-2- *data_file*
+*data_file*
 
 Name of the input catalogue file. Assumed to be ascii format, with comments preceeded by #.
 
-3- *ext_prefix*
+*ext_prefix*
 
 The output file returned by mgc3.py will be called data_file.ext_prefix.mgc3.cts. 
 It will contain (phi,theta) and pole counts np_mgc3_gal (MGC3), 
@@ -192,7 +192,7 @@ Use the pole count map and pole list examples as the input for this program::
     mgc3_get_pole_stars.py example_data.par example_data.dat example_data.mgc3.pls my_test
 
 The output file will be example_data.my_test.mgc3.dat. Try running with the -m nGC3 and -m GC3 flags
-to get \*.ngc3.dat and \*.gc3.dat outouts.
+to get \*.ngc3.dat and \*.gc3.dat outputs.
 
 Attribution
 -----------
