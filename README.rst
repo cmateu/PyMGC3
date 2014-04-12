@@ -66,7 +66,7 @@ Go to the examples directory::
 
 Print sample parameter file::
 
-    mgc3.py --par
+    mgc3.py -ppar
 
 Run mgc3 to get pole count maps::
 
