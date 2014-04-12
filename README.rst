@@ -55,8 +55,8 @@ Also add path_to_dir/PyMGC3/bin and path_to_dir/PyMGC3/ to PYTHONPATH also in yo
 Quick Guide
 -----------
 
-If you just want to start running the programs follow these quick-and-dirty recipe
-using the example data provided. For more details on the Python scripts provided,
+If you just want to start running the programs right away, follow these quick-and-dirty recipe
+using the example data provided. For more details on the Python scripts,
 goto the next section in this README.
 
 Go to the examples directory::
