@@ -45,8 +45,7 @@ In a terminal run the following command::
 
     sudo python setup.py install
 
-
-PROGRAM mgc3.py
+Program mgc3.py
 ---------------
 
 
@@ -129,12 +128,14 @@ Program mgc3_get_pole_stars.py
 
 *DESCRIPTION:*
 
-This program extracts stars corresponding to poles given in an input list.
+This program extracts stars associated to poles given in an input list. By default
+it uses mGC3 criteria, but any of the three methods (mGC3/nGC3/GC3) can be used to 
+select stars associated to each of the poles in the list.
 
 Run without arguments for a short help message to explain inputs and optional arguments::
 
     get_mgc3pole_stars.py
-    usage: mgc3_get_pole_stars.py [-h] [-ppar] [-v] [-doc]
+    usage: mgc3_get_pole_stars.py [-h] [-ppar] [-m {mGC3,nGC3,GC3}] [-v] [-doc]
                                 infile.par infile.dat pole.list
     mgc3_get_pole_stars.py: error: too few arguments
 
@@ -150,7 +151,8 @@ each star is associated with.
 
 *EXAMPLE:*
 
-Use the pole count map and pole list examples as the input for this program:
+Use the pole count map and pole list examples as the input for this program::
 
- ./mgc3_get_pole_stars.py example_data.par example_data.dat example_data.mgc3.pls
+    mgc3_get_pole_stars.py example_data.par example_data.dat example_data.mgc3.pls
+
 
