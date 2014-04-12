@@ -15,9 +15,9 @@ setup(
     author_email='cmateu@astrosen.unam.mx',
     packages=['bovy_coords','mgc3_lib','myutils'],
     scripts=['bin/mgc3.py','bin/mgc3_get_pole_stars.py'],
-    url='http://www.cida.ve/~cmateu/Gaia',
+    url='https://github.com/cmateu/PyMGC3',
     license='LICENSE.txt',
-    description='MGC3 codes',
+    description='PyMGC3 codes',
     long_description=open('README.rst').read(),
     install_requires=[
       "numpy",
