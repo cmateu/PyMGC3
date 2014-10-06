@@ -87,14 +87,14 @@ print 'Reading input file %s ...' % (filename)
 obsdata,filename=mgc3_lib.read_inputcat_for_mgc3(filename,pardic=survey_pars)
 print 'Input file shape (rows,cols): ', obsdata.shape
 
-print 'Inicializing pole grid...'
+print 'Initializing pole grid...'
 mygrid=mgc3_lib.pole_grid(poles=survey_pars['grid_step'],pole_grid_dic=survey_pars)
 
 print 'Computing pole counts...'
 mygrid.mgc3(obsdata,pars=survey_pars)
 
 if args.farea:
-  print 'Inicializing auxiliary pole grid for farea computation...'
+  print 'Initializing auxiliary pole grid for farea computation...'
   mygrid_foot=mgc3_lib.pole_grid(poles=survey_pars['grid_step'])
   foot_survey,foot_survey_pars=mygrid_foot.get_uniform_survey_footprint(obsdata,pars=survey_pars)
   mygrid_foot.mgc3(foot_survey,pars=foot_survey_pars)
