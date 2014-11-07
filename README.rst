@@ -11,7 +11,7 @@ The current distribution computes pole count maps using
 the full mGC3/nGC3/GC3 family of methods described 
 in `Mateu et al. (2011) <http://adsabs.harvard.edu/abs/2011MNRAS.415..214M>`__ and 
 `Abedi et al. (2014) <http://adsabs.harvard.edu/abs/2014MNRAS.442.3627A>`__. Briefly, 
-the original GC3 method developed by Johnston et al. (1996) 
+the original GC3 method developed by `Johnston et al. (1996) <http://adsabs.harvard.edu/abs/1996ApJ...465..278J>`__
 uses positional information to search for 'great-circle-cell
 structures'; mGC3 makes use of full 6D data and 
 nGC3 uses positional and proper motion data.
