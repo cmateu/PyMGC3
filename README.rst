@@ -22,7 +22,7 @@ nGC3 uses positional and proper motion data.
 - Python modules required are NUMPY and SCIPY.
 - This programs makes use of the coordinate transformation library
   bovy_coords.py from the `galpy <https://github.com/jobovy/galpy>`__ 
-  package by Jo Bovy (2011). It is supplied with this bundle.
+  package by Jo Bovy (2015, in prep.). It is supplied with this bundle.
 
 **FILES PROVIDED**
 
