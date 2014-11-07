@@ -9,8 +9,8 @@ to search for tidal streams in the Galactic Halo.
 
 The current distribution computes pole count maps using 
 the full mGC3/nGC3/GC3 family of methods described 
-in Mateu et al. 2011 (MNRAS, 415, 214-224) and 
-Abedi et al. 2014 (MNRAS, submitted). Briefly, 
+in `Mateu et al. (2011) <http://adsabs.harvard.edu/abs/2011MNRAS.415..214M>`__ and 
+`Abedi et al. (2014) <http://adsabs.harvard.edu/abs/2014MNRAS.442.3627A>`__. Briefly, 
 the original GC3 method developed by Johnston et al. (1996) 
 uses positional information to search for 'great-circle-cell
 structures'; mGC3 makes use of full 6D data and 
@@ -21,7 +21,8 @@ nGC3 uses positional and proper motion data.
 
 - Python modules required are NUMPY and SCIPY.
 - This programs makes use of the coordinate transformation library
-  bovy_coords.py by Jo Bovy (2011). It is supplied with this bundle.
+  bovy_coords.py from the `galpy <https://github.com/jobovy/galpy>`__ 
+  package by Jo Bovy (2011). It is supplied with this bundle.
 
 **FILES PROVIDED**
 
@@ -29,7 +30,7 @@ nGC3 uses positional and proper motion data.
    * mgc3.py
    * mgc3_get_pole_stars.py
 - Documentation
-   * README.pst
+   * README.rst
 - Libraries
    * bovy_coords.py
    * mgc3_lib.py
@@ -58,7 +59,7 @@ Quick Guide
 
 If you just want to start running the programs right away, follow these quick-and-dirty recipe
 using the example data provided. For more details on the Python scripts,
-goto the next section in this README.
+go to the next section in this README.
 
 Go to the examples directory::
 
@@ -88,8 +89,9 @@ This program is used to apply the mGC3 method to an observations catalogue
 supplied by the user. The catalogue must have all 6D information for each
 star, i.e. position angles and proper motions (galactic or equatorial),
 parallax and radial velocity. The program returns mGC3, nGC3 and GC3 pole
-counts. For details on the mGC3/nGC3/GC3 methods see Mateu et al. 2011
-and Abedi et al. 2014.
+counts. For a detailed explanation on the mGC3/nGC3/GC3 methods see 
+`Mateu et al. (2011) <http://adsabs.harvard.edu/abs/2011MNRAS.415..214M>`__ and
+`Abedi et al. (2014) <http://adsabs.harvard.edu/abs/2014MNRAS.442.3627A>`__.
 
 **SYNTAX:**
 
