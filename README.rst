@@ -4,8 +4,8 @@ PyMGC3 Package
 **DESCRIPTION:**
 
 PyMGC3 is a Python toolkit to apply the Modified Great Circle 
-Cell Counts (mGC3) method, devised by Mateu et al. (2011) to 
-search for tidal streams in the Galactic Halo. 
+Cell Counts (mGC3) method, devised by `Mateu et al. (2011) <http://adsabs.harvard.edu/abs/2011MNRAS.415..214M>`__ 
+to search for tidal streams in the Galactic Halo. 
 
 The current distribution computes pole count maps using 
 the full mGC3/nGC3/GC3 family of methods described 
