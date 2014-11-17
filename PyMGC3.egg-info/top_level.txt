@@ -1,3 +1,0 @@
-myutils
-bovy_coords
-mgc3_lib
