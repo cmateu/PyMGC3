@@ -80,26 +80,39 @@ for infilen in file_list:
   mer_grid=[0.,360.,20.]
   par_grid=[-90.,+90.,30.]
  
-  fig=plt.figure(1,figsize=(8,8))
-  ax=fig.add_subplot(nx,ny,1)
-  m = Basemap(projection=args.proj,boundinglat=0.,lon_0=0,resolution='l',ax=ax)
-  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]))
-  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]))
-  x,y=m(phi,theta)
+  if 'npa' in args.proj or 'moll' in args.proj:
+    fig=plt.figure(1,figsize=(8,8))
+    ax=fig.add_subplot(nx,ny,1)
+    m = Basemap(projection=args.proj,boundinglat=0.,lon_0=0,resolution='l',ax=ax)
+    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]))
+    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]))
+    x,y=m(phi,theta)
+    if 'r' in pmode: 
+       ms=90.
+       c=m.scatter(x,y,c=pole_cts,edgecolor='none',s=ms,cmap=colormap)
+    else:
+       npix=250
+       clevels=30
+       xi = np.linspace(np.min(x),np.max(x),npix)
+       yi = np.linspace(np.min(y),np.max(y),npix)
+       zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
+       m.contourf(xi,yi,zi,clevels,cmap=colormap)
+    #Labels and such
+    ax.set_title('%s pole-counts' % (mode_ori))
+  else:  
+    fig=plt.figure(1,figsize=(14,8))
+    for ii,l0 in [(1,0.),(2,180.)]:
+      ax=fig.add_subplot(1,2,ii)
+      m = Basemap(projection=args.proj,lat_0=50,lon_0=l0,resolution='l',ax=ax,area_thresh = 1000.)
+      m.drawmeridians(np.arange(0, 360, 20))
+      m.drawparallels(np.arange(-90, 90, 20))
+      m.drawmapboundary()
+      x,y=m(phi,theta)
+      ms=50
+      c=m.scatter(x,y,c=pole_cts,edgecolor='none',s=ms,cmap=colormap)
+      #Labels and such
+      ax.set_title('%s pole-counts' % (mode_ori))
 
-  if 'r' in pmode: 
-     ms=90.
-     c=m.scatter(x,y,c=pole_cts,edgecolor='none',s=ms,cmap=colormap)
-  else:
-     npix=250
-     clevels=30
-     xi = np.linspace(np.min(x),np.max(x),npix)
-     yi = np.linspace(np.min(y),np.max(y),npix)
-     zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
-     m.contourf(xi,yi,zi,clevels,cmap=colormap)
-
-  #Labels and such
-  ax.set_title('%s pole-counts' % (mode_ori))
 
   fig.savefig(figname)
   if args.show: plt.show()
