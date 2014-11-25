@@ -106,6 +106,7 @@ outfilename=filename.replace('.dat','')+'.'+ext_prefix+'.mgc3.cts'
 print 'Printing output file %s ...' % (outfilename)
 ofile=open(outfilename,'w')
 ofile.write('#---------------------------Input Parameters--------------------------------\n')
+ofile.write('#Parameter file: %s\n' % (parfile))
 ofile.write('#lon_col=%-2d,    lat_col=%-2d,    par_col=%-2d\n' % (survey_pars['lon_col']+1,survey_pars['lat_col']+1,survey_pars['par_col']+1))
 ofile.write('#pm_lon_col=%-2d, pm_lat_col=%-2d, vrad_col=%-2d\n' % (survey_pars['pm_lon_col']+1,survey_pars['pm_lat_col']+1,survey_pars['vrad_col']+1))
 ofile.write('#deg=%s, coo_glactc=%s, par_muas=%s\n' % (survey_pars['deg'],survey_pars['coo_glactc'],survey_pars['par_muas']))
