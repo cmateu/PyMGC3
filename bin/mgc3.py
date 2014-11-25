@@ -105,6 +105,13 @@ else:
 outfilename=filename.replace('.dat','')+'.'+ext_prefix+'.mgc3.cts'
 print 'Printing output file %s ...' % (outfilename)
 ofile=open(outfilename,'w')
+ofile.write('#--------------Input Parameters--------------------------------\n')
+ofile.write('#lon_col=%d, lat_col=%d, par_col=%d\n' % (survey_pars['lon_col'],survey_pars['lat_col'],survey_pars['par_col']))
+ofile.write('#pm_lon_col=%d, pm_lat_col=%d, vrad_col=%d\n' % (survey_pars['pm_lon_col'],survey_pars['pm_lat_col'],survey_pars['vrad_col']))
+ofile.write('#deg=%s, coo_glactc=%s, par_muas=%s\n' % (survey_pars['deg'],survey_pars['coo_glactc'],survey_pars['par_muas']))
+ofile.write('#pm_lon_red=%s, pm_muas=%s\n' % (survey_pars['pm_lon_red'],survey_pars['pm_muas']))
+ofile.write('#tol_r=%s, tol_v=%s, grid_step=%s\n' % (survey_pars['tol_r'],survey_pars['tol_v'],survey_pars['grid_step']))
+ofile.write('#--------------------------------------------------------------\n')
 ofile.write("#%9s %10s %10s %10s %10s %10s %10s\n" % ("phi","theta","np_mgc3gal","np_mgc3hel",'np_gc3gal',"np_ngc3gal",'farea'))
 scipy.savetxt(ofile,array([mygrid.l,mygrid.b,mygrid.np_mgc3,mygrid.mgc3hel,mygrid.np_gc3,mygrid.np_ngc3,mygrid_foot.farea]).T,fmt='%10.3f %10.3f %10d %10d %10d %10d %10.4f')
 print 'Done'
