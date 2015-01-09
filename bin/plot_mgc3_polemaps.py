@@ -29,9 +29,9 @@ if not args.llist:
  print 'Reading file: %s' % (args.infile)
  file_list=[args.infile[0],]
 else:
- print 'Reading input files from list file: ', file_list
- file_list=genfromtxt(args.infile[0],dtype='S')
- if ndim(file_list)==0: file_list=array([file_list,])
+ print 'Reading input files from list file: ', args.infile[0]
+ file_list=scipy.genfromtxt(args.infile[0],dtype='S')
+ if np.ndim(file_list)==0: file_list=array([file_list,])
 
 #Mode-------------------------------------------
 mode=args.m.lower()
