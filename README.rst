@@ -212,7 +212,9 @@ This program plots mGC3/nGC3/GC3 pole count maps in different projections.
 
 The required command line arguments are:
 
-*polecounts_file*: Pole count map file (\*.cts). It assumes the default output format from the mgc3.py program
+*polecounts_file*
+
+ Pole count map file (.cts). Assumes the default output format from the mgc3.py program
 
 The program has several optional keywords and flags to customize the output plot, for a full list
 and details run with the -h or --help flag::
