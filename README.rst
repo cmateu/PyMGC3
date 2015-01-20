@@ -238,7 +238,7 @@ and details run with the -h or --help flag::
       -m {mGC3,nGC3,GC3}    Plot mGC3/nGC3/GC3 pole count map. Default is mGC3
       -f {png,eps,pdf}, --fig {png,eps,pdf}
                             Output plot type png/eps. Default is png
-      -proj {npaeqd,ortho,mollweide}
+      -proj {npaeqd,ortho,moll}
                             Projection npaeqd/ortho/mollweide. Default is npaeqd
       -lon0 LON0            Longitude for Y-axis. Default is 0.
       -lat0 LAT0            Bounding latitude for plot. Default is 90.
@@ -256,11 +256,11 @@ Use the example data to produce a pole counts file with::
 
   mgc3.py example_data.par example_data.dat test02
 
-The following example plots the resulting map for the nGC3 pole counts, using the default projection, with meridians every 30 deg and paralles every 20deg, and saves the output figure in pdf format:: 
+The following example plots the resulting map for the nGC3 pole counts, using the Mollweide projection, with meridians every 30 deg and paralles every 20deg. The -t flag forces both hemispheres to be plotted in the map. The output is saved in pdf format:: 
 
-  plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m nGC3 -f pdf -dlat 30 -dlon 20
+  plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m nGC3 -dlat 30 -dlon 20 -proj moll -t -f pdf
  
-The output figure is called example_data.test02.mgc3.npa.r.pdf.  
+The output figure is called example_data.test02.mgc3.moll.r.pdf.  
 
 Selection the ortho projection produces a figure with the map as seen from lon0 and lon0+180deg to ensure the whole map is visible::
 

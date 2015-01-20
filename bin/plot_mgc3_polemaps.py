@@ -17,7 +17,7 @@ parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
-parser.add_argument('-ms',help='Marker size. Default: 90/40 for npaeqd/ortho.', action='store',default=-1.,type=np.float)
+parser.add_argument('-ms',help='Marker size. Default: 10/40 for npaeqd/ortho.', action='store',default=-1.,type=np.float)
 parser.add_argument('-c','--contour',help='Plot pole-count contour map instead of raw grid.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
@@ -93,7 +93,7 @@ for infilen in file_list:
     nrow,ncol=1,1
     opts=[(1,args.lon0),] 
     proj_dict={'boundinglat':args.lat0,'resolution':'l'}
-    if args.ms==-1: ms=90.
+    if args.ms==-1: ms=10.
     else: ms=args.ms
   else:
     #For ortho projection, plot map as viewed from lon=0 and lon0+180
