@@ -264,9 +264,17 @@ The output figure is called example_data.test02.mgc3.npa.r.pdf.
 
 Selection the ortho projection produces a figure with the map as seen from lon0 and lon0+180deg to ensure the whole map is visible::
 
-  plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m GC3 -f pdf -dlat 30 -dlon 20 -proj ortho -lon0 65
+  plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m GC3 -f pdf -dlat 30 -dlon 20 
+                         -proj ortho -lon0 65
 
-The output figure is called example_data.test02.mgc3.ortho.r.pdf.  
+The output figure is called example_data.test02.mgc3.ortho.r.pdf. 
+
+Pole count contour plots can be plotted with the -c option::
+
+  plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m nGC3 -f png -dlat 30 -dlon 20 -c
+
+The output figure is called example_data.test02.mgc3.npa.c.png. Note: the -c option is working 
+only in the npaeqd projection for now.
 
 Attribution
 -----------
