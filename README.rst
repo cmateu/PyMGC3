@@ -214,7 +214,9 @@ The required command line arguments are:
 
 *polecounts_file*
 
- Pole count map file (.cts). Assumes the default output format from the mgc3.py program
+Pole count map file (.cts). Assumes the default output format from the mgc3.py program
+
+*Optional arguments*
 
 The program has several optional keywords and flags to customize the output plot, for a full list
 and details run with the -h or --help flag::
@@ -258,9 +260,13 @@ The following example plots the resulting map for the nGC3 pole counts, using th
 
   plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m nGC3 -f pdf -dlat 30 -dlon 20
  
+The output figure is called example_data.test02.mgc3.npa.r.pdf.  
+
 Selection the ortho projection produces a figure with the map as seen from lon0 and lon0+180deg to ensure the whole map is visible::
 
   plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m GC3 -f pdf -dlat 30 -dlon 20 -proj ortho -lon0 65
+
+The output figure is called example_data.test02.mgc3.ortho.r.pdf.  
 
 Attribution
 -----------
