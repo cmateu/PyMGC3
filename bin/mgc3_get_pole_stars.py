@@ -74,7 +74,7 @@ head = myutils.get_header_line(filename)
 head[-1]=head[-1]+' IDpole' 
 
 print 'Reading pole list file %s ... ' % (polelistname)
-polelist=scipy.genfromtxt(polelistname,comments='#')
+polelist=scipy.genfromtxt(polelistname,comments='#',usecols=(0,1,2))
 if np.ndim(polelist)==1: polelist=np.array([polelist,])
 
 #Cicle over pole list, one by one
