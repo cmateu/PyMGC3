@@ -30,7 +30,7 @@ class xypix_converter:
     #Convert cartesian to spherical coords  phic,thetac=m(xc,yc,inverse=True)
     phic,thetac=self.basemap_trans(xc,yc,inverse=True)
     mask=phic<0.
-    phic=phic+360.
+    phic[mask]=phic[mask]+360.
 
     return (xc,yc,phic,thetac)
 
@@ -191,13 +191,14 @@ for infilen in file_list:
   xpix_c,ypix_c,dx_pix,dy_pix=clumpdat.field('Cen1'),clumpdat.field('Cen2'),clumpdat.field('Size1'),clumpdat.field('Size2')
   pid=np.arange(xpix.size) + 1  #Peak IDs, must start from 1
 
-  #Keep only peaks with counts > minheight
-  mask=cheight>=minheight
+  #Keep only peaks with counts > minheight and with sizes>=1 (clumps have to be at least 1 pixel in size)
+  mask=(cheight>=minheight) & (dx_pix>=1.) & (dy_pix>=1.)
   if not mask.any(): 
-    print 'No peaks above minheight found'
+    print 'No peaks above minheight or with size>=1pix found'
     continue
   xpix,ypix,cheight=xpix[mask],ypix[mask],cheight[mask]
   xpix_c,ypix_c,dx_pix,dy_pix,pid=xpix_c[mask],ypix_c[mask],dx_pix[mask],dy_pix[mask],pid[mask]
+  newid=np.arange(xpix.size) + 1  #Rename so IDs will be consecutive numbers starting from 1
 
   #print pars on screen
   print '#----------------------------------------------------------------'
@@ -209,7 +210,7 @@ for infilen in file_list:
     print '#         MinHeight=%d (=%.2f*max_cts)' % (minheight,args.ffrac)
   print '#----------------------------------------------------------------'
   print '# NC=%d clumps saved ' % (xpix.size)
-  for kk in range(pid.size): print '# Clump N=%d, Ncts=%d' % (pid[kk],cheight[kk])
+  for kk in range(pid.size): print '# Clump oldID=%3d, newID=%3d, Ncts=%d' % (pid[kk],newid[kk],cheight[kk])
   print '#----------------------------------------------------------------'
 
   #Open output file to store clump coords
@@ -239,7 +240,7 @@ for infilen in file_list:
 
   #Print out
   fmt='%4d '+6*'%8.3f '+'%10.0f '
-  scipy.savetxt(clumpfile,np.array([pid,phipeak,thetapeak,phipeakc,thetapeakc,dphi,dtheta,cheight]).T,fmt=fmt)
+  scipy.savetxt(clumpfile,np.array([newid,phipeak,thetapeak,phipeakc,thetapeakc,dphi,dtheta,cheight]).T,fmt=fmt)
 
   #Plot detected clump peaks
   m.scatter(xpeak,ypeak,c='none',edgecolor='k',s=20,zorder=99)
@@ -261,28 +262,20 @@ for infilen in file_list:
     pcts_1d=zi.flatten()
     cmask_1d=cmask_dat.flatten()
 
-    #Save only pixels inside the FWHM of the peak and with counts>minheight
-    mmask=np.zeros(cmask_1d.size,dtype=bool)
-    for kk in range(pid.size):
-      #Combine mask
-      mmask=mmask | ( (cmask_1d==pid[kk]) & (pcts_1d>=0.5*cheight[kk]))
-
-    #Keep only data inside FWHM
-    xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds[mmask],yinds[mmask])
-    cmask_1d=cmask_1d[mmask]
+    xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds,yinds)
  
-    #Plot identified clumps on top of pole count map
-    if pid.size<=11: cmapp=['red','mediumblue','orange','forestgreen','darkorchid','teal','royalblue','mediumvioletred','maroon','turquoise','salmon']
-    else: 
-      cmapp=plt.cm.gist_ncar(np.linspace(0, 1, pid.size))
-    for kk in range(pid.size):
-      pmask=(cmask_1d==pid[kk])
-      m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
+    #Plot identified clumps on top of pole count map and print out
+    cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
 
-    #Print  pixel data to output pole list file
-    head='%s %10s %10s' % ('IDpole','phi_pole','theta_pole')
-    sorted_mask=cmask_1d.argsort()
-    scipy.savetxt(clumppixfname,np.array([cmask_1d[sorted_mask],phicmask[sorted_mask],thetacmask[sorted_mask]]).T,fmt='%8d %10.4f %10.4f',header=head)
+    file_clumppixfname=open(clumppixfname,'w')
+    file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
+    for kk in np.arange(pid.size):
+      #Save only pixels inside the FWHM of the peak and with counts>minheight
+      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=0.5*cheight[kk])
+      #plot current peak only
+      m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
+      newid_cmask=newid[kk]*np.ones_like(cmask_1d[pmask])
+      scipy.savetxt(file_clumppixfname,np.array([newid_cmask,phicmask[pmask],thetacmask[pmask]]).T,fmt='%7d %10.4f %10.4f')
 
     cfigname='%s.%s.%s.%s.pls.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
     fig.savefig(cfigname)
