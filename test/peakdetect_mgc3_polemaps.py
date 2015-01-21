@@ -193,7 +193,9 @@ for infilen in file_list:
 
   #Keep only peaks with counts > minheight
   mask=cheight>=minheight
-  if not mask.any(): continue
+  if not mask.any(): 
+    print 'No peaks above minheight found'
+    continue
   xpix,ypix,cheight=xpix[mask],ypix[mask],cheight[mask]
   xpix_c,ypix_c,dx_pix,dy_pix,pid=xpix_c[mask],ypix_c[mask],dx_pix[mask],dy_pix[mask],pid[mask]
 
@@ -270,10 +272,11 @@ for infilen in file_list:
     cmask_1d=cmask_1d[mmask]
  
     #Plot identified clumps on top of pole count map
-    color_cycle=['red','mediumblue','orange','forestgreen','darkorchid','cyan','dodgerblue','teal','magenta','deeppink','maroon']
+    if pid.size<=11: cmapp=['red','mediumblue','orange','forestgreen','darkorchid','teal','royalblue','mediumvioletred','maroon','turquoise','salmon']
+    else: cmapp=plt.cm.spectral(np.linspace(0, 1, pid.size))
     for kk in range(pid.size):
       pmask=(cmask_1d==pid[kk])
-      m.plot(xcmask[pmask],ycmask[pmask],color=color_cycle[kk],mec='None',ms=5,marker='o',alpha=0.3)
+      m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
 
     #Print  pixel data to output pole list file
     head='%s %10s %10s' % ('IDpole','phi_pole','theta_pole')
