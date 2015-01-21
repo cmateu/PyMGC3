@@ -273,7 +273,8 @@ for infilen in file_list:
  
     #Plot identified clumps on top of pole count map
     if pid.size<=11: cmapp=['red','mediumblue','orange','forestgreen','darkorchid','teal','royalblue','mediumvioletred','maroon','turquoise','salmon']
-    else: cmapp=plt.cm.spectral(np.linspace(0, 1, pid.size))
+    else: 
+      cmapp=plt.cm.gist_ncar(np.linspace(0, 1, pid.size))
     for kk in range(pid.size):
       pmask=(cmask_1d==pid[kk])
       m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
