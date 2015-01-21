@@ -48,7 +48,7 @@ parser.add_argument('-ms',help='Marker size. Default: 10 for npaeqd.', action='s
 parser.add_argument('-c','--contour',help='Plot pole-count contour map instead of raw grid.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
-parser.add_argument('-sc','--showclumps',help='Plot and save poles associated to each peak.', action='store_true',default=False)
+parser.add_argument('-sc','--saveclumps',help='Plot and save poles associated to each peak.', action='store_true',default=False)
 peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
 peakargs.add_argument('-ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
@@ -246,7 +246,7 @@ for infilen in file_list:
   fig.savefig(figname)
 
   #If flag is set, plot new figure indicating pixels associated to each clump
-  if args.showclumps:
+  if args.saveclumps:
     #Convert clump pixel mask to fits
     print 'Converting pixel map from NDF to fits'
     os.system('%s/convert/ndf2fits _zp_cmask _zp_cmask.fits' % (starlink_path)) 
@@ -280,7 +280,7 @@ for infilen in file_list:
     sorted_mask=cmask_1d.argsort()
     scipy.savetxt(clumppixfname,np.array([cmask_1d[sorted_mask],phicmask[sorted_mask],thetacmask[sorted_mask]]).T,fmt='%8d %10.4f %10.4f',header=head)
 
-    cfigname='%s.pls.%s' % (figname_root,args.fig)
+    cfigname='%s.%s.%s.%s.pls.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
     fig.savefig(cfigname)
 
     #Remove auxiliary files
@@ -288,6 +288,3 @@ for infilen in file_list:
 
   if args.show: plt.show()
   else: fig.clf()
-
-
-
