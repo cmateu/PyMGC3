@@ -29,7 +29,7 @@ nGC3 uses positional and proper motion data.
 - Executable programs
    * mgc3.py
    * mgc3_get_pole_stars.py
-   * plot_mgc3_polemaps.py
+   * mgc3_plot_polemaps.py
 - Documentation
    * README.rst
 - Libraries
@@ -81,7 +81,7 @@ to the maxima in the pole count map::
    
 Plot the mGC3 pole count map in a north-polar-azimuthal equidistant projection::
 
-    plot_mgc3_polemaps.py example_data.mgc3.cts
+    mgc3_plot_polemaps.py example_data.mgc3.cts
 
 
 Program mgc3.py
@@ -149,10 +149,9 @@ given by grid_step. It also contains mgc3 heliocentric (np_mgc3hel) pole counts,
 are useful for experimentation sometimes. Note the pole grid covers one hemisphere, 
 as the information from the other hemisphere is redundant.
 
-Note: a program for plotting and detecting maxima in pole count maps will be provided
-with the mgc3 bundle in an upcoming version. In the mean time you can quickly
-plot using Topcat (`<http://www.star.bris.ac.uk/~mbt/topcat/>`_), it is recommended to
-use an Aitoff or Sin projection.
+Note: a program for plotting maxima in pole count maps (mgc3_plot_polemaps.py)
+is provided with the PyMGC3 bundle. You can also quickly plot using Topcat 
+(`<http://www.star.bris.ac.uk/~mbt/topcat/>`_), Aitoff or Sin projections are recommended.
 
 **EXAMPLE:**
 
@@ -201,7 +200,7 @@ Use the pole count map and pole list examples as the input for this program::
 The output file will be example_data.my_test.mgc3.dat. Try running with the -m nGC3 and -m GC3 flags
 to get \*.ngc3.dat and \*.gc3.dat outputs.
 
-Program plot_mgc3_polemaps.py
+Program mgc3_plot_polemaps.py
 -----------------------------
 
 **DESCRIPTION:**
@@ -221,9 +220,9 @@ Pole count map file (.cts). Assumes the default output format from the mgc3.py p
 The program has several optional keywords and flags to customize the output plot, for a full list
 and details run with the -h or --help flag::
 
-    plot_mgc3_polemaps.py -h
+    mgc3_plot_polemaps.py -h
 
-    usage: plot_mgc3_polemaps.py [-h] [-l] [-m {mGC3,nGC3,GC3}] [-f {png,eps,pdf}]
+    usage: mgc3_plot_polemaps.py [-h] [-l] [-m {mGC3,nGC3,GC3}] [-f {png,eps,pdf}]
                                  [-proj {npaeqd,ortho,mollweide}] [-lon0 LON0]
                                  [-lat0 LAT0] [-dlat DLAT] [-dlon DLON] [-ms MS]
                                  [-c] [-t] [-s]
@@ -258,20 +257,20 @@ Use the example data to produce a pole counts file with::
 
 The following example plots the resulting map for the nGC3 pole counts, using the Mollweide projection, with meridians every 30 deg and paralles every 20deg. The -t flag forces both hemispheres to be plotted in the map. The output is saved in pdf format:: 
 
-  plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m nGC3 -dlat 30 -dlon 20 -proj moll -t -f pdf
+  mgc3_plot_polemaps.py example_data.test02.mgc3.cts -m nGC3 -dlat 30 -dlon 20 -proj moll -t -f pdf
  
 The output figure is called example_data.test02.mgc3.moll.r.pdf.  
 
 Selection the ortho projection produces a figure with the map as seen from lon0 and lon0+180deg to ensure the whole map is visible::
 
-  plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m GC3 -f pdf -dlat 30 -dlon 20 
+  mgc3_plot_polemaps.py example_data.test02.mgc3.cts -m GC3 -f pdf -dlat 30 -dlon 20 
                          -proj ortho -lon0 65
 
 The output figure is called example_data.test02.mgc3.ortho.r.pdf. 
 
 Pole count contour plots can be plotted with the -c option::
 
-  plot_mgc3_polemaps.py example_data.test02.mgc3.cts -m nGC3 -f png -dlat 30 -dlon 20 -c
+  mgc3_plot_polemaps.py example_data.test02.mgc3.cts -m nGC3 -f png -dlat 30 -dlon 20 -c
 
 The output figure is called example_data.test02.mgc3.npa.c.png. Note: the -c option is working 
 only in the npaeqd projection for now.
