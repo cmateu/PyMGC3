@@ -23,6 +23,10 @@ nGC3 uses positional and proper motion data.
 - This programs makes use of the coordinate transformation library
   bovy_coords.py from the `galpy <https://github.com/jobovy/galpy>`__ 
   package by Jo Bovy (2015, in prep.). It is supplied with this bundle.
+- The peak detection utility peakdetect_mgc3_polemaps.py uses the
+  Starlink implementation of the Fellwalker code by `Berry 2014 <http://arxiv.org/abs/1411.6267v1>`__,
+  assuming it is installed at /star-2014A. The coded is *not* provided
+  with this bundle, but is publicly available at the `Starlink website <http://starlink.jach.hawaii.edu>`__.
 
 **FILES PROVIDED**
 
@@ -30,6 +34,7 @@ nGC3 uses positional and proper motion data.
    * mgc3.py
    * mgc3_get_pole_stars.py
    * mgc3_plot_polemaps.py
+   * peakdetect_mgc3_polemaps.py
 - Documentation
    * README.rst
 - Libraries
@@ -48,11 +53,13 @@ In a terminal run the following command::
 
     sudo python setup.py install
 
+Source your .cshrc.
+
 If you do not have root access, install in a custom directory using the --prefix option::
 
     python setup.py install --prefix=path_to_dir
 
-After installing, add path_to_dir/PyMGC3/bin to your PATH in your .csrhc or .bashrc file.
+In this case, add path_to_dir/PyMGC3/bin to your PATH in your .csrhc or .bashrc file.
 Also add path_to_dir/PyMGC3/bin and path_to_dir/PyMGC3/ to PYTHONPATH also in your .cshrc/.bashrc file.
 
 Quick Guide
@@ -274,6 +281,41 @@ Pole count contour plots can be plotted with the -c option::
 
 The output figure is called example_data.test02.mgc3.npa.c.png. Note: the -c option is working 
 only in the npaeqd projection for now.
+
+
+Program peakdetect_mgc3_polemaps.py
+-----------------------------------
+
+**DESCRIPTION:**
+
+This program detects peaks in pole-count maps. It can also plot the pole count map
+indicating the peaks found.
+
+**SYNTAX:**
+
+The only required argument is the pole-count file. Run with -sc to save and show
+the detected peaks in a plot of the pole count map:: 
+
+  peakdetect_mgc3_polemaps.py example_data.test02.mgc3.cts
+
+Run with -h for a full list of options::
+
+
+  peakdetect_mgc3_polemaps.py -h
+
+Most plotting options available are the same as for mgc3_plot_polemaps.py. Two 
+ways are available to select the minimum peak height threshold value::
+
+  peakdetect_mgc3_polemaps.py example_data.test02.mgc3.cts -frms 5
+
+The option -frms 5 means the peaks must have a height >5*RMS, where RMS is
+the root mean squared deviation of the pole counts. This threshold can
+also be defined as a fraction of the maximum counts in the map with 
+the -ffrac option:: 
+
+  peakdetect_mgc3_polemaps.py example_data.test02.mgc3.cts -ffrac 0.6
+
+In this case, peaks must be at least 0.6*max_counts to be saved. 
 
 Attribution
 -----------
