@@ -261,7 +261,7 @@ class pole_grid(my_constants):
     P : object of pole-grid class
 '''
 
-  def __init__(self,poles=2.,cst=None,pole_grid_dic=None):
+  def __init__(self,poles=2.,cst=None,pole_grid_dic=None,verbose=True):
 
    #Inherit my_constance object attributes 
    if cst:
@@ -284,18 +284,18 @@ class pole_grid(my_constants):
         bo,bf=pole_grid_dic['grid_lat_o'],pole_grid_dic['grid_lat_f']
      else: lo,lf,bo,bf=0.,360.,0.,90.
      gstep=poles
-     print 'Building grid with gstep=%.2f, (%.2f<lon<%.2f,%.2f<lat<%.2f)' % (gstep,lo,lf,bo,bf)
+     if verbose: print 'Building grid with gstep=%.2f, (%.2f<lon<%.2f,%.2f<lat<%.2f)' % (gstep,lo,lf,bo,bf)
      for b in np.arange(bo,bf,gstep):
        lstep=gstep/np.cos(b*d2r)
        for l in np.arange(lo,lf,lstep):
          self.ini_pole_count_single(l,b)       
    elif np.ndim(poles)==1:
       ls,bs=poles
-      print 'Using single pole:', ls,bs
+      if verbose: print 'Using single pole:', ls,bs
       self.ini_pole_count_single(ls,bs)
    elif np.ndim(poles)==2:
       ls,bs=poles
-      print 'Building grid with arbitrary poles:', ls,bs
+      if verbose: print 'Building grid with arbitrary poles:', ls,bs
       for l,b in ls,bs:
          self.ini_pole_count_single(l,b)
    else:
@@ -333,17 +333,17 @@ class pole_grid(my_constants):
    fgc=np.sin(tolr)  #The fractional area of the sphere covered by any great circle is 4pi*sin(tolr)/4pi
    self.farea=self.farea/(fgc*obsdata[:,0].size)
 
-  def mgc3_allobs_one_pole(self, obsdata, pars=None, return_mask=False):
+  def mgc3_allobs_one_pole(self, obsdata, pars=None, return_mask=False, verbose=True):
 
    #This function call will act on the full observations object
    #NOTE: obsdata needs to be transposed so obsdata[col_n] will pick out the n-th column
    #rather than the n-row (which would be default behaviour, since for map-compatibility,
    #we're not using obs[:,col_n] but rather obs[col_n])
-   pole_mask=self.mgc3_single_obs(obsdata.T,pars=pars,return_mask=return_mask)
+   pole_mask=self.mgc3_single_obs(obsdata.T,pars=pars,return_mask=return_mask,verbose=verbose)
 
    return pole_mask
 
-  def mgc3_single_obs(self, obs, pars=None, return_mask=False):
+  def mgc3_single_obs(self, obs, pars=None, return_mask=False, verbose=True):
   
     '''This method does mGC3 pole-counts (Mateu et al. 2011) in a given pole-grid, for the given observational data
   
@@ -477,13 +477,13 @@ class pole_grid(my_constants):
 
     if return_mask:
       if 'mGC3' in return_mask: 
-        print '   Selecting stars fulfilling mGC3 criteria'
+        if verbose: print '   Selecting stars fulfilling mGC3 criteria'
         return mask_gal
       elif 'nGC3' in return_mask: 
-        print '   Selecting stars fulfilling nGC3 criteria'
+        if verbose: print '   Selecting stars fulfilling nGC3 criteria'
         return mask_muposgal
       else: 
-        print '   Selecting stars fulfilling GC3 criteria'
+        if verbose: print '   Selecting stars fulfilling GC3 criteria'
         return mask_posgal
 
   def get_phi_theta_for_survey(self,obs,pars=None):

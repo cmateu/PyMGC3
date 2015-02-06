@@ -8,11 +8,16 @@ import argparse
 import scipy.ndimage
 
 parser = argparse.ArgumentParser()
-parser.add_argument('infile',metavar='infile',help='Input ascii file to be converted to fits and compressed with fpack',nargs=1,action='store')
+parser.add_argument('infile',metavar='infile',help='Input file containing pole count maps (*.cts file)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
 parser.add_argument('-m',help='Plot mGC3/nGC3/GC3 pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3'])
-parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps'])
+parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-proj',help='Projection npaeqd/ortho/mollweide. Default is npaeqd', action='store',default='npaeqd',choices=['npaeqd','ortho','mollweide'])
+parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
+parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
+parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
+parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
+parser.add_argument('-ms',help='Marker size. Default: 90/40 for npaeqd/ortho.', action='store',default=-1.,type=np.float)
 parser.add_argument('-c','--contour',help='Plot pole-count contour map instead of raw grid.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
@@ -25,9 +30,9 @@ if not args.llist:
  print 'Reading file: %s' % (args.infile)
  file_list=[args.infile[0],]
 else:
- print 'Reading input files from list file: ', file_list
- file_list=genfromtxt(args.infile[0],dtype='S')
- if ndim(file_list)==0: file_list=array([file_list,])
+ print 'Reading input files from list file: ', args.infile[0]
+ file_list=scipy.genfromtxt(args.infile[0],dtype='S')
+ if np.ndim(file_list)==0: file_list=array([file_list,])
 
 #Mode-------------------------------------------
 mode=args.m.lower()
@@ -56,6 +61,7 @@ ori='horizontal'
 ni=0
 
 colormap=plt.cm.jet
+#colormap=plt.cm.spectral
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
@@ -77,41 +83,55 @@ for infilen in file_list:
   #----------------Pole count map------------------------------
   nx,ny=1,1
 
-  mer_grid=[0.,360.,20.]
-  par_grid=[-90.,+90.,30.]
- 
+  mer_grid=[0.,360.,args.dlon]
+  par_grid=[-90.,+90.,args.dlat]
+
   if 'npa' in args.proj or 'moll' in args.proj:
+    #For npa and moll projections, plot map as viewed from lon0 only
     fig=plt.figure(1,figsize=(8,8))
-    ax=fig.add_subplot(nx,ny,1)
-    m = Basemap(projection=args.proj,boundinglat=0.,lon_0=0,resolution='l',ax=ax)
-    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]))
-    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]))
-    x,y=m(phi,theta)
+    fig.subplots_adjust(left=0.05,right=0.95,top=0.92,bottom=0.05)
+    nrow,ncol=1,1
+    opts=[(1,args.lon0),] 
+    proj_dict={'boundinglat':args.lat0,'resolution':'l'}
+    if args.ms==-1: ms=90.
+    else: ms=args.ms
+  else:
+    #For ortho projection, plot map as viewed from lon=0 and lon0+180
+    fig=plt.figure(1,figsize=(12,6))
+    nrow,ncol=1,2
+    opts=[(1,args.lon0),(2,args.lon0+180.)] 
+    proj_dict={'boundinglat':args.lat0,'resolution':'l','lat_0':50.,'area_thresh':1000.}
+    if args.ms==-1: ms=40.
+    else: ms=args.ms
+
+  for ii,l0 in opts:
+    ax=fig.add_subplot(nrow,ncol,ii)
+    m = Basemap(projection=args.proj,lon_0=l0,ax=ax,**proj_dict)
+    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='gray')
+    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='gray')
+    m.drawmapboundary()
+
     if 'r' in pmode: 
-       ms=90.
+       x,y=m(phi,theta)
        c=m.scatter(x,y,c=pole_cts,edgecolor='none',s=ms,cmap=colormap)
     else:
        npix=250
        clevels=30
+       x,y=m(phi,theta)
        xi = np.linspace(np.min(x),np.max(x),npix)
        yi = np.linspace(np.min(y),np.max(y),npix)
        zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
        m.contourf(xi,yi,zi,clevels,cmap=colormap)
+
+       #print fits image
+       import pyfits
+       hdu = pyfits.PrimaryHDU()
+       zi.data[zi is np.nan]=-1
+       hdu.data=zi.data
+       hdu.writeto('zprueba.fits', clobber=True)
+
     #Labels and such
     ax.set_title('%s pole-counts' % (mode_ori))
-  else:  
-    fig=plt.figure(1,figsize=(14,8))
-    for ii,l0 in [(1,0.),(2,180.)]:
-      ax=fig.add_subplot(1,2,ii)
-      m = Basemap(projection=args.proj,lat_0=50,lon_0=l0,resolution='l',ax=ax,area_thresh = 1000.)
-      m.drawmeridians(np.arange(0, 360, 20))
-      m.drawparallels(np.arange(-90, 90, 20))
-      m.drawmapboundary()
-      x,y=m(phi,theta)
-      ms=50
-      c=m.scatter(x,y,c=pole_cts,edgecolor='none',s=ms,cmap=colormap)
-      #Labels and such
-      ax.set_title('%s pole-counts' % (mode_ori))
 
 
   fig.savefig(figname)

@@ -25,7 +25,7 @@ nGC3 uses positional and proper motion data.
   package by Jo Bovy (2015, in prep.). It is supplied with this bundle.
 - The peak detection utility peakdetect_mgc3_polemaps.py uses the
   Starlink implementation of the Fellwalker code by `Berry 2014 <http://arxiv.org/abs/1411.6267v1>`__,
-  assuming it is installed at /star-2014A. The coded is *not* provided
+  assuming it is installed at /star-2014A. The coded is *not* supplied
   with this bundle, but is publicly available at the `Starlink website <http://starlink.jach.hawaii.edu>`__.
 
 **FILES PROVIDED**
@@ -220,7 +220,8 @@ The required command line arguments are:
 
 *polecounts_file*
 
-Pole count map file (.cts). Assumes the default output format from the mgc3.py program
+Pole count map file (.cts). Assumes the default output format from the mgc3.py program.
+If the -l flag is set, this is assumed to be a list of pole count map files
 
 *Optional arguments*
 
@@ -293,10 +294,10 @@ indicating the peaks found.
 
 **SYNTAX:**
 
-The only required argument is the pole-count file. Run with -sc to save and show
-the detected peaks in a plot of the pole count map:: 
+The only required argument is the pole-count file (or list when using the -l option). 
+Run with -sc to save and show the detected peaks in a plot of the pole count map:: 
 
-  peakdetect_mgc3_polemaps.py example_data.test02.mgc3.cts
+  peakdetect_mgc3_polemaps.py example_data.test02.mgc3.cts -sc 
 
 Run with -h for a full list of options::
 
