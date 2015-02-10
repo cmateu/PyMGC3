@@ -59,6 +59,7 @@ peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
 peakargs.add_argument('-ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient', action='store',default=20,type=np.float)
+parser.add_argument('-fw','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5 (=FWHM)', action='store',default=0.5,type=np.float)
 
 
 #---------Parse----------------------------
@@ -240,6 +241,7 @@ for infilen in file_list:
   clumpfile.write('#----------------------------------------------------------------------\n')
   clumpfile.write('# Peak-detection algorithm: Starlink Fellwalker (Berry+2014)\n')
   clumpfile.write('# Params: RMS=%.1f (=sqrt(mean(cts))\n' % (rms))
+  clumpfile.write('#         FellWalker.MaxJump=%.0f\n' % (args.maxjump))
   if args.frms is not None: 
     clumpfile.write('#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms))
   else: 
@@ -292,7 +294,7 @@ for infilen in file_list:
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
     for kk in np.arange(pid.size):
       #Save only pixels inside the FWHM of the peak and with counts>minheight
-      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=0.5*cheight[kk])
+      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=args.fwxm*cheight[kk])
       #plot current peak only
       m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
       newid_cmask=newid[kk]*np.ones_like(cmask_1d[pmask])
