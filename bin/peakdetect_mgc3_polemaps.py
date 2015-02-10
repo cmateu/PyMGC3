@@ -109,6 +109,7 @@ for infilen in file_list:
   if args.log: 
      print 'Storing log-counts...'
      pole_ctso=np.log10(pole_ctso)
+     pmode=pmode+'l'
   figname_root=infilen.replace('.mgc3.cts','')
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
   clumpfname='%s.%s.pls.peak.dat' % (figname_root,mode)
@@ -169,6 +170,7 @@ for infilen in file_list:
   
   #Labels and such
   if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
+  else: factorl=''
   cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
   cax.xaxis.set_label_position('top') 
 
