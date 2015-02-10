@@ -107,8 +107,8 @@ for infilen in file_list:
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
   #If log-flag is set, do everything with log(counts)
   if args.log: 
-     print 'Storing log-counts...'
-     pole_ctso=np.log10(pole_ctso)
+     print 'Do peak detection on linear scale but show plot on log scale'
+     #pole_ctso=np.log10(pole_ctso)
      pmode=pmode+'l'
   figname_root=infilen.replace('.mgc3.cts','')
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
@@ -159,8 +159,12 @@ for infilen in file_list:
   zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
 
   lmax=np.floor(np.log10(np.max(pole_cts)))
-  if 'r' in pmode: c=m.scatter(x,y,c=pole_cts/10**lmax,edgecolor='none',s=ms,cmap=colormap)
-  else: c=m.contourf(xi,yi,zi/10**lmax,clevels,cmap=colormap)
+  if 'r' in pmode: 
+     if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap)
+     else:        c=m.scatter(x,y,c=pole_cts/10**lmax,edgecolor='none',s=ms,cmap=colormap)
+  else: 
+   if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap)
+   else:        c=m.contourf(xi,yi,zi/10**lmax,clevels,cmap=colormap)
 
   #Plot colorbar
   cax0=plt.gca()
@@ -171,7 +175,10 @@ for infilen in file_list:
   #Labels and such
   if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
   else: factorl=''
-  cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
+  if args.log:
+     cax.set_xlabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
+  else:
+     cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
   cax.xaxis.set_label_position('top') 
 
   #print fits image
@@ -284,7 +291,7 @@ for infilen in file_list:
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
     for kk in np.arange(pid.size):
       #Save only pixels inside the FWHM of the peak and with counts>minheight
-      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=0.8*cheight[kk])
+      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=0.5*cheight[kk])
       #plot current peak only
       m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
       newid_cmask=newid[kk]*np.ones_like(cmask_1d[pmask])
