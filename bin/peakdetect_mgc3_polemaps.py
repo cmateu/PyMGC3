@@ -36,7 +36,7 @@ class xypix_converter:
 
 #----------------------------------------------
 
-__version__ = '1.0'
+__version__ = '2.0'
 __docformat__ = "reredtext en"
 __what__= sys.argv[0]+": This program detects peaks in pole count maps using the Fellwalker algorithm (starlink implementation)"
 #
@@ -45,6 +45,7 @@ parser.add_argument('infile',metavar='infile',help='Input file containing pole c
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
 parser.add_argument('-m',help='Plot mGC3/nGC3/GC3 pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
+parser.add_argument('-log',help='Detect peaks in log-count map', action='store_true',default=False)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
@@ -104,6 +105,10 @@ colormap=plt.cm.jet
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
+  #If log-flag is set, do everything with log(counts)
+  if args.log: 
+     print 'Storing log-counts...'
+     pole_ctso=np.log10(pole_ctso)
   figname_root=infilen.replace('.mgc3.cts','')
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
   clumpfname='%s.%s.pls.peak.dat' % (figname_root,mode)
@@ -277,7 +282,7 @@ for infilen in file_list:
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
     for kk in np.arange(pid.size):
       #Save only pixels inside the FWHM of the peak and with counts>minheight
-      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=0.5*cheight[kk])
+      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=0.8*cheight[kk])
       #plot current peak only
       m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
       newid_cmask=newid[kk]*np.ones_like(cmask_1d[pmask])
