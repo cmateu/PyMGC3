@@ -58,6 +58,7 @@ parser.add_argument('-sc','--saveclumps',help='Plot and save poles associated to
 peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
 peakargs.add_argument('-ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
+parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient', action='store',default=20,type=np.float)
 
 
 #---------Parse----------------------------
@@ -202,8 +203,8 @@ for infilen in file_list:
   else: 
     minheight=args.ffrac*np.max(zi)
   print 'Finding clumps with Fellwalker'
-  os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f' 
-            % (starlink_path,rms)) 
+  #os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f' 
+  os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" ' % (starlink_path,rms,args.maxjump)) 
 
   #Read-in output table with identified clumps
   clumpdat=pyfits.open('_zp_clumps.FIT')[1].data                    
