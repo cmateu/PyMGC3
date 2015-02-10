@@ -97,7 +97,10 @@ for infilen in file_list:
   if 'npa' in args.proj or 'moll' in args.proj:
     #For npa and moll projections, plot map as viewed from lon0 only
     fig=plt.figure(1,figsize=(8,8))
-    fig.subplots_adjust(left=0.05,right=0.95,top=0.92,bottom=0.05)
+    dw=0.8
+    wo=(1.-dw)/2.
+    wyo=0.75*wo
+    fig.subplots_adjust(left=wo,right=dw+wo,top=dw+wo,bottom=wyo)
     nrow,ncol=1,1
     opts=[(1,args.lon0),] 
     proj_dict={'boundinglat':args.lat0,'resolution':'l'}
@@ -109,7 +112,7 @@ for infilen in file_list:
     nrow,ncol=1,2
     opts=[(1,args.lon0),(2,args.lon0+180.)] 
     proj_dict={'boundinglat':args.lat0,'resolution':'l','lat_0':50.,'area_thresh':1000.}
-    if args.ms==-1: ms=40.
+    if args.ms==-1: ms=50.
     else: ms=args.ms
 
   for ii,l0 in opts:
@@ -119,22 +122,37 @@ for infilen in file_list:
     m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='gray')
     m.drawmapboundary()
 
+    x,y=m(phi,theta)
+
+    lmax=np.floor(np.log10(np.max(pole_cts)))
     if 'r' in pmode: 
-       x,y=m(phi,theta)
        if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap)
-       else: c=m.scatter(x,y,c=pole_cts,edgecolor='none',s=ms,cmap=colormap)
+       else:        c=m.scatter(x,y,c=pole_cts/10**lmax,edgecolor='none',s=ms,cmap=colormap)
     else:
-       npix=250
+       npix=300
        clevels=30
-       x,y=m(phi,theta)
        xi = np.linspace(np.min(x),np.max(x),npix)
        yi = np.linspace(np.min(y),np.max(y),npix)
        zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
-       if args.log: m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap)
-       else:        m.contourf(xi,yi,zi,clevels,cmap=colormap)
+       if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap)
+       else:        c=m.contourf(xi,yi,zi/10**lmax,clevels,cmap=colormap)
     #Labels and such
-    ax.set_title('%s pole-counts' % (mode_ori))
+    if 'npa' not in args.proj: ax.set_title('%s pole-counts' % (mode_ori))
 
+  #Plot colorbar
+  if 'npa' in args.proj:
+   cax0=plt.gca()
+   cax=plt.axes([wo,1.2*wyo+dw,dw,0.02])
+   cb=plt.colorbar(c,cax=cax,orientation='horizontal',format='%4.1f',label='prueba')
+   cax.xaxis.set_ticks_position('top')
+   #Labels and such
+   if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
+   else: factorl=''
+   if args.log:
+      cax.set_xlabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
+   else:
+      cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
+   cax.xaxis.set_label_position('top')
 
   fig.savefig(figname)
   if args.show: plt.show()
