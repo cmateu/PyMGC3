@@ -56,10 +56,10 @@ parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-sc','--saveclumps',help='Plot and save poles associated to each peak.', action='store_true',default=False)
 peakargs = parser.add_mutually_exclusive_group()
-peakargs.add_argument('-frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
-peakargs.add_argument('-ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
+peakargs.add_argument('-fr','--frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
+peakargs.add_argument('-ff','--ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient', action='store',default=20,type=np.float)
-parser.add_argument('-fw','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5 (=FWHM)', action='store',default=0.5,type=np.float)
+parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5 (=FWHM)', action='store',default=0.5,type=np.float)
 
 
 #---------Parse----------------------------
@@ -224,12 +224,14 @@ for infilen in file_list:
 
   #print pars on screen
   print '#----------------------------------------------------------------'
-  print '# Peak-detection algorithm: Starlink Fellwalker (Berry+2014)'
+  print '# Peak-detection algorithm: Starlink Fellwalker (Berry 2014)'
   print '# Params: RMS=%.1f (=sqrt(mean(cts))' % (rms)
+  print '#         FellWalker.MaxJump=%.0f'
   if args.frms is not None:
     print '#         MinHeight=%d (=%.1f*RMS)' % (minheight,args.frms)
   else:
     print '#         MinHeight=%d (=%.2f*max_cts)' % (minheight,args.ffrac)
+  print '#         FWXM=%.2f (stored pixels associated to each clump)' % (args.fwxm)
   print '#----------------------------------------------------------------'
   print '# NC=%d clumps saved ' % (xpix.size)
   for kk in range(pid.size): print '# Clump oldID=%3d, newID=%3d, Ncts=%d' % (pid[kk],newid[kk],cheight[kk])
@@ -239,13 +241,14 @@ for infilen in file_list:
   clumpfile=open(clumpfname,'w')
   #Print some param data and file header
   clumpfile.write('#----------------------------------------------------------------------\n')
-  clumpfile.write('# Peak-detection algorithm: Starlink Fellwalker (Berry+2014)\n')
+  clumpfile.write('# Peak-detection algorithm: Starlink Fellwalker (Berry 2014)\n')
   clumpfile.write('# Params: RMS=%.1f (=sqrt(mean(cts))\n' % (rms))
   clumpfile.write('#         FellWalker.MaxJump=%.0f\n' % (args.maxjump))
   if args.frms is not None: 
     clumpfile.write('#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms))
   else: 
     clumpfile.write('#         MinHeight=%d (=%.2f*max_cts)\n' % (minheight,args.ffrac))
+  clumpfile.write('#         FWXM=%.2f (stored pixels associated to each clump)\n' % (args.fwxm))
   clumpfile.write('#----------------------------------------------------------------------\n')
   hfmt='#%3s '+6*'%8s '+'%10s '+'\n'
   clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_cts'))
