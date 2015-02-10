@@ -7,12 +7,17 @@ import sys
 import argparse
 import scipy.ndimage
 
-parser = argparse.ArgumentParser()
+__version__ = '1.1'
+__docformat__ = "reredtext en"
+__what__= sys.argv[0]+": This program detects peaks in pole count maps using the Fellwalker algorithm (starlink implementation)"
+#
+parser = argparse.ArgumentParser(description='Plot mGC3/nGC3/GC3 pole count maps')
 parser.add_argument('infile',metavar='infile',help='Input file containing pole count maps (*.cts file)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
 parser.add_argument('-m',help='Plot mGC3/nGC3/GC3 pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-proj',help='Projection npaeqd/ortho/mollweide. Default is npaeqd', action='store',default='npaeqd',choices=['npaeqd','ortho','moll'])
+parser.add_argument('-log',help='Plot pole-count map in log-scale', action='store_true',default=False)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
@@ -49,6 +54,9 @@ if args.contour:
 else: 
   pmode='r'
   print 'Plotting raw pole-count map'
+if args.log:
+  print 'Plotting pole-count map in log-scale'
+  pmode=pmode+'l'
 
 if args.twohemispheres:
   print 'Plotting both hemispheres in pole-count map'
@@ -93,7 +101,7 @@ for infilen in file_list:
     nrow,ncol=1,1
     opts=[(1,args.lon0),] 
     proj_dict={'boundinglat':args.lat0,'resolution':'l'}
-    if args.ms==-1: ms=15.
+    if args.ms==-1: ms=70.
     else: ms=args.ms
   else:
     #For ortho projection, plot map as viewed from lon=0 and lon0+180
@@ -113,7 +121,8 @@ for infilen in file_list:
 
     if 'r' in pmode: 
        x,y=m(phi,theta)
-       c=m.scatter(x,y,c=pole_cts,edgecolor='none',s=ms,cmap=colormap)
+       if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap)
+       else: c=m.scatter(x,y,c=pole_cts,edgecolor='none',s=ms,cmap=colormap)
     else:
        npix=250
        clevels=30
@@ -121,7 +130,8 @@ for infilen in file_list:
        xi = np.linspace(np.min(x),np.max(x),npix)
        yi = np.linspace(np.min(y),np.max(y),npix)
        zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
-       m.contourf(xi,yi,zi,clevels,cmap=colormap)
+       if args.log: m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap)
+       else:        m.contourf(xi,yi,zi,clevels,cmap=colormap)
     #Labels and such
     ax.set_title('%s pole-counts' % (mode_ori))
 
