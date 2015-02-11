@@ -36,7 +36,7 @@ class xypix_converter:
 
 #----------------------------------------------
 
-__version__ = '2.0'
+__version__ = '2.0.1'
 __docformat__ = "reredtext en"
 __what__= sys.argv[0]+": This program detects peaks in pole count maps using the Fellwalker algorithm (starlink implementation)"
 #
@@ -48,6 +48,8 @@ parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png'
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
+parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
+parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
 parser.add_argument('-ms',help='Marker size. Default: 50 for npaeqd.', action='store',default=50,type=np.float)
@@ -162,11 +164,24 @@ for infilen in file_list:
 
   lmax=np.floor(np.log10(np.max(pole_cts)))
   if 'r' in pmode: 
-     if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap)
-     else:        c=m.scatter(x,y,c=pole_cts/10**lmax,edgecolor='none',s=ms,cmap=colormap)
+     if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+     else:        #c=m.scatter(x,y,c=pole_cts/10**lmax,edgecolor='none',s=ms,cmap=colormap)
+        if args.vmin is not None: vmin=args.vmin/10**lmax
+        else: vmin=args.vmin
+        if args.vmax is not None: vmax=args.vmax/10**lmax
+        else: vmax=args.vmax
+        c=m.scatter(x,y,c=pole_cts/10**lmax, edgecolor='none',s=ms,cmap=colormap,vmin=vmin,vmax=vmax)
   else: 
-   if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap)
-   else:        c=m.contourf(xi,yi,zi/10**lmax,clevels,cmap=colormap)
+   if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+   if args.vmin is not None: vmin=args.vmin
+   else: vmin=np.min(zi)
+   if args.vmax is not None: vmax=args.vmax
+   else: vmax=np.max(zi)
+   zii=zi
+   zii[(zii<vmin)]=vmin
+   zii[(zii>vmax)]=vmax
+   lmax=np.floor(np.log10(vmax))
+   c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
 
   #Plot colorbar
   cax0=plt.gca()

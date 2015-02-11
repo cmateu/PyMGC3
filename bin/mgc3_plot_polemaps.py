@@ -147,16 +147,14 @@ for infilen in file_list:
          else: vmin=np.min(zi)
          if args.vmax is not None: vmax=args.vmax
          else: vmax=np.max(zi)
-        
-         zi[(zi<vmin)]=vmin
-         zi[(zi>vmax)]=vmax
-         print np.min(zi), np.max(zi)
+         zii=zi
+         zii[(zii<vmin)]=vmin
+         zii[(zii>vmax)]=vmax
          lmax=np.floor(np.log10(vmax))
-         c=m.contourf(xi,yi,zi/10**lmax, clevels,cmap=colormap)
+         c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
     #Labels and such
     if 'npa' not in args.proj: ax.set_title('%s pole-counts' % (mode_ori))
 
-    print '-------------',args.vmin, args.vmax
 
   #Plot colorbar
   if 'npa' in args.proj:
