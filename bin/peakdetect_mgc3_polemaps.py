@@ -165,7 +165,7 @@ for infilen in file_list:
   lmax=np.floor(np.log10(np.max(pole_cts)))
   if 'r' in pmode: 
      if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
-     else:        #c=m.scatter(x,y,c=pole_cts/10**lmax,edgecolor='none',s=ms,cmap=colormap)
+     else:        
         if args.vmin is not None: vmin=args.vmin/10**lmax
         else: vmin=args.vmin
         if args.vmax is not None: vmax=args.vmax/10**lmax
@@ -173,15 +173,16 @@ for infilen in file_list:
         c=m.scatter(x,y,c=pole_cts/10**lmax, edgecolor='none',s=ms,cmap=colormap,vmin=vmin,vmax=vmax)
   else: 
    if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
-   if args.vmin is not None: vmin=args.vmin
-   else: vmin=np.min(zi)
-   if args.vmax is not None: vmax=args.vmax
-   else: vmax=np.max(zi)
-   zii=zi
-   zii[(zii<vmin)]=vmin
-   zii[(zii>vmax)]=vmax
-   lmax=np.floor(np.log10(vmax))
-   c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
+   else:
+     if args.vmin is not None: vmin=args.vmin
+     else: vmin=np.min(zi)
+     if args.vmax is not None: vmax=args.vmax
+     else: vmax=np.max(zi)
+     zii=zi
+     zii[(zii<vmin)]=vmin
+     zii[(zii>vmax)]=vmax
+     lmax=np.floor(np.log10(vmax))
+     c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
 
   #Plot colorbar
   cax0=plt.gca()
