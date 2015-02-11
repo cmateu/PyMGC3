@@ -323,7 +323,7 @@ for infilen in file_list:
     fig.savefig(cfigname)
 
     #Remove auxiliary files
-    os.system('rm -f _zp*')
+    os.system('rm -f _zp* _zp.fits')
 
   if args.show: plt.show()
   else: fig.clf()

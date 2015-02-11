@@ -10,7 +10,7 @@ except ImportError:
 
 setup(
     name='PyMGC3',
-    version='0.1.0',
+    version='1.0.0',
     author='C. Mateu',
     author_email='cmateu@astrosen.unam.mx',
     packages=['bovy_coords','mgc3_lib','myutils'],
