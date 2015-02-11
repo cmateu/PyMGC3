@@ -85,10 +85,21 @@ print 'Printing output file %s ...' % (outfilename)
 outfile=open(outfilename,'w')
 outfile.write('#Stars selected according to %s criteria\n' % (args.m))
 scipy.savetxt(outfile,head,fmt='%s')
+#The masks associated to each pole will be combined with OR, this way, each star can only be printed once,
+#even if associated to more than one pole
+indep_mask=np.zeros(obsdata[:,0].size,dtype=bool)
+indep_pole_ids=-1*np.ones(obsdata[:,0].size)
 for id_pole,phi_pole,theta_pole in polelist:
   mygrid=mgc3_lib.pole_grid(poles=[phi_pole,theta_pole])
   cat_mask=mygrid.mgc3_allobs_one_pole(obsdata,pars=survey_pars,return_mask=args.m)
-  print '   stars associated to pole: ',sum(1*cat_mask)
-  pole_ids=id_pole*np.ones_like(obsdata[cat_mask,0])
-  print_data=obsdata[cat_mask,:].T
-  scipy.savetxt(outfile,np.vstack([print_data,pole_ids]).T)
+  print '   stars associated to pole %s: %d' % (id_pole,np.sum(1*cat_mask))
+  #combine mask with OR
+  indep_mask=indep_mask | cat_mask
+  #label stars added to the mask in this step with current poleid
+  indep_pole_ids[cat_mask]=id_pole
+  #pole_ids=id_pole*np.ones_like(obsdata[cat_mask,0])
+
+#Printing is now done after finishing the loop
+print_data=obsdata[indep_mask,:].T
+indep_pole_ids=indep_pole_ids[indep_mask]
+scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids]).T)
