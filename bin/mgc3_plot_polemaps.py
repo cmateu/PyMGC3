@@ -20,8 +20,10 @@ parser.add_argument('-proj',help='Projection npaeqd/ortho/mollweide. Default is 
 parser.add_argument('-log',help='Plot pole-count map in log-scale', action='store_true',default=False)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
-parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
-parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
+parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=20.,type=np.float)
+parser.add_argument('-dlon',help='Spacing between meridians. Default is 20.', action='store',default=20.,type=np.float)
+parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
+parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-ms',help='Marker size. Default: 15/40 for npaeqd/ortho.', action='store',default=-1.,type=np.float)
 parser.add_argument('-c','--contour',help='Plot pole-count contour map instead of raw grid.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
@@ -126,18 +128,35 @@ for infilen in file_list:
 
     lmax=np.floor(np.log10(np.max(pole_cts)))
     if 'r' in pmode: 
-       if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap)
-       else:        c=m.scatter(x,y,c=pole_cts/10**lmax,edgecolor='none',s=ms,cmap=colormap)
+       if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+       else:        
+         if args.vmin is not None: vmin=args.vmin/10**lmax
+         else: vmin=args.vmin
+         if args.vmax is not None: vmax=args.vmax/10**lmax
+         else: vmax=args.vmax
+         c=m.scatter(x,y,c=pole_cts/10**lmax, edgecolor='none',s=ms,cmap=colormap,vmin=vmin,vmax=vmax)
     else:
        npix=300
        clevels=30
        xi = np.linspace(np.min(x),np.max(x),npix)
        yi = np.linspace(np.min(y),np.max(y),npix)
        zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
-       if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap)
-       else:        c=m.contourf(xi,yi,zi/10**lmax,clevels,cmap=colormap)
+       if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+       else:
+         if args.vmin is not None: vmin=args.vmin
+         else: vmin=np.min(zi)
+         if args.vmax is not None: vmax=args.vmax
+         else: vmax=np.max(zi)
+        
+         zi[(zi<vmin)]=vmin
+         zi[(zi>vmax)]=vmax
+         print np.min(zi), np.max(zi)
+         lmax=np.floor(np.log10(vmax))
+         c=m.contourf(xi,yi,zi/10**lmax, clevels,cmap=colormap)
     #Labels and such
     if 'npa' not in args.proj: ax.set_title('%s pole-counts' % (mode_ori))
+
+    print '-------------',args.vmin, args.vmax
 
   #Plot colorbar
   if 'npa' in args.proj:
