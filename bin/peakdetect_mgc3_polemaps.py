@@ -60,7 +60,8 @@ parser.add_argument('-sc','--saveclumps',help='Plot and save poles associated to
 peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-fr','--frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
 peakargs.add_argument('-ff','--ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
-parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient', action='store',default=20,type=np.float)
+parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 20.', action='store',default=20,type=np.float)
+parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.3', action='store',default=0.3,type=np.float)
 parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5 (=FWHM)', action='store',default=0.5,type=np.float)
 
 
@@ -315,7 +316,7 @@ for infilen in file_list:
       #Save only pixels inside the FWHM of the peak and with counts>minheight
       pmask = (cmask_1d==pid[kk]) & (pcts_1d>=args.fwxm*cheight[kk])
       #plot current peak only
-      m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
+      m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=args.alpha)
       newid_cmask=newid[kk]*np.ones_like(cmask_1d[pmask])
       scipy.savetxt(file_clumppixfname,np.array([newid_cmask,phicmask[pmask],thetacmask[pmask]]).T,fmt='%7d %10.4f %10.4f')
 
