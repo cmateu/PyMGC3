@@ -190,7 +190,7 @@ def parse_pars(parfile):
   naux,dic=0,{}
   for line in pf:
      if 'col' in line[0]: 
-        dic[line[0]]=int(line[1])-1 #So 1st column corresponds to 0 (input is human or F-style)
+        dic[line[0]]=int(line[1])-1 #So 1st column corresponds to 0 (input is human-readable or F-style)
         if 'AUX' in line[0]: naux=naux+1  #Count how many auxiliary criteria are defined
      elif 'tol'   in line[0] and 'deg' not in line[0]: dic[line[0]]=float(line[1])
      elif 'grid_' in line[0]: dic[line[0]]=float(line[1])
