@@ -237,34 +237,36 @@ If the -l flag is set, this is assumed to be a list of pole count map files
 The program has several optional keywords and flags to customize the output plot, for a full list
 and details run with the -h or --help flag::
 
-    mgc3_plot_polemaps.py -h
-
-    usage: mgc3_plot_polemaps.py [-h] [-l] [-m {mGC3,nGC3,GC3}] [-f {png,eps,pdf}]
-                                 [-proj {npaeqd,ortho,mollweide}] [-lon0 LON0]
-                                 [-lat0 LAT0] [-dlat DLAT] [-dlon DLON] [-ms MS]
-                                 [-c] [-t] [-s]
-                                 infile
-    
-    positional arguments:
-      infile                Input file containing pole count maps (*.cts file)
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      -l, --llist           Take infile as list of mgc3.cts files
-      -m {mGC3,nGC3,GC3}    Plot mGC3/nGC3/GC3 pole count map. Default is mGC3
-      -f {png,eps,pdf}, --fig {png,eps,pdf}
-                            Output plot type png/eps. Default is png
-      -proj {npaeqd,ortho,moll}
-                            Projection npaeqd/ortho/mollweide. Default is npaeqd
-      -lon0 LON0            Longitude for Y-axis. Default is 0.
-      -lat0 LAT0            Bounding latitude for plot. Default is 90.
-      -dlat DLAT            Spacing between parallels. Default is 30.
-      -dlon DLON            Spacing between meridians. Default is 30.
-      -ms MS                Marker size. Default: 90/40 for npaeqd/ortho.
-      -c, --contour         Plot pole-count contour map instead of raw grid.
-      -t, --twohemispheres  Plot both hemispheres in pole-count map.
-      -s, --show            Show plot in window. Default is False
-
+	usage: mgc3_plot_polemaps.py [-h] [-l] [-m {mGC3,nGC3,GC3}] [-f {png,eps,pdf}]
+	                             [-proj {npaeqd,ortho,moll}] [-log] [-lon0 LON0]
+	                             [-lat0 LAT0] [-dlat DLAT] [-dlon DLON]
+	                             [-vmin VMIN] [-vmax VMAX] [-ms MS] [-c] [-t] [-s]
+	                             infile
+	
+	Plot mGC3/nGC3/GC3 pole count maps
+	
+	positional arguments:
+	  infile                Input file containing pole count maps (*.cts file)
+	
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  -l, --llist           Take infile as list of mgc3.cts files
+	  -m {mGC3,nGC3,GC3}    Plot mGC3/nGC3/GC3 pole count map. Default is mGC3
+	  -f {png,eps,pdf}, --fig {png,eps,pdf}
+	                        Output plot type png/eps. Default is png
+	  -proj {npaeqd,ortho,moll}
+	                        Projection npaeqd/ortho/mollweide. Default is npaeqd
+	  -log                  Plot pole-count map in log-scale
+	  -lon0 LON0            Longitude for Y-axis. Default is 0.
+	  -lat0 LAT0            Bounding latitude for plot. Default is 90.
+	  -dlat DLAT            Spacing between parallels. Default is 20.
+	  -dlon DLON            Spacing between meridians. Default is 20.
+	  -vmin VMIN            Min counts for color-scale. Default is min(cts)
+	  -vmax VMAX            Max counts for color-scale. Default is max(cts)
+	  -ms MS                Marker size. Default: 15/40 for npaeqd/ortho.
+	  -c, --contour         Plot pole-count contour map instead of raw grid.
+	  -t, --twohemispheres  Plot both hemispheres in pole-count map.
+	  -s, --show            Show plot in window. Default is False
 
 **EXAMPLES:**
 
