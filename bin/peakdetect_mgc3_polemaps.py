@@ -149,8 +149,8 @@ for infilen in file_list:
 
   ax=fig.add_subplot(nrow,ncol,nplot)
   m = Basemap(projection=proj,ax=ax,**proj_dict)
-  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='white',lw=2.)
-  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='white',lw=2.)
+  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
   m.drawmapboundary()
 
   x,y=m(phi,theta)
@@ -309,6 +309,7 @@ for infilen in file_list:
  
     #Plot identified clumps on top of pole count map and print out
     cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    #cmapp=plt.cm.rainbow(np.linspace(0, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
 
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
