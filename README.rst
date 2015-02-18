@@ -5,7 +5,7 @@ PyMGC3 Package
 Feb 2015 - New python scripts added for plotting (mgc3_plot_polemaps.py) and detecting 
 peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
 
-======
+----------
 **DESCRIPTION:**
 
 PyMGC3 is a Python toolkit to apply the Modified Great Circle 

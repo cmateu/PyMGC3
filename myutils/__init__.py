@@ -92,3 +92,53 @@ def uniform_spherical_data(N):
  lat=np.arcsin(2*xx-1)
  return (lon,lat)
 
+#========================================================================
+
+class helio_obj:
+  #Default values for Sun's position and velocity are from Brown et al. 2005
+  def __init__(self,l,b,parallax,mulstar,mub,vrad,flag_mulstar=True,xyz_sun=[-8.5,0.,0.],vel_sun=[10.3,232.6,5.9],verbose=False,degree=False):
+
+    #Degree2Radian conversion
+    if degree: _d2r=np.pi/180.
+    else: _d2r=1.
+
+    #Save inputs
+    self.l,self.b,self.parallax=l,b,parallax
+    self.mub,self.vrad,self.Rhel=mub,vrad,1000./self.parallax  #if par in mas/muas, rhel in pc/kpc
+    if flag_mulstar:
+       self.mulstar=mulstar
+       self.mul=mulstar/np.cos(self.b*_d2r)
+    else:
+       self.mul=mulstar
+       self.mulstar=self.mul*np.cos(self.b*_d2r)
+
+    #Bovy's library assumes Sun's position is positive. Flip X-axis if xsun<0
+    if xyz_sun[0]<0.: sign=-1
+    else: sign=+1
+
+    #Save Sun's position
+    self.xsun, self.ysun, self.zsun= xyz_sun
+    self.vxsun, self.vysun, self.vzsun= vel_sun
+    self.xsun, self.vxsun = sign*self.xsun, sign*self.vxsun
+
+    #Convert to heliocentric cartesian. Bovy's library assumes Sun's position is positive
+    #tuple output, no .T needed
+    if verbose: print 'Converting Heliocentric Galactic Spherical to Heliocentric Cartesian coords...'
+    m=bovyc.lbd_to_XYZ(self.l,self.b,self.Rhel,degree=degree)
+    self.xhel,self.yhel,self.zhel=m
+    m=bovyc.vrpmllpmbb_to_vxvyvz(self.vrad,self.mulstar,self.mub,self.l,self.b,self.Rhel,XYZ=False,degree=degree)
+    self.vxhel,self.vyhel,self.vzhel=m
+    #m=bovyc.galcenrect_to_XYZ(self.x,self.y,self.z,Xsun=self.xsun,Ysun=self.ysun,Zsun=self.zsun)a
+
+    #Convert Heliocentric Cartesian to Galactocentric Cartesian
+    if verbose: print 'Converting Heliocentric Cartesian to Galactocentric Cartesian coords...'
+    m=bovyc.XYZ_to_galcenrect(self.xhel,self.yhel,self.zhel,Xsun=self.xsun,Ysun=self.ysun,Zsun=self.zsun)
+    self.x,self.y,self.z=m
+    m=bovyc.vxvyvz_to_galcenrect(self.vxhel,self.vyhel,self.vzhel,vsun=[self.vxsun, self.vysun, self.vzsun])
+    self.vx,self.vy,self.vz=m
+
+    #Compute Galactocentric Spherical
+    if verbose: print 'Converting Galactocentric Cartesian to Spherical coords...'
+    m=bovyc.XYZ_to_lbd(self.x,self.y,self.z,degree=degree)
+    self.phi,self.theta,self.Rgal=m
+
