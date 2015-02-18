@@ -1,11 +1,6 @@
 PyMGC3 Package
 ======
-**LATEST FEATURES:**
 
-Feb 2015 - New python scripts added for plotting (mgc3_plot_polemaps.py) and detecting 
-peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
-
-----------
 **DESCRIPTION:**
 
 PyMGC3 is a Python toolkit to apply the Modified Great Circle 
@@ -20,6 +15,15 @@ the original GC3 method developed by `Johnston et al. (1996) <http://adsabs.harv
 uses positional information to search for 'great-circle-cell
 structures'; mGC3 makes use of full 6D data and 
 nGC3 uses positional and proper motion data.
+
+----------
+
+**LATEST FEATURES:**
+
+Feb 2015 - New python scripts added for plotting (mgc3_plot_polemaps.py) and detecting 
+peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
+
+----------
 
 
 **REQUIREMENTS**
