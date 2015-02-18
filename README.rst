@@ -20,7 +20,7 @@ nGC3 uses positional and proper motion data.
 
 **LATEST FEATURES:**
 
-Feb 2015 - New python scripts added for plotting (mgc3_plot_polemaps.py) and detecting 
+Feb 2015 - New python scripts added for plotting (mgc3_plot_polemaps.py) and automatically detecting 
 peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
 
 ----------
