@@ -22,6 +22,7 @@ parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=20.,type=np.float)
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 20.', action='store',default=30.,type=np.float)
+parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float)
 parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-ms',help='Marker size. Default: 15/40 for npaeqd/ortho.', action='store',default=-1.,type=np.float)
@@ -120,7 +121,7 @@ for infilen in file_list:
   for ii,l0 in opts:
     ax=fig.add_subplot(nrow,ncol,ii)
     m = Basemap(projection=args.proj,lon_0=l0,ax=ax,**proj_dict)
-    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='gray')
+    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='gray',latmax=args.latmax)
     m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='gray')
     m.drawmapboundary()
 
