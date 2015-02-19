@@ -20,8 +20,11 @@ parser.add_argument('infile',metavar='inpstfile',help='Input file containing cat
 parser.add_argument("-l", "--llist", action="store_true",help='Take inpstfile as list of mgc3.cts files')
 parser.add_argument('-cat','--catfile',metavar='catfile',help='Full input catalogue. Must be a list when using -l',action='store',default=False,nargs=1)
 parser.add_argument('-ext',metavar='outext',help='Output suffix [optional]',action='store',default='',nargs=1)
+parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
+parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=30.,type=np.float)
+parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
-parser.add_argument('-ms',help='Marker size. Default: 10 for npaeqd.', action='store',default=15,type=np.float)
+parser.add_argument('-ms',help='Marker size for peak stars', action='store',default=5,type=np.float)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-ic','--idcol',help='Column containing stream ID (counting from 1). Default is last col.', action='store',default=-1,type=np.int)
 
@@ -88,13 +91,15 @@ for ff in range(len(file_list)):
   fig2=plt.figure(2,figsize=(10,6))
   fig2.subplots_adjust(left=0.05,right=0.95,bottom=0.05,top=0.95)
   ax4=fig2.add_subplot(111)
-  m = Basemap(projection='moll',ax=ax4,lon_0=0.)
-  m.drawmeridians(np.arange(0.,360.,20.),color='gray',labelstyle'+/-')
-  m.drawparallels(np.arange(-90.,90.,30.),color='gray')
+  m = Basemap(projection='moll',ax=ax4,lon_0=args.lon0)
+  mers=np.arange(0.,360.,args.dlon)
+  parls=np.arange(-90.,90.,args.dlat)
+  m.drawmeridians(mers,color='gray')
+  m.drawparallels(parls,color='gray')
   m.drawmapboundary()
 
   c_props={'ms':0.5,'zorder':0,'alpha':0.7}
-  s_props={'ms':5,'zorder':1,'alpha':1.,'mec':'None'}
+  s_props={'ms':args.ms,'zorder':1,'alpha':1.,'mec':'None'}
 
   for kk in range(npoles):
    mask= (IDpole==kk+1)
@@ -105,12 +110,24 @@ for ff in range(len(file_list)):
    #---Aitoff--------
    xmoll,ymoll=m(ss.phi[mask],ss.theta[mask])
    cxmoll,cymoll=m(css.phi,css.theta)
-   #m.plot(xmoll,ymoll,'.',color=cmapp[kk],**s_props)
+   m.plot(xmoll,ymoll,'.',color=cmapp[kk],**s_props)
 
   if args.catfile:
    ax1.plot(css.x,css.y,'k.',**c_props)
    ax2.plot(css.x,css.z,'k.',**c_props)
    m.plot(cxmoll,cymoll,'k.',**c_props)
+
+  #Aitoff plot labels
+  lmers=mers[mers!=args.lon0+180.]
+  bmers=0.+np.zeros_like(lmers)
+  bpars=parls[(np.abs(parls)!=90.) & (np.abs(parls)!=0.)]
+  lpars=args.lon0+180.+np.zeros_like(bpars)
+  xl,yl=m(lmers,bmers)
+  for ii in range(lmers.size): ax4.text(xl[ii],yl[ii],"%.0f$^o$" % (lmers[ii]),horizontalalignment='center',
+                                         fontsize=11,color='gray')
+  xl,yl=m(lpars,bpars)
+  for ii in range(bpars.size): ax4.text(xl[ii],yl[ii],"  %+.0f$^o$" % (bpars[ii]),verticalalignment='center',
+                                           horizontalalignment='left',fontsize=11,color='gray')
 
   if spars['par_muas']: unit='(kpc)'
   else: unit='(pc)'
