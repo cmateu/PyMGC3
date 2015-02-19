@@ -8,7 +8,7 @@ import argparse
 import scipy.ndimage
 import pyfits
 import os
-import myutils2 as myutils
+import myutils
 import mgc3_lib
 #----------------------------------------------
 __version__ = '1.0'
@@ -19,12 +19,12 @@ parser.add_argument('parfile',metavar='parameter_file',help='Input catalogue par
 parser.add_argument('infile',metavar='inpstfile',help='Input file containing catalogue for stars associated to peaks',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take inpstfile as list of mgc3.cts files')
 parser.add_argument('-cat','--catfile',metavar='catfile',help='Full input catalogue. Must be a list when using -l',action='store',default=False,nargs=1)
-parser.add_argument('-ext',metavar='outext',help='Output suffix [optional]',action='store',default='',nargs=1)
+parser.add_argument('-ext',metavar='outext',help='Output suffix [optional]',action='store',default=['',],nargs=1)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=30.,type=np.float)
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
-parser.add_argument('-ms',help='Marker size for peak stars', action='store',default=5,type=np.float)
+parser.add_argument('-ms',help='Marker size for peak stars. Use ms=0 for fullcat only.',action='store',default=3,type=np.float)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-ic','--idcol',help='Column containing stream ID (counting from 1). Default is last col.', action='store',default=-1,type=np.int)
 
@@ -48,7 +48,8 @@ if args.catfile:
   else:
      cat_list=scipy.genfromtxt(args.catfile[0],dtype='S')
      if len(cat_list)!=len(file_list):
-        sys.exit('WARNING: CAT_LIST must have the same dimensions as INFILE_LIST.\nExiting...')
+        sys.exit('WARNING: CAT_LIST(len=%d) must have the same length as INFILE_LIST(len=%d).\nExiting...' 
+                  % (len(cat_list),len(file_list)))
      if np.ndim(cat_list)==0: cat_list=array([cat_list,])
 
 parfile = args.parfile[0]
@@ -60,6 +61,8 @@ for ff in range(len(file_list)):
   infilen=file_list[ff]
   dat=scipy.genfromtxt(infilen,comments='#')
 
+  print 'Plotting stars from file: ',infilen
+
   if args.catfile:
     cdat=scipy.genfromtxt(cat_list[ff],comments='#')
     cl,cb,cparallax=cdat[:,spars['lon_col']],cdat[:,spars['lat_col']],cdat[:,spars['par_col']]
@@ -67,8 +70,8 @@ for ff in range(len(file_list)):
     css=myutils.helio_obj(cl,cb,cparallax,cmulstar,cmub,cvrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
 
   figname_root=infilen.replace('.pst','')
-  fig1name='%s%s.xyz.%s' % (figname_root,args.ext,args.fig)
-  fig2name='%s%s.sph.%s' % (figname_root,args.ext,args.fig)
+  fig1name='%s.xyz%s.%s' % (figname_root,args.ext[0],args.fig)
+  fig2name='%s.sph%s.%s' % (figname_root,args.ext[0],args.fig)
 
   IDpole=dat[:,args.idcol]
   l,b,parallax=dat[:,spars['lon_col']],dat[:,spars['lat_col']],dat[:,spars['par_col']]
@@ -139,4 +142,6 @@ for ff in range(len(file_list)):
   fig2.savefig(fig2name)
 
   if args.show: plt.show()
-  else: fig.clf()
+  else: 
+    fig1.clf()
+    fig2.clf()
