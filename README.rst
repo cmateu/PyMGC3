@@ -44,6 +44,7 @@ peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
    * mgc3_get_pole_stars.py
    * mgc3_plot_polemaps.py
    * peakdetect_mgc3_polemaps.py
+   * mgc3_plot_peakstars.py  [BETA]   
 - Documentation
    * README.rst
 - Libraries

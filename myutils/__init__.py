@@ -5,6 +5,8 @@ import numpy as np
 import os
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+import bovy_coords as bovyc
+
 #############################################################################
 #Copyright (c) 2013 - 2014, Cecilia Mateu
 #All rights reserved.
@@ -125,9 +127,9 @@ class helio_obj:
     #tuple output, no .T needed
     if verbose: print 'Converting Heliocentric Galactic Spherical to Heliocentric Cartesian coords...'
     m=bovyc.lbd_to_XYZ(self.l,self.b,self.Rhel,degree=degree)
-    self.xhel,self.yhel,self.zhel=m
+    self.xhel,self.yhel,self.zhel=m.T
     m=bovyc.vrpmllpmbb_to_vxvyvz(self.vrad,self.mulstar,self.mub,self.l,self.b,self.Rhel,XYZ=False,degree=degree)
-    self.vxhel,self.vyhel,self.vzhel=m
+    self.vxhel,self.vyhel,self.vzhel=m.T
     #m=bovyc.galcenrect_to_XYZ(self.x,self.y,self.z,Xsun=self.xsun,Ysun=self.ysun,Zsun=self.zsun)a
 
     #Convert Heliocentric Cartesian to Galactocentric Cartesian
@@ -140,5 +142,5 @@ class helio_obj:
     #Compute Galactocentric Spherical
     if verbose: print 'Converting Galactocentric Cartesian to Spherical coords...'
     m=bovyc.XYZ_to_lbd(self.x,self.y,self.z,degree=degree)
-    self.phi,self.theta,self.Rgal=m
+    self.phi,self.theta,self.Rgal=m.T
 
