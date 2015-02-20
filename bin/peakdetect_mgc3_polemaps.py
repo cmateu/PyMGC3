@@ -45,7 +45,9 @@ parser.add_argument('infile',metavar='infile',help='Input file containing pole c
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
 parser.add_argument('-m',help='Plot mGC3/nGC3/GC3 pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
+parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
+parser.add_argument('-labels',help='Plot peak ID labels', action='store_true',default=False)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
@@ -115,7 +117,9 @@ for infilen in file_list:
      print 'Do peak detection on linear scale but show plot on log scale'
      #pole_ctso=np.log10(pole_ctso)
      pmode=pmode+'l'
-  figname_root=infilen.replace('.mgc3.cts','')
+
+  #Output figure and file names
+  figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
   clumpfname='%s.%s.peak.pls' % (figname_root,mode)
   clumppixfname='%s.%s.pls' % (figname_root,mode)
@@ -221,7 +225,6 @@ for infilen in file_list:
   else: 
     minheight=args.ffrac*np.max(zi)
   print 'Finding clumps with Fellwalker'
-  #os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f' 
   os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" ' % (starlink_path,rms,args.maxjump)) 
 
   #Read-in output table with identified clumps
@@ -286,7 +289,13 @@ for infilen in file_list:
   scipy.savetxt(clumpfile,np.array([newid,phipeak,thetapeak,phipeakc,thetapeakc,dphi,dtheta,cheight]).T,fmt=fmt)
 
   #Plot detected clump peaks
-  m.scatter(xpeak,ypeak,c='none',edgecolor='k',s=20,zorder=99)
+  if args.labels:
+    #Peak ID labels
+    m.scatter(xpeak,ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
+    for ii in range(newid.size): ax.text(xpeak[ii],ypeak[ii],newid[ii],fontsize=7,color='black',
+                                        horizontalalignment='center',verticalalignment='center',zorder=101)
+  else:
+    m.scatter(xpeak,ypeak,c='none',edgecolor='k',s=20,zorder=99)
 
   #Save current figure 
   fig.savefig(figname)
