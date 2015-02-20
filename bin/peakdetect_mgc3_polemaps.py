@@ -318,8 +318,7 @@ for infilen in file_list:
  
     #Plot identified clumps on top of pole count map and print out
     #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
-    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 1., pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
-    #cmapp=plt.cm.rainbow(np.linspace(0, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
 
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))

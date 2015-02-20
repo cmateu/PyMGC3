@@ -23,6 +23,9 @@ parser.add_argument('-ext',metavar='outext',help='Output suffix [optional]',acti
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=30.,type=np.float)
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
+parser.add_argument('-xlim',metavar='xo xf',help='Set X limits (space-separated)',action='store',nargs=2,type=np.float)
+parser.add_argument('-ylim',metavar='yo yf',help='Set Y limits (space-separated)',action='store',nargs=2,type=np.float)
+parser.add_argument('-zlim',metavar='zo zf',help='Set Z limits (space-separated)',action='store',nargs=2,type=np.float)
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ms',help='Marker size for peak stars. Use ms=0 for fullcat only.',action='store',default=3,type=np.float)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
@@ -56,6 +59,11 @@ parfile = args.parfile[0]
 print 'Reading Parameter file %s ...' % (parfile)
 spars=mgc3_lib.parse_pars(parfile)
 
+#Parse xyz-limits if given
+if args.xlim: print 'X limits:', args.xlim
+if args.ylim: print 'Y limits:', args.ylim
+if args.zlim: print 'Z limits:', args.zlim
+
 for ff in range(len(file_list)):
 
   infilen=file_list[ff]
@@ -85,7 +93,7 @@ for ff in range(len(file_list)):
   
   print 'Npeaks=',npoles
   #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
-  cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 1., npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
+  cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
 
   fig1=plt.figure(1,figsize=(13,6))
   fig1.subplots_adjust(wspace=0.2,left=0.08,right=0.97)
@@ -113,12 +121,12 @@ for ff in range(len(file_list)):
    ax2.plot(ss.x[mask],ss.z[mask],'.',color=cmapp[kk],**s_props)
    #---Aitoff--------
    xmoll,ymoll=m(ss.phi[mask],ss.theta[mask])
-   cxmoll,cymoll=m(css.phi,css.theta)
    m.plot(xmoll,ymoll,'.',color=cmapp[kk],**s_props)
 
   if args.catfile:
    ax1.plot(css.x,css.y,'k.',**c_props)
    ax2.plot(css.x,css.z,'k.',**c_props)
+   cxmoll,cymoll=m(css.phi,css.theta)
    m.plot(cxmoll,cymoll,'k.',**c_props)
 
   #Aitoff plot labels
@@ -132,9 +140,18 @@ for ff in range(len(file_list)):
   xl,yl=m(lpars,bpars)
   for ii in range(bpars.size): ax4.text(xl[ii],yl[ii],"  %+.0f$^o$" % (bpars[ii]),verticalalignment='center',
                                            horizontalalignment='left',fontsize=11,color='gray')
-
   if spars['par_muas']: unit='(kpc)'
   else: unit='(pc)'
+
+  #If flags are set, force xyz-limits
+  if args.xlim: 
+   ax1.set_xlim(args.xlim)
+   ax2.set_xlim(args.xlim)
+  if args.ylim: 
+   ax1.set_ylim(args.ylim)
+  if args.zlim: 
+   ax2.set_ylim(args.zlim)
+
   ax1.set_xlabel('X '+unit)
   ax2.set_xlabel('X '+unit)
   ax1.set_ylabel('Y '+unit)
