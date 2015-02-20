@@ -117,7 +117,7 @@ for infilen in file_list:
      pmode=pmode+'l'
   figname_root=infilen.replace('.mgc3.cts','')
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
-  clumpfname='%s.%s.pls.peak.dat' % (figname_root,mode)
+  clumpfname='%s.%s.peak.pls' % (figname_root,mode)
   clumppixfname='%s.%s.pls' % (figname_root,mode)
   print 'Output filename:', figname
 
