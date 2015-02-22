@@ -93,7 +93,7 @@ for ff in range(len(file_list)):
   
   print 'Npeaks=',npoles
   #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
-  cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
+  cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.85, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
 
   fig1=plt.figure(1,figsize=(13,6))
   fig1.subplots_adjust(wspace=0.2,left=0.08,right=0.97)

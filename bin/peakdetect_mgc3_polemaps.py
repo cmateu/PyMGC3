@@ -48,6 +48,7 @@ parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png'
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
 parser.add_argument('-labels',help='Plot peak ID labels', action='store_true',default=False)
+parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
@@ -138,13 +139,14 @@ for infilen in file_list:
 
   #----------------Pole count map------------------------------
   mer_grid=[0.,360.,args.dlon]
-  par_grid=[-90.,+90.,args.dlat]
+  par_grid=[-args.dlat,+90.,args.dlat]
 
   #For npa and moll projections, plot map as viewed from lon0 only
   fig=plt.figure(1,figsize=(8,8))
   dw=0.8
   wo=(1.-dw)/2.
-  wyo=0.75*wo
+  wyo=0.75*wo 
+  wyo=0.05*wo 
   fig.subplots_adjust(left=wo,right=dw+wo,top=dw+wo,bottom=wyo)
   nrow,ncol,nplot=1,1,1
   l0=args.lon0
@@ -190,9 +192,9 @@ for infilen in file_list:
      c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
 
   #Plot colorbar
-  cax0=plt.gca()
-  cax=plt.axes([wo,1.2*wyo+dw,dw,0.02])
-  cb=plt.colorbar(c,cax=cax,orientation='horizontal',format='%4.1f',label='prueba')
+  cax0=plt.gca().get_position()
+  cax=plt.axes([cax0.x0,cax0.y0+dw+0.05,dw,0.02])
+  cb=plt.colorbar(c,cax=cax,orientation='horizontal',format='%4.1f')
   cax.xaxis.set_ticks_position('top')
   
   #Labels and such
@@ -203,6 +205,9 @@ for infilen in file_list:
   else:
      cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
   cax.xaxis.set_label_position('top') 
+
+  if args.title:
+    ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
 
   #print fits image
   hdu = pyfits.PrimaryHDU()
@@ -318,7 +323,7 @@ for infilen in file_list:
  
     #Plot identified clumps on top of pole count map and print out
     #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
-    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.85, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
 
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
