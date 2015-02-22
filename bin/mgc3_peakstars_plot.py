@@ -26,6 +26,7 @@ parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', ac
 parser.add_argument('-xlim',metavar='xo xf',help='Set X limits (space-separated)',action='store',nargs=2,type=np.float)
 parser.add_argument('-ylim',metavar='yo yf',help='Set Y limits (space-separated)',action='store',nargs=2,type=np.float)
 parser.add_argument('-zlim',metavar='zo zf',help='Set Z limits (space-separated)',action='store',nargs=2,type=np.float)
+parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ms',help='Marker size for peak stars. Use ms=0 for fullcat only.',action='store',default=3,type=np.float)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
@@ -156,6 +157,8 @@ for ff in range(len(file_list)):
   ax2.set_xlabel('X '+unit)
   ax1.set_ylabel('Y '+unit)
   ax2.set_ylabel('Z '+unit)
+  if args.title: ax1.set_title(args.title)
+  if args.title: ax4.set_title(args.title)
   fig1.savefig(fig1name)
   fig2.savefig(fig2name)
 
