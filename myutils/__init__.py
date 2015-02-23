@@ -15,12 +15,17 @@ import bovy_coords as bovyc
 
 def get_header_line(filename):
 
- file=open(filename,'r')
+ #Open file
+ if '.gz' in filename:
+     ifile=gzip.open(filename,'r')
+     filename=filename.replace('.gz','')
+ else: ifile=open(filename,'r')
+
  line='0'
  head=[]
  while len(line)>0:
   #Read lines one by one and chomp (i.e. remove new line character at the end of line)
-  line=file.readline().rstrip('\r\n')
+  line=ifile.readline().rstrip('\r\n')
   if '#' in line: head.append(line)
   else: break
 

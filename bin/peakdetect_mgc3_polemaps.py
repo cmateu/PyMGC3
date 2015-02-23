@@ -328,8 +328,8 @@ for infilen in file_list:
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
     for kk in np.arange(pid.size):
-      #Save only pixels inside the FWHM of the peak and with counts>minheight
-      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=args.fwxm*cheight[kk])
+      #Save only pixels inside the FWXM of the peak and with counts>minheight
+      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=args.fwxm*cheight[kk]) & (pcts_1d>=minheight)
       #plot current peak only
       m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=args.alpha)
       newid_cmask=newid[kk]*np.ones_like(cmask_1d[pmask])

@@ -36,9 +36,14 @@ if args.print_parf:
 print 'Reading Parameter file %s ...' % (parfile)
 survey_pars=mgc3_lib.parse_pars(parfile)
 
+#print 'Reading input file %s ...' % (filename)
+#obsdata = scipy.genfromtxt(filename,comments='#')
+#print 'Input file shape (rows,cols): ', obsdata.shape
+
 print 'Reading input file %s ...' % (filename)
-obsdata = scipy.genfromtxt(filename,comments='#')
+obsdata,ugfilename=mgc3_lib.read_inputcat_for_mgc3(filename,pardic=survey_pars)
 print 'Input file shape (rows,cols): ', obsdata.shape
+
 
 #Save input file header
 head = myutils.get_header_line(filename)
@@ -75,7 +80,6 @@ for id_pole,phi_pole,theta_pole in polelist:
   indep_mask=indep_mask | cat_mask
   #label stars added to the mask in this step with current poleid
   indep_pole_ids[cat_mask]=id_pole
-  #pole_ids=id_pole*np.ones_like(obsdata[cat_mask,0])
 
 #Printing is now done after finishing the loop
 print_data=obsdata[indep_mask,:].T
