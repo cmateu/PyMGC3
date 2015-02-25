@@ -5,6 +5,7 @@ import mgc3_lib as mgc3_lib
 import myutils
 import numpy as np
 import argparse
+import gzip 
 
 #Parse command line arguments
 __version__ = '3.0'

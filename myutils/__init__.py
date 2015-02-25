@@ -6,6 +6,7 @@ import os
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import bovy_coords as bovyc
+import gzip 
 
 #############################################################################
 # VERSION: 
@@ -28,6 +29,9 @@ def get_header_line(filename):
   line=ifile.readline().rstrip('\r\n')
   if '#' in line: head.append(line)
   else: break
+
+ if len(head)==0:
+   head=['# ',]
 
  return head
 
