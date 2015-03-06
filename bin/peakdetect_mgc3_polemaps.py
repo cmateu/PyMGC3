@@ -322,8 +322,13 @@ for infilen in file_list:
     xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds,yinds)
  
     #Plot identified clumps on top of pole count map and print out
-    #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
-    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.85, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    cmapp=plt.cm.gist_ncar(np.linspace(0., 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    if pid.size<10:
+     cmapp=['mediumblue','orange','lime','orchid','red','royalblue','gray','pink','limegreen','navy']
+#     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
+
+
 
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))

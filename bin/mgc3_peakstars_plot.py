@@ -72,11 +72,17 @@ for ff in range(len(file_list)):
 
   print 'Plotting stars from file: ',infilen
 
+  if spars['par_muas']: fp=1.
+  else: fp=1000.
+  if spars['pm_muas']: fm=1.
+  else: fm=1000.
+  unit='(kpc)'
+
   if args.catfile:
     cdat=scipy.genfromtxt(cat_list[ff],comments='#')
     cl,cb,cparallax=cdat[:,spars['lon_col']],cdat[:,spars['lat_col']],cdat[:,spars['par_col']]
     cmulstar,cmub,cvrad=cdat[:,spars['pm_lon_col']],cdat[:,spars['pm_lat_col']],cdat[:,spars['vrad_col']]
-    css=myutils.helio_obj(cl,cb,cparallax,cmulstar,cmub,cvrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
+    css=myutils.helio_obj(cl,cb,fp*cparallax,fm*cmulstar,fm*cmub,cvrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
 
   figname_root=infilen.replace('.pst','')
   fig1name='%s.xyz%s.%s' % (figname_root,args.ext[0],args.fig)
@@ -86,7 +92,7 @@ for ff in range(len(file_list)):
   l,b,parallax=dat[:,spars['lon_col']],dat[:,spars['lat_col']],dat[:,spars['par_col']]
   mulstar,mub,vrad=dat[:,spars['pm_lon_col']],dat[:,spars['pm_lat_col']],dat[:,spars['vrad_col']]
   
-  ss=myutils.helio_obj(l,b,parallax,mulstar,mub,vrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
+  ss=myutils.helio_obj(l,b,fp*parallax,fm*mulstar,fm*mub,vrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
 
   #ss.x,ss.y,ss.z=dat[:,8-1],dat[:,9-1],dat[:,10-1] #for tests only
 
@@ -95,6 +101,11 @@ for ff in range(len(file_list)):
   print 'Npeaks=',npoles
   #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.85, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
+  cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
+  if npoles<10:
+     cmapp=['mediumblue','orange','lime','orchid','red','royalblue','gray','pink','limegreen','navy']
+#     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
+
 
   fig1=plt.figure(1,figsize=(13,6))
   fig1.subplots_adjust(wspace=0.2,left=0.08,right=0.97)
@@ -141,9 +152,6 @@ for ff in range(len(file_list)):
   xl,yl=m(lpars,bpars)
   for ii in range(bpars.size): ax4.text(xl[ii],yl[ii],"  %+.0f$^o$" % (bpars[ii]),verticalalignment='center',
                                            horizontalalignment='left',fontsize=11,color='gray')
-  if spars['par_muas']: unit='(kpc)'
-  else: unit='(pc)'
-
   #If flags are set, force xyz-limits
   if args.xlim: 
    ax1.set_xlim(args.xlim)
