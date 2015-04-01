@@ -102,8 +102,10 @@ for ff in range(len(file_list)):
   #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.85, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
-  if npoles<10:
-     cmapp=['mediumblue','orange','lime','orchid','red','royalblue','gray','pink','limegreen','navy']
+  if npoles<=10:
+     cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
+#     cmapp=['darkviolet','slateblue','deeppink','royalblue','orchid','red','gray','pink','limegreen','navy']
+  #cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
 #     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
 
 

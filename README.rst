@@ -34,7 +34,7 @@ peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
   package by Jo Bovy (2015, in prep.). It is supplied with this bundle.
 - The peak detection utility peakdetect_mgc3_polemaps.py uses the
   Starlink implementation of the Fellwalker code by `Berry 2014 <http://arxiv.org/abs/1411.6267v1>`__,
-  assuming it is installed at /star-2014A. The coded is *not* supplied
+  assuming it is installed at /star-2014A. The code is *not* supplied
   with this bundle, but is publicly available at the `Starlink website <http://starlink.jach.hawaii.edu>`__.
 
 **FILES PROVIDED**
@@ -44,7 +44,7 @@ peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
    * mgc3_get_pole_stars.py
    * mgc3_plot_polemaps.py
    * peakdetect_mgc3_polemaps.py
-   * mgc3_peakstars_plot.py  [BETA]   
+   * mgc3_peakstars_plot.py  
 - Documentation
    * README.rst
 - Libraries
@@ -59,7 +59,7 @@ peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
 
 **INSTALLATION**
 
-In a terminal run the following command::
+In a terminal, run the following command::
 
     sudo python setup.py install
 
@@ -76,7 +76,7 @@ Quick Guide
 -----------
 
 If you just want to start running the programs right away, follow these quick-and-dirty recipe
-using the example data provided. For more details on the Python scripts,
+using the example data provided. For more details on each of the Python scripts,
 go to the next section in this README.
 
 Go to the examples directory::

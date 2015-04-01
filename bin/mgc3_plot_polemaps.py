@@ -29,6 +29,8 @@ parser.add_argument('-ms',help='Marker size. Default: 15/40 for npaeqd/ortho.', 
 parser.add_argument('-c','--contour',help='Plot pole-count contour map instead of raw grid.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
+parser.add_argument('-title',help='Plot title', action='store',default=None)
+
 
 #---------Parse----------------------------
 args = parser.parse_args()

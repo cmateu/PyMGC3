@@ -119,6 +119,9 @@ for infilen in file_list:
      #pole_ctso=np.log10(pole_ctso)
      pmode=pmode+'l'
 
+  #Default title----------------------------------
+  args.title=infilen
+
   #Output figure and file names
   figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
@@ -324,8 +327,10 @@ for infilen in file_list:
     #Plot identified clumps on top of pole count map and print out
     cmapp=plt.cm.gist_ncar(np.linspace(0., 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
     cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
-    if pid.size<10:
-     cmapp=['mediumblue','orange','lime','orchid','red','royalblue','gray','pink','limegreen','navy']
+    if pid.size<=10:
+     cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
+     #cmapp=['darkviolet','slateblue','deeppink','royalblue','orchid','red','gray','pink','limegreen','navy']
+
 #     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
 
 
