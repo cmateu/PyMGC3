@@ -60,12 +60,15 @@ parser.add_argument('-c','--contour',help='Plot pole-count contour map instead o
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-sc','--saveclumps',help='Plot and save poles associated to each peak.', action='store_true',default=False)
+parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 20.', action='store',default=20,type=np.float)
+parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.3', action='store',default=0.3,type=np.float)
 peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-fr','--frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
 peakargs.add_argument('-ff','--ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
-parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 20.', action='store',default=20,type=np.float)
-parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.3', action='store',default=0.3,type=np.float)
 parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5 (=FWHM)', action='store',default=0.5,type=np.float)
+
+parser.add_argument('-U','--unsharp',help='Detect peaks in unsharp-masked image. Default is False', action='store_true',default=False)
+parser.add_argument('-ns','--nsigma',help='If -U is set, set N-sigma threshold for detections. Default is 3', action='store',type=np.float,default=3.)
 
 
 #---------Parse----------------------------
@@ -212,6 +215,51 @@ for infilen in file_list:
   if args.title:
     ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
 
+  #Unsharp masking--------
+  #Compute median filtered image
+  #if args.unsharp:
+  nsm=60 #neighbourhood for median computation
+  zi_smooth=scipy.ndimage.median_filter(zi,size=(nsm,nsm),mode='wrap')
+  zi_sharp=zi-zi_smooth
+  zi_sigma=np.sqrt(zi_smooth)
+  zi_sharp=zi_sharp/zi_sigma   #express subtracted image in nsigma-units
+  #zi=zi_sharp
+  #----plot unsharp masked and smoothed images
+  fig2=plt.figure(2,figsize=(16,6))
+  #----------------smoothed image---------------------------------
+  ax1=fig2.add_subplot(1,3,1)
+  m = Basemap(projection=proj,ax=ax1,**proj_dict)
+  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+  m.drawmapboundary()
+  c1=m.contourf(xi,yi,zi_smooth, clevels,cmap=colormap)
+  cb=plt.colorbar(c1,ax=ax1,orientation='horizontal',format='%d',pad=0,aspect=30)
+  #----------------subtracted image---------------------------------
+  ax2=fig2.add_subplot(1,3,2)
+  m = Basemap(projection=proj,ax=ax2,**proj_dict)
+  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+  m.drawmapboundary()
+  colormap_nsig=plt.cm.spectral
+  #colormap_nsig.set_over('firebrick')
+  zi_sharp_cut=zi_sharp
+  sigmax=12.
+  zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
+  c2=m.contourf(xi,yi,(zi_sharp), np.arange(0.,sigmax+1.,1.),cmap=colormap_nsig)
+  cb=plt.colorbar(c2,ax=ax2,orientation='horizontal',format='%4.1f',pad=0,aspect=30,extend='max')
+  #-------------subtracted image-----------------------------------------
+  ax3=fig2.add_subplot(1,3,3)
+  m = Basemap(projection=proj,ax=ax3,**proj_dict)
+  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+  m.drawmapboundary()
+  c3=m.contourf(xi,yi,np.log10(zi-zi_smooth),clevels,cmap=colormap,vmin=0.)
+  cb=plt.colorbar(c3,ax=ax3,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
+  #---------
+  fig2.tight_layout()
+  print 'here----'
+  if args.show: plt.show()
+
   #print fits image
   hdu = pyfits.PrimaryHDU()
   zi.data[zi is np.nan]=-1
@@ -227,7 +275,8 @@ for infilen in file_list:
   print 'Sqrt(mean), sqrt(median):',np.sqrt(np.mean(zi)), np.sqrt(np.median(zi))
   print '25,50,75 pcntiles:',np.percentile(zi,25), np.percentile(zi,50),np.percentile(zi,75)
   print '#----------------------------------------'
-  rms=np.sqrt(np.mean(zi))
+  #rms=np.sqrt(np.mean(zi))
+  rms=np.std(zi)
   if args.frms is not None:
     minheight=args.frms*rms
   else: 
@@ -329,8 +378,6 @@ for infilen in file_list:
     cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
     if pid.size<=10:
      cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
-     #cmapp=['darkviolet','slateblue','deeppink','royalblue','orchid','red','gray','pink','limegreen','navy']
-
 #     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
 
 

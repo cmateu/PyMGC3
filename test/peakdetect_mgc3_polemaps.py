@@ -35,29 +35,44 @@ class xypix_converter:
     return (xc,yc,phic,thetac)
 
 #----------------------------------------------
+
+__version__ = '2.0.1'
+__docformat__ = "reredtext en"
+__what__= sys.argv[0]+": This program detects peaks in pole count maps using the Fellwalker algorithm (starlink implementation)"
+#
 parser = argparse.ArgumentParser(description='Detect peaks in mGC3/nGC3/GC3 pole count maps')
 parser.add_argument('infile',metavar='infile',help='Input file containing pole count maps (*.cts file)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
 parser.add_argument('-m',help='Plot mGC3/nGC3/GC3 pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
+parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
+parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
+parser.add_argument('-labels',help='Plot peak ID labels', action='store_true',default=False)
+parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
+parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
+parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
-parser.add_argument('-ms',help='Marker size. Default: 10 for npaeqd.', action='store',default=15,type=np.float)
+parser.add_argument('-ms',help='Marker size. Default: 50 for npaeqd.', action='store',default=50,type=np.float)
 parser.add_argument('-c','--contour',help='Plot pole-count contour map instead of raw grid.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-sc','--saveclumps',help='Plot and save poles associated to each peak.', action='store_true',default=False)
 peakargs = parser.add_mutually_exclusive_group()
-peakargs.add_argument('-frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
-peakargs.add_argument('-ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
+peakargs.add_argument('-fr','--frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
+peakargs.add_argument('-ff','--ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
+parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 20.', action='store',default=20,type=np.float)
+parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.3', action='store',default=0.3,type=np.float)
+parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5 (=FWHM)', action='store',default=0.5,type=np.float)
 
 
 #---------Parse----------------------------
 args = parser.parse_args()
 
 #Parse inputs
+
 if not args.llist:
  print 'Reading file: %s' % (args.infile)
  file_list=[args.infile[0],]
@@ -98,9 +113,19 @@ colormap=plt.cm.jet
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
-  figname_root=infilen.replace('.mgc3.cts','')
+  #If log-flag is set, do everything with log(counts)
+  if args.log: 
+     print 'Do peak detection on linear scale but show plot on log scale'
+     #pole_ctso=np.log10(pole_ctso)
+     pmode=pmode+'l'
+
+  #Default title----------------------------------
+  args.title=infilen
+
+  #Output figure and file names
+  figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
-  clumpfname='%s.%s.pls.peak.dat' % (figname_root,mode)
+  clumpfname='%s.%s.peak.pls' % (figname_root,mode)
   clumppixfname='%s.%s.pls' % (figname_root,mode)
   print 'Output filename:', figname
 
@@ -117,13 +142,14 @@ for infilen in file_list:
 
   #----------------Pole count map------------------------------
   mer_grid=[0.,360.,args.dlon]
-  par_grid=[-90.,+90.,args.dlat]
+  par_grid=[-args.dlat,+90.,args.dlat]
 
   #For npa and moll projections, plot map as viewed from lon0 only
   fig=plt.figure(1,figsize=(8,8))
   dw=0.8
   wo=(1.-dw)/2.
-  wyo=0.75*wo
+  wyo=0.75*wo 
+  wyo=0.05*wo 
   fig.subplots_adjust(left=wo,right=dw+wo,top=dw+wo,bottom=wyo)
   nrow,ncol,nplot=1,1,1
   l0=args.lon0
@@ -132,8 +158,8 @@ for infilen in file_list:
 
   ax=fig.add_subplot(nrow,ncol,nplot)
   m = Basemap(projection=proj,ax=ax,**proj_dict)
-  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='white',lw=2.)
-  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='white',lw=2.)
+  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
   m.drawmapboundary()
 
   x,y=m(phi,theta)
@@ -147,19 +173,44 @@ for infilen in file_list:
   zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
 
   lmax=np.floor(np.log10(np.max(pole_cts)))
-  if 'r' in pmode: c=m.scatter(x,y,c=pole_cts/10**lmax,edgecolor='none',s=ms,cmap=colormap)
-  else: c=m.contourf(xi,yi,zi/10**lmax,clevels,cmap=colormap)
+  if 'r' in pmode: 
+     if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+     else:        
+        if args.vmin is not None: vmin=args.vmin/10**lmax
+        else: vmin=args.vmin
+        if args.vmax is not None: vmax=args.vmax/10**lmax
+        else: vmax=args.vmax
+        c=m.scatter(x,y,c=pole_cts/10**lmax, edgecolor='none',s=ms,cmap=colormap,vmin=vmin,vmax=vmax)
+  else: 
+   if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+   else:
+     if args.vmin is not None: vmin=args.vmin
+     else: vmin=np.min(zi)
+     if args.vmax is not None: vmax=args.vmax
+     else: vmax=np.max(zi)
+     zii=zi
+     zii[(zii<vmin)]=vmin
+     zii[(zii>vmax)]=vmax
+     lmax=np.floor(np.log10(vmax))
+     c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
 
   #Plot colorbar
-  cax0=plt.gca()
-  cax=plt.axes([wo,1.2*wyo+dw,dw,0.02])
-  cb=plt.colorbar(c,cax=cax,orientation='horizontal',format='%4.1f',label='prueba')
+  cax0=plt.gca().get_position()
+  cax=plt.axes([cax0.x0,cax0.y0+dw+0.05,dw,0.02])
+  cb=plt.colorbar(c,cax=cax,orientation='horizontal',format='%4.1f')
   cax.xaxis.set_ticks_position('top')
   
   #Labels and such
   if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
-  cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
+  else: factorl=''
+  if args.log:
+     cax.set_xlabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
+  else:
+     cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
   cax.xaxis.set_label_position('top') 
+
+  if args.title:
+    ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
 
   #print fits image
   hdu = pyfits.PrimaryHDU()
@@ -182,8 +233,7 @@ for infilen in file_list:
   else: 
     minheight=args.ffrac*np.max(zi)
   print 'Finding clumps with Fellwalker'
-  os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f' 
-            % (starlink_path,rms)) 
+  os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" ' % (starlink_path,rms,args.maxjump)) 
 
   #Read-in output table with identified clumps
   clumpdat=pyfits.open('_zp_clumps.FIT')[1].data                    
@@ -202,12 +252,14 @@ for infilen in file_list:
 
   #print pars on screen
   print '#----------------------------------------------------------------'
-  print '# Peak-detection algorithm: Starlink Fellwalker (Berry+2014)'
+  print '# Peak-detection algorithm: Starlink Fellwalker (Berry 2014)'
   print '# Params: RMS=%.1f (=sqrt(mean(cts))' % (rms)
+  print '#         FellWalker.MaxJump=%.0f'
   if args.frms is not None:
     print '#         MinHeight=%d (=%.1f*RMS)' % (minheight,args.frms)
   else:
     print '#         MinHeight=%d (=%.2f*max_cts)' % (minheight,args.ffrac)
+  print '#         FWXM=%.2f (stored pixels associated to each clump)' % (args.fwxm)
   print '#----------------------------------------------------------------'
   print '# NC=%d clumps saved ' % (xpix.size)
   for kk in range(pid.size): print '# Clump oldID=%3d, newID=%3d, Ncts=%d' % (pid[kk],newid[kk],cheight[kk])
@@ -217,12 +269,14 @@ for infilen in file_list:
   clumpfile=open(clumpfname,'w')
   #Print some param data and file header
   clumpfile.write('#----------------------------------------------------------------------\n')
-  clumpfile.write('# Peak-detection algorithm: Starlink Fellwalker (Berry+2014)\n')
+  clumpfile.write('# Peak-detection algorithm: Starlink Fellwalker (Berry 2014)\n')
   clumpfile.write('# Params: RMS=%.1f (=sqrt(mean(cts))\n' % (rms))
+  clumpfile.write('#         FellWalker.MaxJump=%.0f\n' % (args.maxjump))
   if args.frms is not None: 
     clumpfile.write('#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms))
   else: 
     clumpfile.write('#         MinHeight=%d (=%.2f*max_cts)\n' % (minheight,args.ffrac))
+  clumpfile.write('#         FWXM=%.2f (stored pixels associated to each clump)\n' % (args.fwxm))
   clumpfile.write('#----------------------------------------------------------------------\n')
   hfmt='#%3s '+6*'%8s '+'%10s '+'\n'
   clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_cts'))
@@ -243,7 +297,13 @@ for infilen in file_list:
   scipy.savetxt(clumpfile,np.array([newid,phipeak,thetapeak,phipeakc,thetapeakc,dphi,dtheta,cheight]).T,fmt=fmt)
 
   #Plot detected clump peaks
-  m.scatter(xpeak,ypeak,c='none',edgecolor='k',s=20,zorder=99)
+  if args.labels:
+    #Peak ID labels
+    m.scatter(xpeak,ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
+    for ii in range(newid.size): ax.text(xpeak[ii],ypeak[ii],newid[ii],fontsize=7,color='black',
+                                        horizontalalignment='center',verticalalignment='center',zorder=101)
+  else:
+    m.scatter(xpeak,ypeak,c='none',edgecolor='k',s=20,zorder=99)
 
   #Save current figure 
   fig.savefig(figname)
@@ -265,15 +325,23 @@ for infilen in file_list:
     xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds,yinds)
  
     #Plot identified clumps on top of pole count map and print out
-    cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    cmapp=plt.cm.gist_ncar(np.linspace(0., 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    if pid.size<=10:
+     cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
+     #cmapp=['darkviolet','slateblue','deeppink','royalblue','orchid','red','gray','pink','limegreen','navy']
+
+#     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
+
+
 
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
     for kk in np.arange(pid.size):
-      #Save only pixels inside the FWHM of the peak and with counts>minheight
-      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=0.5*cheight[kk])
+      #Save only pixels inside the FWXM of the peak and with counts>minheight
+      pmask = (cmask_1d==pid[kk]) & (pcts_1d>=args.fwxm*cheight[kk]) & (pcts_1d>=minheight)
       #plot current peak only
-      m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=0.3)
+      m.plot(xcmask[pmask],ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=args.alpha)
       newid_cmask=newid[kk]*np.ones_like(cmask_1d[pmask])
       scipy.savetxt(file_clumppixfname,np.array([newid_cmask,phicmask[pmask],thetacmask[pmask]]).T,fmt='%7d %10.4f %10.4f')
 
@@ -281,7 +349,7 @@ for infilen in file_list:
     fig.savefig(cfigname)
 
     #Remove auxiliary files
-    os.system('rm -f _zp*')
+    os.system('rm -f _zp* _zp.fits')
 
   if args.show: plt.show()
   else: fig.clf()
