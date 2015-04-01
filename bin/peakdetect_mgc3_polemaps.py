@@ -56,7 +56,7 @@ parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
 parser.add_argument('-ms',help='Marker size. Default: 50 for npaeqd.', action='store',default=50,type=np.float)
-parser.add_argument('-c','--contour',help='Plot pole-count contour map instead of raw grid.', action='store_true',default=False)
+parser.add_argument('-r','--raw',help='Plot raw grid pole-count map instead of contour map.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-sc','--saveclumps',help='Plot and save poles associated to each peak.', action='store_true',default=False)
@@ -93,12 +93,12 @@ elif 'ngc3' in mode: counts_col=6-1
 elif 'gc3'  in mode: counts_col=5-1
 
 #Parse raw/contour mode-------------------------
-if args.contour: 
-  pmode='c'
-  print 'Plotting contour pole-count map'
-else: 
+if args.raw: 
   pmode='r'
   print 'Plotting raw pole-count map'
+else: 
+  pmode='c'
+  print 'Plotting contour pole-count map'
 
 if args.twohemispheres:
   print 'Plotting both hemispheres in pole-count map'
@@ -112,14 +112,12 @@ ori='horizontal'
 ni=0
 
 colormap=plt.cm.jet
-#colormap=plt.cm.spectral
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
   #If log-flag is set, do everything with log(counts)
   if args.log: 
      print 'Do peak detection on linear scale but show plot on log scale'
-     #pole_ctso=np.log10(pole_ctso)
      pmode=pmode+'l'
 
   #Default title----------------------------------
@@ -136,7 +134,7 @@ for infilen in file_list:
   theta2=np.append(thetao,-thetao)
   pole_cts2=np.append(pole_ctso,pole_ctso) 
 
-  if args.twohemispheres:
+  if args.twohemispheres or args.unsharp:
    phi,theta,pole_cts=phi2,theta2,pole_cts2
   else: 
    phi,theta,pole_cts=phio,thetao,pole_ctso 
@@ -147,7 +145,7 @@ for infilen in file_list:
   mer_grid=[0.,360.,args.dlon]
   par_grid=[-args.dlat,+90.,args.dlat]
 
-  #For npa and moll projections, plot map as viewed from lon0 only
+  #PCM map projection basics
   fig=plt.figure(1,figsize=(8,8))
   dw=0.8
   wo=(1.-dw)/2.
@@ -164,9 +162,9 @@ for infilen in file_list:
   m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
   m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
   m.drawmapboundary()
-
   x,y=m(phi,theta)
-  #
+
+  #------------Grid-data for contour plotting---------------
   npix=400
   clevels=30
   xo,xf=np.min(x),np.max(x)
@@ -187,6 +185,7 @@ for infilen in file_list:
   else: 
    if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
    else:
+     #Use vmin and vmax for plotting only
      if args.vmin is not None: vmin=args.vmin
      else: vmin=np.min(zi)
      if args.vmax is not None: vmax=args.vmax
@@ -215,52 +214,55 @@ for infilen in file_list:
   if args.title:
     ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
 
-  #Unsharp masking--------
-  #Compute median filtered image
-  #if args.unsharp:
-  nsm=60 #neighbourhood for median computation
-  zi_smooth=scipy.ndimage.median_filter(zi,size=(nsm,nsm),mode='wrap')
-  zi_sharp=zi-zi_smooth
-  zi_sigma=np.sqrt(zi_smooth)
-  zi_sharp=zi_sharp/zi_sigma   #express subtracted image in nsigma-units
-  #zi=zi_sharp
-  #----plot unsharp masked and smoothed images
-  fig2=plt.figure(2,figsize=(16,6))
-  #----------------smoothed image---------------------------------
-  ax1=fig2.add_subplot(1,3,1)
-  m = Basemap(projection=proj,ax=ax1,**proj_dict)
-  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
-  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
-  m.drawmapboundary()
-  c1=m.contourf(xi,yi,zi_smooth, clevels,cmap=colormap)
-  cb=plt.colorbar(c1,ax=ax1,orientation='horizontal',format='%d',pad=0,aspect=30)
-  #----------------subtracted image---------------------------------
-  ax2=fig2.add_subplot(1,3,2)
-  m = Basemap(projection=proj,ax=ax2,**proj_dict)
-  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
-  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
-  m.drawmapboundary()
-  colormap_nsig=plt.cm.spectral
-  #colormap_nsig.set_over('firebrick')
-  zi_sharp_cut=zi_sharp
-  sigmax=12.
-  zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
-  c2=m.contourf(xi,yi,(zi_sharp), np.arange(0.,sigmax+1.,1.),cmap=colormap_nsig)
-  cb=plt.colorbar(c2,ax=ax2,orientation='horizontal',format='%4.1f',pad=0,aspect=30,extend='max')
-  #-------------subtracted image-----------------------------------------
-  ax3=fig2.add_subplot(1,3,3)
-  m = Basemap(projection=proj,ax=ax3,**proj_dict)
-  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
-  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
-  m.drawmapboundary()
-  c3=m.contourf(xi,yi,np.log10(zi-zi_smooth),clevels,cmap=colormap,vmin=0.)
-  cb=plt.colorbar(c3,ax=ax3,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
-  #---------
-  fig2.tight_layout()
-  print 'here----'
-  if args.show: plt.show()
+  #-------------------------Unsharp masking-----------------------------------------------------
+  if args.unsharp:
+    #Compute median filtered image
+    nsm=60 #neighbourhood for median computation
+    zi_smooth=scipy.ndimage.median_filter(zi,size=(nsm,nsm),mode='wrap')
+    zi_sharp=zi-zi_smooth
+    zi_sigma=np.sqrt(zi_smooth)  #assuming counts in the PCM follow a Poisson distribution
+    zi_sharp_Nsig=zi_sharp/zi_sigma   #express subtracted image in nsigma-units
+    #----plot unsharp masked and smoothed images
+    fig2=plt.figure(2,figsize=(16,6))
+    #----------------smoothed image---------------------------------
+    ax1=fig2.add_subplot(1,3,1)
+    m = Basemap(projection=proj,ax=ax1,**proj_dict)
+    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+    m.drawmapboundary()
+    c1=m.contourf(xi,yi,zi_smooth, clevels,cmap=colormap)
+    cb=plt.colorbar(c1,ax=ax1,orientation='horizontal',format='%d',pad=0,aspect=30)
+    #-------------subtracted image-----------------------------------------
+    ax3=fig2.add_subplot(1,3,2)
+    m = Basemap(projection=proj,ax=ax3,**proj_dict)
+    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+    m.drawmapboundary()
+    c3=m.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormap,vmin=0.)
+    cb=plt.colorbar(c3,ax=ax3,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
+    #----------------subtracted image in Nsgima units---------------------------------
+    ax2=fig2.add_subplot(1,3,3)
+    m = Basemap(projection=proj,ax=ax2,**proj_dict)
+    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+    m.drawmapboundary()
+    colormap_nsig=plt.cm.spectral
+    #colormap_nsig.set_over('firebrick')
+    zi_sharp_cut=zi_sharp_Nsig
+    sigmax=12.  #Maximum Nsigma for contour and color display
+    zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
+    c2=m.contourf(xi,yi,(zi_sharp_Nsig), np.arange(0.,sigmax+1.,1.),cmap=colormap_nsig)
+    cb=plt.colorbar(c2,ax=ax2,orientation='horizontal',format='%4.1f',pad=0,aspect=30,extend='max')
+    #---------
+    fig2.tight_layout()
+    print 'here----'
+    usharp_figname='%s.%s.%s.%s.usharp.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
+    fig2.savefig(usharp_figname)
+    if args.show: plt.show()
 
-  #print fits image
+  #--------------------Manage formats to run the Fellwaker peak detection algorithm---------------------------------------------
+  if args.unsharp: zi=zi_sharp_Nsig
+ 
   hdu = pyfits.PrimaryHDU()
   zi.data[zi is np.nan]=-1
   hdu.data=zi.data
@@ -275,12 +277,14 @@ for infilen in file_list:
   print 'Sqrt(mean), sqrt(median):',np.sqrt(np.mean(zi)), np.sqrt(np.median(zi))
   print '25,50,75 pcntiles:',np.percentile(zi,25), np.percentile(zi,50),np.percentile(zi,75)
   print '#----------------------------------------'
-  #rms=np.sqrt(np.mean(zi))
   rms=np.std(zi)
-  if args.frms is not None:
-    minheight=args.frms*rms
-  else: 
-    minheight=args.ffrac*np.max(zi)
+  if args.unsharp:
+     minheight=args.nsigma
+  else:
+   if args.frms is not None:
+     minheight=args.frms*rms
+   else: 
+     minheight=args.ffrac*np.max(zi)
   print 'Finding clumps with Fellwalker'
   os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" ' % (starlink_path,rms,args.maxjump)) 
 
@@ -321,9 +325,12 @@ for infilen in file_list:
   clumpfile.write('# Peak-detection algorithm: Starlink Fellwalker (Berry 2014)\n')
   clumpfile.write('# Params: RMS=%.1f (=sqrt(mean(cts))\n' % (rms))
   clumpfile.write('#         FellWalker.MaxJump=%.0f\n' % (args.maxjump))
-  if args.frms is not None: 
-    clumpfile.write('#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms))
-  else: 
+  if args.unsharp:
+    clumpfile.write('#         MinHeight=%-4.1f (Nsigma-units)\n' % (minheight))
+  else:
+   if args.frms is not None: 
+     clumpfile.write('#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms))
+   else: 
     clumpfile.write('#         MinHeight=%d (=%.2f*max_cts)\n' % (minheight,args.ffrac))
   clumpfile.write('#         FWXM=%.2f (stored pixels associated to each clump)\n' % (args.fwxm))
   clumpfile.write('#----------------------------------------------------------------------\n')
