@@ -59,16 +59,16 @@ parser.add_argument('-ms',help='Marker size. Default: 50 for npaeqd.', action='s
 parser.add_argument('-r','--raw',help='Plot raw grid pole-count map instead of contour map.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
-parser.add_argument('-sc','--saveclumps',help='Plot and save poles associated to each peak.', action='store_true',default=False)
+parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
+parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 20.', action='store',default=20,type=np.float)
-parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.3', action='store',default=0.3,type=np.float)
+parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.3', action='store',default=0.5,type=np.float)
 peakargs = parser.add_mutually_exclusive_group()
-peakargs.add_argument('-fr','--frms',help='If set, min peak height is frms*RMS', action='store',type=np.float)
-peakargs.add_argument('-ff','--ffrac',help='Default option. Min peak height is fmax*max_pole_counts. Default fmax=0.6', action='store',default=0.6,type=np.float)
-parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5 (=FWHM)', action='store',default=0.5,type=np.float)
-
+peakargs.add_argument('-fr','--frms',help='Default option. Min peak height is frms*RMS. Default fr=5.', action='store',type=np.float,default=5.)
+peakargs.add_argument('-ff','--ffrac',help='Min peak height is fmax*max_pole_counts', action='store',type=np.float)
+parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5. If -U, fx is in N-sigma units', action='store',default=0.5,type=np.float)
 parser.add_argument('-U','--unsharp',help='Detect peaks in unsharp-masked image. Default is False', action='store_true',default=False)
-parser.add_argument('-ns','--nsigma',help='If -U is set, set N-sigma threshold for detections. Default is 3', action='store',type=np.float,default=3.)
+parser.add_argument('-ns','--nsigma',help='If -U is set, set N-sigma threshold for detections. Default is 3.', action='store',type=np.float,default=3.)
 
 
 #---------Parse----------------------------
@@ -112,7 +112,7 @@ ori='horizontal'
 ni=0
 
 colormap=plt.cm.jet
-colormap=plt.cm.gray
+if args.bw: colormap=plt.cm.gray
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
@@ -215,6 +215,13 @@ for infilen in file_list:
   if args.title:
     ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
 
+  if args.noclumps:  
+    fig.savefig(figname)
+    if args.show: plt.show()
+    else: fig.clf()
+    print 'WARNING: No-clump flag set, plain PCM plotted. Skipping peak detection...  '
+    continue
+
   #-------------------------Unsharp masking-----------------------------------------------------
   if args.unsharp:
     #Compute median filtered image
@@ -224,23 +231,36 @@ for infilen in file_list:
     zi_sigma=np.sqrt(zi_smooth)  #assuming counts in the PCM follow a Poisson distribution
     zi_sharp_Nsig=zi_sharp/zi_sigma   #express subtracted image in nsigma-units
     #----plot unsharp masked and smoothed images
-    fig2=plt.figure(2,figsize=(16,6))
+    fig2=plt.figure(2,figsize=(16,6.3))
+    fig2.subplots_adjust(bottom=0.01,top=0.99,left=0.03,right=0.97,wspace=0.1)
     #----------------smoothed image---------------------------------
     axs=fig2.add_subplot(1,3,1)
+    colormaps=plt.cm.jet
     ms = Basemap(projection=proj,ax=axs,**proj_dict)
     ms.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
     ms.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
     ms.drawmapboundary()
-    c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormap)
+    c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormaps)
     cb=plt.colorbar(c1,ax=axs,orientation='horizontal',format='%d',pad=0,aspect=30)
+    if args.log:
+       cb.set_label('%s log-pole-counts (dex stars/pole)' % (mode_ori),fontsize=15)
+    else:
+       cb.set_label('%s pole-counts (%sstars/pole)' % (mode_ori,factorl),fontsize=15)
+    axs.set_title('Smoothed %s PCM' % (mode_ori),fontsize=15)
     #-------------subtracted image-----------------------------------------
     axu=fig2.add_subplot(1,3,2)
+    colormaps=plt.cm.jet
     mu = Basemap(projection=proj,ax=axu,**proj_dict)
     mu.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
     mu.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
     mu.drawmapboundary()
-    c3=mu.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormap,vmin=0.)
+    c3=mu.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormaps,vmin=0.)
     cb=plt.colorbar(c3,ax=axu,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
+    if args.log:
+       cb.set_label('%s log-pole-counts (dex stars/pole)' % (mode_ori),fontsize=15)
+    else:
+       cb.set_label('%s pole-counts (%sstars/pole)' % (mode_ori,factorl),fontsize=15)
+    axu.set_title('Unsharp-masked %s PCM' % (mode_ori),fontsize=15)
     #----------------subtracted image in Nsgima units---------------------------------
     axn=fig2.add_subplot(1,3,3)
     mn = Basemap(projection=proj,ax=axn,**proj_dict)
@@ -254,9 +274,11 @@ for infilen in file_list:
     zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
     c2=mn.contourf(xi,yi,(zi_sharp_cut), np.arange(0.,sigmax+1.,1.),cmap=colormap_nsig)
     cb=plt.colorbar(c2,ax=axn,orientation='horizontal',format='%4.1f',pad=0,aspect=30,extend='max')
+    #Labels and such
+    cb.set_label('Significance ($N\sigma$)',fontsize=15)
+    axn.set_title('Unsharp-masked %s PCM (N$\sigma$)' % (mode_ori),fontsize=15)
     #---------
-    fig2.tight_layout()
-    print 'here----'
+    axu.text(0.5,0.97,args.title,transform=fig2.transFigure,horizontalalignment='center',verticalalignment='center',fontsize=17)
     usharp_figname='%s.%s.%s.%s.usharp.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
     fig2.savefig(usharp_figname)
 
@@ -414,7 +436,6 @@ for infilen in file_list:
   print '#----------------------------------------------------------------'
 
   ##Convert pix coords to physical units 
-  #pix_convert=xypix_converter(m,npix=npix,rangex=(xo,xf),rangey=(yo,yf))
   ##Convert peak coords
   u_xpeak,u_ypeak,u_phipeak,u_thetapeak=pix_convert.get_phys_from_pix(u_xpix,u_ypix)
   ##Convert peak centroid coords
@@ -428,22 +449,26 @@ for infilen in file_list:
   fmt='%4d '+6*'%8.3f '+'%10.0f '
   scipy.savetxt(clumpfile,np.array([u_newid,u_phipeak,u_thetapeak,u_phipeakc,u_thetapeakc,dphi,dtheta,u_cheight]).T,fmt=fmt)
 
-  print 'printed /////'
+  if args.noclumps:  fig.savefig(figname)
 
-  #Plot detected clump peaks
+  #Plot detected clump peaks and labels
   if args.labels:
     #Peak ID labels
-    m.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
-    for ii in range(u_newid.size): ax.text(u_xpeak[ii],u_ypeak[ii],u_newid[ii],fontsize=7,color='black',
-                                        horizontalalignment='center',verticalalignment='center',zorder=101)
+    if not args.noclumps: axl,ml=[ax,axn,axu],[m,mn,mu]
+    else: axl,ml=[ax,],[m,]
+    for aax,mm in zip(axl,ml):
+      mm.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
+      for ii in range(u_newid.size): 
+         aax.text(u_xpeak[ii],u_ypeak[ii],u_newid[ii],fontsize=7,color='black',
+                   horizontalalignment='center',verticalalignment='center',zorder=101)
   else:
     m.scatter(u_xpeak,u_ypeak,c='none',edgecolor='k',s=20,zorder=99)
 
-  #Save current figure 
-  fig.savefig(figname)
+  #Save current figure after plotting peaks and labels
+  if not args.noclumps: fig.savefig(figname)
 
   #If flag is set, plot new figure indicating pixels associated to each clump
-  if args.saveclumps:
+  if not args.noclumps:
     #Plot identified clumps on top of pole count map and print out
     cmapp=plt.cm.gist_ncar(np.linspace(0., 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
     cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
@@ -457,7 +482,6 @@ for infilen in file_list:
       #Save only pixels inside the FWXM of the peak and with counts>minheight
       pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
       #plot current peak only
-      #m.plot(u_xcmask[pmask],u_ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=args.alpha)
       m.scatter(u_xcmask[pmask],u_ycmask[pmask],c=cmapp[kk],edgecolors='none',s=20,marker='o',alpha=args.alpha)
       u_newid_cmask=u_newid[kk]*np.ones_like(u_cmask_1d[pmask])
       scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask]]).T,fmt='%7d %10.4f %10.4f')
