@@ -112,6 +112,7 @@ ori='horizontal'
 ni=0
 
 colormap=plt.cm.jet
+colormap=plt.cm.gray
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
@@ -225,40 +226,39 @@ for infilen in file_list:
     #----plot unsharp masked and smoothed images
     fig2=plt.figure(2,figsize=(16,6))
     #----------------smoothed image---------------------------------
-    ax1=fig2.add_subplot(1,3,1)
-    m = Basemap(projection=proj,ax=ax1,**proj_dict)
-    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
-    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
-    m.drawmapboundary()
-    c1=m.contourf(xi,yi,zi_smooth, clevels,cmap=colormap)
-    cb=plt.colorbar(c1,ax=ax1,orientation='horizontal',format='%d',pad=0,aspect=30)
+    axs=fig2.add_subplot(1,3,1)
+    ms = Basemap(projection=proj,ax=axs,**proj_dict)
+    ms.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+    ms.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+    ms.drawmapboundary()
+    c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormap)
+    cb=plt.colorbar(c1,ax=axs,orientation='horizontal',format='%d',pad=0,aspect=30)
     #-------------subtracted image-----------------------------------------
-    ax3=fig2.add_subplot(1,3,2)
-    m = Basemap(projection=proj,ax=ax3,**proj_dict)
-    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
-    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
-    m.drawmapboundary()
-    c3=m.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormap,vmin=0.)
-    cb=plt.colorbar(c3,ax=ax3,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
+    axu=fig2.add_subplot(1,3,2)
+    mu = Basemap(projection=proj,ax=axu,**proj_dict)
+    mu.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+    mu.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+    mu.drawmapboundary()
+    c3=mu.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormap,vmin=0.)
+    cb=plt.colorbar(c3,ax=axu,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
     #----------------subtracted image in Nsgima units---------------------------------
-    ax2=fig2.add_subplot(1,3,3)
-    m = Basemap(projection=proj,ax=ax2,**proj_dict)
-    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
-    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
-    m.drawmapboundary()
+    axn=fig2.add_subplot(1,3,3)
+    mn = Basemap(projection=proj,ax=axn,**proj_dict)
+    mn.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+    mn.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+    mn.drawmapboundary()
     colormap_nsig=plt.cm.spectral
     #colormap_nsig.set_over('firebrick')
-    zi_sharp_cut=zi_sharp_Nsig
+    zi_sharp_cut=zi_sharp_Nsig.copy()
     sigmax=12.  #Maximum Nsigma for contour and color display
     zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
-    c2=m.contourf(xi,yi,(zi_sharp_Nsig), np.arange(0.,sigmax+1.,1.),cmap=colormap_nsig)
-    cb=plt.colorbar(c2,ax=ax2,orientation='horizontal',format='%4.1f',pad=0,aspect=30,extend='max')
+    c2=mn.contourf(xi,yi,(zi_sharp_cut), np.arange(0.,sigmax+1.,1.),cmap=colormap_nsig)
+    cb=plt.colorbar(c2,ax=axn,orientation='horizontal',format='%4.1f',pad=0,aspect=30,extend='max')
     #---------
     fig2.tight_layout()
     print 'here----'
     usharp_figname='%s.%s.%s.%s.usharp.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
     fig2.savefig(usharp_figname)
-    if args.show: plt.show()
 
   #--------------------Manage formats to run the Fellwaker peak detection algorithm---------------------------------------------
   if args.unsharp: zi=zi_sharp_Nsig
@@ -277,10 +277,11 @@ for infilen in file_list:
   print 'Sqrt(mean), sqrt(median):',np.sqrt(np.mean(zi)), np.sqrt(np.median(zi))
   print '25,50,75 pcntiles:',np.percentile(zi,25), np.percentile(zi,50),np.percentile(zi,75)
   print '#----------------------------------------'
-  rms=np.std(zi)
   if args.unsharp:
+     rms=1.  #If -U, zi is by always in N-sigma units by default            
      minheight=args.nsigma
   else:
+   rms=np.std(zi)
    if args.frms is not None:
      minheight=args.frms*rms
    else: 
@@ -288,6 +289,7 @@ for infilen in file_list:
   print 'Finding clumps with Fellwalker'
   os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" ' % (starlink_path,rms,args.maxjump)) 
 
+  #------------------------------Deal with identified peaks (peak centroids, etc)---------------------------
   #Read-in output table with identified clumps
   clumpdat=pyfits.open('_zp_clumps.FIT')[1].data                    
   xpix,ypix,cheight=clumpdat.field('Peak1'),clumpdat.field('Peak2'),clumpdat.field('Peak')
@@ -295,7 +297,7 @@ for infilen in file_list:
   pid=np.arange(xpix.size) + 1  #Peak IDs, must start from 1
 
   #Keep only peaks with counts > minheight and with sizes>=1 (clumps have to be at least 1 pixel in size)
-  mask=(cheight>=minheight) & (dx_pix>=1.) & (dy_pix>=1.)
+  mask=(cheight>=minheight) & (dx_pix>=1.) & (dy_pix>=1.) #& (thetapeak>=0.)
   if not mask.any(): 
     print 'No peaks above minheight or with size>=1pix found'
     continue
@@ -303,39 +305,142 @@ for infilen in file_list:
   xpix_c,ypix_c,dx_pix,dy_pix,pid=xpix_c[mask],ypix_c[mask],dx_pix[mask],dy_pix[mask],pid[mask]
   newid=np.arange(xpix.size) + 1  #Rename so IDs will be consecutive numbers starting from 1
 
-  #print pars on screen
-  print '#----------------------------------------------------------------'
-  print '# Peak-detection algorithm: Starlink Fellwalker (Berry 2014)'
-  print '# Params: RMS=%.1f (=sqrt(mean(cts))' % (rms)
-  print '#         FellWalker.MaxJump=%.0f'
-  if args.frms is not None:
-    print '#         MinHeight=%d (=%.1f*RMS)' % (minheight,args.frms)
+  #Convert pix coords to physical units 
+  pix_convert=xypix_converter(m,npix=npix,rangex=(xo,xf),rangey=(yo,yf))
+  #Convert peak coords
+  xpeak,ypeak,phipeak,thetapeak=pix_convert.get_phys_from_pix(xpix,ypix)
+
+  #---------------Get All Pixels associated to each clump-------------------------------------
+  #Convert clump pixel mask to fits
+  print 'Converting pixel map from NDF to fits'
+  os.system('%s/convert/ndf2fits _zp_cmask _zp_cmask.fits' % (starlink_path))
+
+  #Read in clump-mask fits image
+  cmask_dat=pyfits.getdata('_zp_cmask.fits',0)
+  inds=np.arange(npix)+1
+  xpix_2d,ypix_2d=np.meshgrid(inds,inds)
+  xinds,yinds=xpix_2d.flatten(),ypix_2d.flatten()
+  pcts_1d=zi.flatten()
+  cmask_1d=cmask_dat.flatten() #cmask goes with pid, i.e. pid=cmask_1d.unique()
+  xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds,yinds)
+
+  #----------Deal with clumps that go from one hemisphere to the other-------------------------------
+  #Loop over clump IDs, if centroid is in the N, save all its pixels
+  #Peak data
+  u_phipeak,u_thetapeak,u_xpix,u_ypix=np.array([]),np.array([]),np.array([]),np.array([])
+  u_dx_pix,u_dy_pix,u_pid=np.array([]),np.array([]),np.array([])
+  #Pixel data
+  u_xcmask,u_ycmask=np.array([]),np.array([])
+  u_phicmask,u_thetacmask=np.array([]),np.array([])
+  u_cmask_1d,u_pcts_1d=np.array([]),np.array([])
+  for ii in range(thetapeak.size):
+   if thetapeak[ii]>=0: #North peaks
+     #Save peak data
+     u_phipeak,u_thetapeak=np.append(u_phipeak,phipeak[ii]),np.append(u_thetapeak,thetapeak[ii])
+     u_xpix,u_ypix=np.append(u_xpix,xpix[ii]),np.append(u_ypix,ypix[ii])   
+     u_dx_pix,u_dy_pix=np.append(u_dx_pix,dx_pix[ii]),np.append(u_dy_pix,dy_pix[ii])   
+     u_pid=np.append(u_pid,pid[ii])
+     #Save pixel-peak data
+     peakmask=cmask_1d==pid[ii]    
+     u_xcmask,u_ycmask=np.append(u_xcmask,xcmask[peakmask]),np.append(u_ycmask,ycmask[peakmask])
+     u_phicmask,u_thetacmask=np.append(u_phicmask,phicmask[peakmask]),np.append(u_thetacmask,thetacmask[peakmask])
+     u_cmask_1d,u_pcts_1d=np.append(u_cmask_1d,cmask_1d[peakmask]),np.append(u_pcts_1d,pcts_1d[peakmask])
+   
+  from astropy.coordinates import SkyCoord
+  from astropy import units as aunits
+
+  #Loop over clump with centroids in the S. If all pixels are in the S, dont save, if some in the N, flip and match
+  for ii in range(thetapeak.size):
+   if thetapeak[ii]<0: #South peaks
+     #Check whether all pixels for a given peak are in the south
+     peakmask=(cmask_1d==pid[ii]) 
+     smask=thetacmask[peakmask]>=0
+     if smask.any():
+        print 'Clump ID=%d has theta>0 pixels' % (pid[ii])
+        #Flip coords 
+        phic,thetac= (phicmask[peakmask]+180.) % 360.,-thetacmask[peakmask]
+        cmaskc=cmask_1d[peakmask]
+        catN = SkyCoord(u_phicmask*aunits.degree,u_thetacmask*aunits.degree,frame='icrs') 
+        catS = SkyCoord(phic*aunits.degree,thetac*aunits.degree,frame='icrs') 
+        Nindex,dist2d,dist3d = catS.match_to_catalog_sky(catN) #Returns catN indices for objs matching catS
+        mask_tol=dist2d.deg<1. #Keep only matches within less than 1deg
+        cmaskc[mask_tol]=u_cmask_1d[Nindex[mask_tol]]
+        #Put everything back together 
+        u_xcmask,u_ycmask=np.append(u_xcmask,xcmask[peakmask][mask_tol]),np.append(u_ycmask,ycmask[peakmask][mask_tol])
+        u_phicmask,u_thetacmask=np.append(u_phicmask,phicmask[peakmask][mask_tol]),np.append(u_thetacmask,thetacmask[peakmask][mask_tol])
+        print xcmask[peakmask][mask_tol].size, phicmask[peakmask][mask_tol].size
+        print cmaskc.size, pcts_1d[peakmask][mask_tol].size
+        u_cmask_1d,u_pcts_1d=np.append(u_cmask_1d,cmaskc[mask_tol]),np.append(u_pcts_1d,pcts_1d[peakmask][mask_tol])
+
+#  #Match detections in the S to those in the N (N is the reference one, S is affected by projection for theta<-30deg)
+#  catN = SkyCoord(phi_n*aunits.degree,theta_n*aunits.degree,frame='icrs') 
+#  catS = SkyCoord(phi_s*aunits.degree,theta_s*aunits.degree,frame='icrs') 
+#  Nindex,dist2d,dist3d = catS.match_to_catalog_sky(catN) #Returns catN indices for objs matching catS
+ 
+     else:
+       continue
+
+  #Just for tests
+  xcmask,ycmask=u_xcmask,u_ycmask
+  phicmask,thetacmask=u_phicmask,u_thetacmask
+  cmask_1d,pcts_1d=u_cmask_1d,u_pcts_1d 
+
+#  #Separate data into North and South hemispheres
+#  mask=(thetacmask>=0.) & (thetacmask<=90.) & (pcts_1d>=minheight)
+#  phi_n,theta_n,cmask_n=phicmask[mask],thetacmask[mask],cmask_1d[mask]
+#  xcmask_n,ycmask_n,pcts_1d_n=xcmask[mask],ycmask[mask],pcts_1d[mask]
+#  mask=(thetacmask<0.) & (thetacmask>=-90) & (pcts_1d>=minheight)
+#  phi_s,theta_s,cmask_s=phicmask[mask],thetacmask[mask],cmask_1d[mask]
+#  xcmask_s,ycmask_s,pcts_1d_s=xcmask[mask],ycmask[mask],pcts_1d[mask]
+#  #Flip southern hemisphere to match with northern hemisphere data
+#  phio_s,thetao_s=phi_s,theta_s #keep unflipped coords for later
+#  phi_s,theta_s=phi_s + 180. ,-theta_s
+#  phi_s[phi_s>=360.]=phi_s[phi_s>=360.]-360.
+#  #Match detections in the S to those in the N (N is the reference one, S is affected by projection for theta<-30deg)
+#  from astropy.coordinates import SkyCoord
+#  from astropy import units as aunits
+#  catN = SkyCoord(phi_n*aunits.degree,theta_n*aunits.degree,frame='icrs') 
+#  catS = SkyCoord(phi_s*aunits.degree,theta_s*aunits.degree,frame='icrs') 
+#  Nindex,dist2d,dist3d = catS.match_to_catalog_sky(catN) #Returns catN indices for objs matching catS
+#  print '---------->',aunits.degree
+#  print dist2d.deg
+#  #Set S-pixel clumpIDs to those of their N-counterparts
+#  mask_tol=dist2d.deg<1. #Keep only matches within less than 1deg
+#  cmask_s[mask_tol]=cmask_n[Nindex[mask_tol]]
+#  #Put everything back together 
+#  xcmask,ycmask=np.append(xcmask_n,xcmask_s[mask_tol]),np.append(ycmask_n,ycmask_s[mask_tol])
+#  phicmask,thetacmask=np.append(phi_n,phio_s[mask_tol]),np.append(theta_n,thetao_s[mask_tol])
+#  cmask_1d,pcts_1d=np.append(cmask_n,cmask_s[mask_tol]),np.append(pcts_1d_n,pcts_1d_s[mask_tol])
+  
+  #----------------------Printing Ouput peak-file Header and Params on Screen----------------------------------
+  #Open output file to store clump coords
+  clumpfile=open(clumpfname,'w')
+  #Save some param data and print on screen and as file header
+  header_info='#----------------------------------------------------------------------\n'
+  header_info=header_info+'# Peak-detection algorithm: Starlink Fellwalker (Berry 2014)\n'
+  if args.unsharp: header_info=header_info+'# Params: RMS=%.1f (N-sigma units)\n' % (rms)
+  else:            header_info=header_info+'# Params: RMS=%.1f (=sqrt(mean(cts))\n' % (rms)
+  header_info=header_info+'#         FellWalker.MaxJump=%.0f\n' % (args.maxjump)
+  if args.unsharp:
+    header_info=header_info+'#         MinHeight=%-4.1f (Nsigma-units)\n' % (minheight)
   else:
-    print '#         MinHeight=%d (=%.2f*max_cts)' % (minheight,args.ffrac)
-  print '#         FWXM=%.2f (stored pixels associated to each clump)' % (args.fwxm)
-  print '#----------------------------------------------------------------'
+   if args.frms is not None: 
+     header_info=header_info+'#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms)
+   else: 
+    header_info=header_info+'#         MinHeight=%d (=%.2f*max_cts)\n' % (minheight,args.ffrac)
+  header_info=header_info+'#         FWXM=%.2f (stored pixels associated to each clump)\n' % (args.fwxm)
+  header_info=header_info+'#----------------------------------------------------------------------\n'
+  #Print on file
+  clumpfile.write(header_info)
+  hfmt='#%3s '+6*'%8s '+'%10s '+'\n'
+  clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_cts'))
+  #-------------------------------------------------------------------------------------------------------------
+  #Print on screen
+  print header_info
   print '# NC=%d clumps saved ' % (xpix.size)
   for kk in range(pid.size): print '# Clump oldID=%3d, newID=%3d, Ncts=%d' % (pid[kk],newid[kk],cheight[kk])
   print '#----------------------------------------------------------------'
 
-  #Open output file to store clump coords
-  clumpfile=open(clumpfname,'w')
-  #Print some param data and file header
-  clumpfile.write('#----------------------------------------------------------------------\n')
-  clumpfile.write('# Peak-detection algorithm: Starlink Fellwalker (Berry 2014)\n')
-  clumpfile.write('# Params: RMS=%.1f (=sqrt(mean(cts))\n' % (rms))
-  clumpfile.write('#         FellWalker.MaxJump=%.0f\n' % (args.maxjump))
-  if args.unsharp:
-    clumpfile.write('#         MinHeight=%-4.1f (Nsigma-units)\n' % (minheight))
-  else:
-   if args.frms is not None: 
-     clumpfile.write('#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms))
-   else: 
-    clumpfile.write('#         MinHeight=%d (=%.2f*max_cts)\n' % (minheight,args.ffrac))
-  clumpfile.write('#         FWXM=%.2f (stored pixels associated to each clump)\n' % (args.fwxm))
-  clumpfile.write('#----------------------------------------------------------------------\n')
-  hfmt='#%3s '+6*'%8s '+'%10s '+'\n'
-  clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_cts'))
 
   #Convert pix coords to physical units 
   pix_convert=xypix_converter(m,npix=npix,rangex=(xo,xf),rangey=(yo,yf))
@@ -348,7 +453,7 @@ for infilen in file_list:
   dphi=phi_plus_dphi-phipeak
   dtheta=thetapeak-theta_minus_dtheta
 
-  #Print out
+  #Print peak data on file---------------------------------
   fmt='%4d '+6*'%8.3f '+'%10.0f '
   scipy.savetxt(clumpfile,np.array([newid,phipeak,thetapeak,phipeakc,thetapeakc,dphi,dtheta,cheight]).T,fmt=fmt)
 
@@ -366,19 +471,19 @@ for infilen in file_list:
 
   #If flag is set, plot new figure indicating pixels associated to each clump
   if args.saveclumps:
-    #Convert clump pixel mask to fits
-    print 'Converting pixel map from NDF to fits'
-    os.system('%s/convert/ndf2fits _zp_cmask _zp_cmask.fits' % (starlink_path)) 
+    ##Convert clump pixel mask to fits
+    #print 'Converting pixel map from NDF to fits'
+    #os.system('%s/convert/ndf2fits _zp_cmask _zp_cmask.fits' % (starlink_path)) 
 
-    #Read in fits image
-    cmask_dat=pyfits.getdata('_zp_cmask.fits',0)
-    inds=np.arange(npix)+1
-    xpix_2d,ypix_2d=np.meshgrid(inds,inds)
-    xinds,yinds=xpix_2d.flatten(),ypix_2d.flatten()
-    pcts_1d=zi.flatten()
-    cmask_1d=cmask_dat.flatten()
+    ##Read in fits image
+    #cmask_dat=pyfits.getdata('_zp_cmask.fits',0)
+    #inds=np.arange(npix)+1
+    #xpix_2d,ypix_2d=np.meshgrid(inds,inds)
+    #xinds,yinds=xpix_2d.flatten(),ypix_2d.flatten()
+    #pcts_1d=zi.flatten()
+    #cmask_1d=cmask_dat.flatten()
 
-    xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds,yinds)
+    #xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds,yinds)
  
     #Plot identified clumps on top of pole count map and print out
     cmapp=plt.cm.gist_ncar(np.linspace(0., 0.9, pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
@@ -386,8 +491,6 @@ for infilen in file_list:
     if pid.size<=10:
      cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
 #     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
-
-
 
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
