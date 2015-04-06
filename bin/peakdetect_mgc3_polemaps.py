@@ -366,17 +366,15 @@ for infilen in file_list:
         mask_tol=dist2d.deg<1. #Keep only matches within less than 1deg
         cmaskc[mask_tol]=u_cmask_1d[Nindex[mask_tol]]
         #Put everything back together 
+        #Peak data
+        u_phipeak,u_thetapeak=np.append(u_phipeak,phipeak[ii]),np.append(u_thetapeak,thetapeak[ii])
+        u_xpix,u_ypix=np.append(u_xpix,xpix[ii]),np.append(u_ypix,ypix[ii])   
+        u_dx_pix,u_dy_pix=np.append(u_dx_pix,dx_pix[ii]),np.append(u_dy_pix,dy_pix[ii])   
+        u_pid=np.append(u_pid,pid[ii])
+        #Pixel data
         u_xcmask,u_ycmask=np.append(u_xcmask,xcmask[peakmask][mask_tol]),np.append(u_ycmask,ycmask[peakmask][mask_tol])
         u_phicmask,u_thetacmask=np.append(u_phicmask,phicmask[peakmask][mask_tol]),np.append(u_thetacmask,thetacmask[peakmask][mask_tol])
-        print xcmask[peakmask][mask_tol].size, phicmask[peakmask][mask_tol].size
-        print cmaskc.size, pcts_1d[peakmask][mask_tol].size
         u_cmask_1d,u_pcts_1d=np.append(u_cmask_1d,cmaskc[mask_tol]),np.append(u_pcts_1d,pcts_1d[peakmask][mask_tol])
-
-#  #Match detections in the S to those in the N (N is the reference one, S is affected by projection for theta<-30deg)
-#  catN = SkyCoord(phi_n*aunits.degree,theta_n*aunits.degree,frame='icrs') 
-#  catS = SkyCoord(phi_s*aunits.degree,theta_s*aunits.degree,frame='icrs') 
-#  Nindex,dist2d,dist3d = catS.match_to_catalog_sky(catN) #Returns catN indices for objs matching catS
- 
      else:
        continue
 
