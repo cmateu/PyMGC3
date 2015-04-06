@@ -342,7 +342,7 @@ for infilen in file_list:
      u_dx_pix,u_dy_pix=np.append(u_dx_pix,dx_pix[ii]),np.append(u_dy_pix,dy_pix[ii])   
      u_pid,u_cheight=np.append(u_pid,pid[ii]),np.append(u_cheight,cheight[ii])
      #Save pixel-peak data
-     peakmask=cmask_1d==pid[ii]    
+     peakmask=(cmask_1d==pid[ii]) 
      u_xcmask,u_ycmask=np.append(u_xcmask,xcmask[peakmask]),np.append(u_ycmask,ycmask[peakmask])
      u_phicmask,u_thetacmask=np.append(u_phicmask,phicmask[peakmask]),np.append(u_thetacmask,thetacmask[peakmask])
      u_cmask_1d,u_pcts_1d=np.append(u_cmask_1d,cmask_1d[peakmask]),np.append(u_pcts_1d,pcts_1d[peakmask])
@@ -368,6 +368,7 @@ for infilen in file_list:
         cmaskc[mask_tol]=u_cmask_1d[Nindex[mask_tol]]
         #Put everything back together 
         if mask_tol.any():
+          mask_tol=(dist2d.deg<1.) & (thetac<0) #Keep only matches within less than 1deg
           #Save Pixel data (these are, by definition, repeated peaks so nothing should be appended to peak-data arrays)
           u_xcmask,u_ycmask=np.append(u_xcmask,xcmask[peakmask][mask_tol]),np.append(u_ycmask,ycmask[peakmask][mask_tol])
           u_phicmask,u_thetacmask=np.append(u_phicmask,phicmask[peakmask][mask_tol]),np.append(u_thetacmask,thetacmask[peakmask][mask_tol])
@@ -375,11 +376,13 @@ for infilen in file_list:
      else:
        continue
 
+  #Dump any pixels leftover in the S
+  tmask=u_thetacmask>=0.
+  u_xcmask,u_ycmask=u_xcmask[tmask],u_ycmask[tmask]
+  u_phicmask,u_thetacmask=u_phicmask[tmask],u_thetacmask[tmask]
+  u_cmask_1d,u_pcts_1d=u_cmask_1d[tmask],u_pcts_1d[tmask]
+
   u_newid=np.arange(u_phipeak.size) + 1  #Rename so IDs will be consecutive numbers starting from 1
-  #Just for tests
-  #xcmask,ycmask=u_xcmask,u_ycmask
-  #phicmask,thetacmask=u_phicmask,u_thetacmask
-  #cmask_1d,pcts_1d=u_cmask_1d,u_pcts_1d 
 
   #----------------------Printing Ouput peak-file Header and Params on Screen----------------------------------
   #Open output file to store clump coords
@@ -454,7 +457,8 @@ for infilen in file_list:
       #Save only pixels inside the FWXM of the peak and with counts>minheight
       pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
       #plot current peak only
-      m.plot(u_xcmask[pmask],u_ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=args.alpha)
+      #m.plot(u_xcmask[pmask],u_ycmask[pmask],color=cmapp[kk],mec='None',ms=5,marker='o',alpha=args.alpha)
+      m.scatter(u_xcmask[pmask],u_ycmask[pmask],c=cmapp[kk],edgecolors='none',s=20,marker='o',alpha=args.alpha)
       u_newid_cmask=u_newid[kk]*np.ones_like(u_cmask_1d[pmask])
       scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask]]).T,fmt='%7d %10.4f %10.4f')
 
