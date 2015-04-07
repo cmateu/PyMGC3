@@ -47,7 +47,7 @@ parser.add_argument('-m',help='Plot mGC3/nGC3/GC3 pole count map. Default is mGC
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
-parser.add_argument('-labels',help='Plot peak ID labels', action='store_true',default=False)
+parser.add_argument('-nolabels',help='Plot peak ID labels', action='store_true',default=False)
 parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
@@ -61,7 +61,7 @@ parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
-parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 20.', action='store',default=20,type=np.float)
+parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 20.', action='store',default=10,type=np.float)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.3', action='store',default=0.5,type=np.float)
 peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-fr','--frms',help='Default option. Min peak height is frms*RMS. Default fr=5.', action='store',type=np.float,default=5.)
@@ -69,6 +69,7 @@ peakargs.add_argument('-ff','--ffrac',help='Min peak height is fmax*max_pole_cou
 parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5. If -U, fx is in N-sigma units', action='store',default=0.5,type=np.float)
 parser.add_argument('-U','--unsharp',help='Detect peaks in unsharp-masked image. Default is False', action='store_true',default=False)
 parser.add_argument('-ns','--nsigma',help='If -U is set, set N-sigma threshold for detections. Default is 3.', action='store',type=np.float,default=3.)
+parser.add_argument('-nm','--nmed',help='If -U is set, size of neighbourhood for median computation', action='store',type=np.float,default=60.)
 
 
 #---------Parse----------------------------
@@ -173,6 +174,9 @@ for infilen in file_list:
   xi = np.linspace(xo,xf,npix)
   yi = np.linspace(yo,yf,npix)
   zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
+  #1-D flattened arrays
+  xi1d,yi1d=np.meshgrid(xi,yi)
+  pi1d,ti1d=m(xi1d,yi1d,inverse=True)
 
   lmax=np.floor(np.log10(np.max(pole_cts)))
   if 'r' in pmode: 
@@ -184,17 +188,20 @@ for infilen in file_list:
         else: vmax=args.vmax
         c=m.scatter(x,y,c=pole_cts/10**lmax, edgecolor='none',s=ms,cmap=colormap,vmin=vmin,vmax=vmax)
   else: 
-   if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+   zii=zi.copy()
+   if args.log: 
+     if not args.twohemispheres: zii[ti1d<0.]=0.
+     c=m.contourf(xi,yi,np.log10(zii),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
    else:
      #Use vmin and vmax for plotting only
      if args.vmin is not None: vmin=args.vmin
      else: vmin=np.min(zi)
      if args.vmax is not None: vmax=args.vmax
      else: vmax=np.max(zi)
-     zii=zi
      zii[(zii<vmin)]=vmin
      zii[(zii>vmax)]=vmax
      lmax=np.floor(np.log10(vmax))
+     if not args.twohemispheres: zii[ti1d<0.]=np.nan
      c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
 
   #Plot colorbar
@@ -225,7 +232,7 @@ for infilen in file_list:
   #-------------------------Unsharp masking-----------------------------------------------------
   if args.unsharp:
     #Compute median filtered image
-    nsm=60 #neighbourhood for median computation
+    nsm=args.nmed #neighbourhood for median computation
     zi_smooth=scipy.ndimage.median_filter(zi,size=(nsm,nsm),mode='wrap')
     zi_sharp=zi-zi_smooth
     zi_sigma=np.sqrt(zi_smooth)  #assuming counts in the PCM follow a Poisson distribution
@@ -240,7 +247,8 @@ for infilen in file_list:
     ms.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
     ms.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
     ms.drawmapboundary()
-    c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormaps)
+    if not args.twohemispheres: zi_smooth[ti1d<0.]=np.nan  #Unless -t is explicitly set, don't plot S-counts
+    c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormaps,vmin=0.)
     cb=plt.colorbar(c1,ax=axs,orientation='horizontal',format='%d',pad=0,aspect=30)
     if args.log:
        cb.set_label('%s log-pole-counts (dex stars/pole)' % (mode_ori),fontsize=15)
@@ -254,6 +262,7 @@ for infilen in file_list:
     mu.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
     mu.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
     mu.drawmapboundary()
+    if not args.twohemispheres: zi_sharp[ti1d<0.]=0.  #Unless -t is explicitly set, don't plot S-counts
     c3=mu.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormaps,vmin=0.)
     cb=plt.colorbar(c3,ax=axu,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
     if args.log:
@@ -272,6 +281,7 @@ for infilen in file_list:
     zi_sharp_cut=zi_sharp_Nsig.copy()
     sigmax=12.  #Maximum Nsigma for contour and color display
     zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
+    if not args.twohemispheres: zi_sharp_cut[ti1d<0.]=np.nan  #Unless -t is explicitly set, don't plot S-counts
     c2=mn.contourf(xi,yi,(zi_sharp_cut), np.arange(0.,sigmax+1.,1.),cmap=colormap_nsig)
     cb=plt.colorbar(c2,ax=axn,orientation='horizontal',format='%4.1f',pad=0,aspect=30,extend='max')
     #Labels and such
@@ -452,17 +462,18 @@ for infilen in file_list:
   if args.noclumps:  fig.savefig(figname)
 
   #Plot detected clump peaks and labels
-  if args.labels:
+  if not args.noclumps: axl,ml=[ax,axn,axu],[m,mn,mu]
+  else: axl,ml=[ax,],[m,]
+  if not args.nolabels:
     #Peak ID labels
-    if not args.noclumps: axl,ml=[ax,axn,axu],[m,mn,mu]
-    else: axl,ml=[ax,],[m,]
     for aax,mm in zip(axl,ml):
       mm.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
       for ii in range(u_newid.size): 
          aax.text(u_xpeak[ii],u_ypeak[ii],u_newid[ii],fontsize=7,color='black',
                    horizontalalignment='center',verticalalignment='center',zorder=101)
   else:
-    m.scatter(u_xpeak,u_ypeak,c='none',edgecolor='k',s=20,zorder=99)
+    for mm in ml:
+      mm.scatter(u_xpeak,u_ypeak,c='none',edgecolor='k',s=20,zorder=99)
 
   #Save current figure after plotting peaks and labels
   if not args.noclumps: fig.savefig(figname)
