@@ -53,7 +53,7 @@ parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
-parser.add_argument('-dlat',help='Spacing between parallels. Default is 30.', action='store',default=20.,type=np.float)
+parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=20.,type=np.float)
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
 parser.add_argument('-ms',help='Marker size. Default: 50 for npaeqd.', action='store',default=50,type=np.float)
 parser.add_argument('-r','--raw',help='Plot raw grid pole-count map instead of contour map.', action='store_true',default=False)
@@ -61,15 +61,15 @@ parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
-parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 20.', action='store',default=10,type=np.float)
-parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.3', action='store',default=0.5,type=np.float)
+parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float)
+parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
 peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-fr','--frms',help='Default option. Min peak height is frms*RMS. Default fr=5.', action='store',type=np.float,default=5.)
 peakargs.add_argument('-ff','--ffrac',help='Min peak height is fmax*max_pole_counts', action='store',type=np.float)
 parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5. If -U, fx is in N-sigma units', action='store',default=0.5,type=np.float)
 parser.add_argument('-U','--unsharp',help='Detect peaks in unsharp-masked image. Default is False', action='store_true',default=False)
 parser.add_argument('-ns','--nsigma',help='If -U is set, set N-sigma threshold for detections. Default is 3.', action='store',type=np.float,default=3.)
-parser.add_argument('-nm','--nmed',help='If -U is set, size of neighbourhood for median computation', action='store',type=np.float,default=60.)
+parser.add_argument('-nmed',help='If -U is set, size of neighbourhood for median computation. Default is 60.', action='store',type=np.float,default=60.)
 
 
 #---------Parse----------------------------
@@ -214,7 +214,7 @@ for infilen in file_list:
   if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
   else: factorl=''
   if args.log:
-     cax.set_xlabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
+     cax.set_xlabel('%s log-pole-counts (dex stars/pole)' % (mode_ori))
   else:
      cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
   cax.xaxis.set_label_position('top') 
@@ -250,10 +250,7 @@ for infilen in file_list:
     if not args.twohemispheres: zi_smooth[ti1d<0.]=np.nan  #Unless -t is explicitly set, don't plot S-counts
     c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormaps,vmin=0.)
     cb=plt.colorbar(c1,ax=axs,orientation='horizontal',format='%d',pad=0,aspect=30)
-    if args.log:
-       cb.set_label('%s log-pole-counts (dex stars/pole)' % (mode_ori),fontsize=15)
-    else:
-       cb.set_label('%s pole-counts (%sstars/pole)' % (mode_ori,factorl),fontsize=15)
+    cb.set_label('%s pole-counts (%sstars/pole)' % (mode_ori,factorl),fontsize=15)
     axs.set_title('Smoothed %s PCM' % (mode_ori),fontsize=15)
     #-------------subtracted image-----------------------------------------
     axu=fig2.add_subplot(1,3,2)
@@ -462,7 +459,7 @@ for infilen in file_list:
   if args.noclumps:  fig.savefig(figname)
 
   #Plot detected clump peaks and labels
-  if not args.noclumps: axl,ml=[ax,axn,axu],[m,mn,mu]
+  if args.unsharp: axl,ml=[ax,axn,axu],[m,mn,mu]
   else: axl,ml=[ax,],[m,]
   if not args.nolabels:
     #Peak ID labels
@@ -476,7 +473,9 @@ for infilen in file_list:
       mm.scatter(u_xpeak,u_ypeak,c='none',edgecolor='k',s=20,zorder=99)
 
   #Save current figure after plotting peaks and labels
-  if not args.noclumps: fig.savefig(figname)
+  if not args.noclumps: 
+    fig.savefig(figname)
+    fig2.savefig(usharp_figname)
 
   #If flag is set, plot new figure indicating pixels associated to each clump
   if not args.noclumps:
