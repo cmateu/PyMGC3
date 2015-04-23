@@ -43,7 +43,7 @@ __what__= sys.argv[0]+": This program detects peaks in pole count maps using the
 parser = argparse.ArgumentParser(description='Detect peaks in mGC3/nGC3/GC3 pole count maps')
 parser.add_argument('infile',metavar='infile',help='Input file containing pole count maps (*.cts file)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
-parser.add_argument('-m',help='Plot mGC3/nGC3/GC3 pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3'])
+parser.add_argument('-m',help='Plot mGC3/nGC3/GC3/AUX pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','AUX'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
@@ -92,6 +92,7 @@ print 'Pole counts plotted: ', mode_ori
 if 'mgc3' in mode:   counts_col=3-1
 elif 'ngc3' in mode: counts_col=6-1
 elif 'gc3'  in mode: counts_col=5-1
+elif 'aux'  in mode: counts_col=8-1
 
 #Parse raw/contour mode-------------------------
 if args.raw: 
@@ -167,7 +168,8 @@ for infilen in file_list:
   x,y=m(phi,theta)
 
   #------------Grid-data for contour plotting---------------
-  npix=400
+  npix=500
+  #npix=400
   clevels=30
   xo,xf=np.min(x),np.max(x)
   yo,yf=np.min(x),np.max(x)
@@ -191,7 +193,8 @@ for infilen in file_list:
    zii=zi.copy()
    if args.log: 
      if not args.twohemispheres: zii[ti1d<0.]=0.
-     c=m.contourf(xi,yi,np.log10(zii),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+     print '------------AQUI--------------------'
+     c=m.contourf(xi,yi,np.log10(zii),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax,antialiased=False)
    else:
      #Use vmin and vmax for plotting only
      if args.vmin is not None: vmin=args.vmin
@@ -223,6 +226,7 @@ for infilen in file_list:
     ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
 
   if args.noclumps:  
+    #fig.set_rasterized(True)
     fig.savefig(figname)
     if args.show: plt.show()
     else: fig.clf()
@@ -287,6 +291,7 @@ for infilen in file_list:
     #---------
     axu.text(0.5,0.97,args.title,transform=fig2.transFigure,horizontalalignment='center',verticalalignment='center',fontsize=17)
     usharp_figname='%s.%s.%s.%s.usharp.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
+    #fig2.set_rasterized(True)
     fig2.savefig(usharp_figname)
 
   #--------------------Manage formats to run the Fellwaker peak detection algorithm---------------------------------------------
@@ -456,7 +461,9 @@ for infilen in file_list:
   fmt='%4d '+6*'%8.3f '+'%10.0f '
   scipy.savetxt(clumpfile,np.array([u_newid,u_phipeak,u_thetapeak,u_phipeakc,u_thetapeakc,dphi,dtheta,u_cheight]).T,fmt=fmt)
 
-  if args.noclumps:  fig.savefig(figname)
+  if args.noclumps:  
+    #fig.set_rasterized(True)
+    fig.savefig(figname)
 
   #Plot detected clump peaks and labels
   if args.unsharp: axl,ml=[ax,axn,axu],[m,mn,mu]
@@ -475,7 +482,7 @@ for infilen in file_list:
   #Save current figure after plotting peaks and labels
   if not args.noclumps: 
     fig.savefig(figname)
-    fig2.savefig(usharp_figname)
+    if args.unsharp: fig2.savefig(usharp_figname)
 
   #If flag is set, plot new figure indicating pixels associated to each clump
   if not args.noclumps:
