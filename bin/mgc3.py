@@ -112,6 +112,12 @@ ofile.write('#pm_lon_col=%-2d, pm_lat_col=%-2d, vrad_col=%-2d\n' % (survey_pars[
 ofile.write('#deg=%s, coo_glactc=%s, par_muas=%s\n' % (survey_pars['deg'],survey_pars['coo_glactc'],survey_pars['par_muas']))
 ofile.write('#pm_lon_red=%s, pm_muas=%s\n' % (survey_pars['pm_lon_red'],survey_pars['pm_muas']))
 ofile.write('#tol_r=%s, tol_v=%s, grid_step=%s\n' % (survey_pars['tol_r'],survey_pars['tol_v'],survey_pars['grid_step']))
+#If auxcols used, print them as well
+naux_pars=int((len(survey_pars.keys())-19)/3.)
+for na in range(naux_pars):
+ auxl='AUX%d' % (na+1)
+ ak1,ak2,ak3=auxl+'_col',auxl+'_o',auxl+'_f'
+ ofile.write('#%s=%s, %s=%s, %s=%s\n' % (ak1,survey_pars[ak1]+1,ak2,survey_pars[ak2],ak3,survey_pars[ak3]))
 ofile.write('#---------------------------------------------------------------------------\n')
 ofile.write("#%9s %10s %10s %10s %10s %10s %10s\n" % ("phi","theta","np_mgc3gal","np_mgc3hel",'np_gc3gal',"np_ngc3gal",'farea'))
 scipy.savetxt(ofile,array([mygrid.l,mygrid.b,mygrid.np_mgc3,mygrid.mgc3hel,mygrid.np_gc3,mygrid.np_ngc3,mygrid_foot.farea]).T,fmt='%10.3f %10.3f %10d %10d %10d %10d %10.4f')
