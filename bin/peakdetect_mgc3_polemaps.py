@@ -331,7 +331,7 @@ for infilen in file_list:
   pid=np.arange(xpix.size) + 1  #Peak IDs, must start from 1
 
   #Keep only peaks with counts > minheight and with sizes>=1 (clumps have to be at least 1 pixel in size)
-  mask=(cheight>=minheight) & (dx_pix>=1.) & (dy_pix>=1.) #& (thetapeak>=0.)
+  mask=(cheight>=minheight) & (dx_pix>=0.5) & (dy_pix>=0.5) 
   if not mask.any(): 
     print 'No peaks above minheight or with size>=1pix found'
     continue
@@ -398,11 +398,11 @@ for infilen in file_list:
         catN = SkyCoord(u_phicmask*aunits.degree,u_thetacmask*aunits.degree,frame='icrs') 
         catS = SkyCoord(phic*aunits.degree,thetac*aunits.degree,frame='icrs') 
         Nindex,dist2d,dist3d = catS.match_to_catalog_sky(catN) #Returns catN indices for objs matching catS
-        mask_tol=dist2d.deg<1. #Keep only matches within less than 1deg
+        mask_tol=dist2d.deg<0.5 #Keep only matches within less than 1deg
         cmaskc[mask_tol]=u_cmask_1d[Nindex[mask_tol]]
         #Put everything back together 
         if mask_tol.any():
-          mask_tol=(dist2d.deg<1.) & (thetac<0) #Keep only matches within less than 1deg
+          mask_tol=(dist2d.deg<0.5) & (thetac<0) #Keep only matches within less than 1deg
           #Save Pixel data (these are, by definition, repeated peaks so nothing should be appended to peak-data arrays)
           u_xcmask,u_ycmask=np.append(u_xcmask,xcmask[peakmask][mask_tol]),np.append(u_ycmask,ycmask[peakmask][mask_tol])
           u_phicmask,u_thetacmask=np.append(u_phicmask,phicmask[peakmask][mask_tol]),np.append(u_thetacmask,thetacmask[peakmask][mask_tol])
