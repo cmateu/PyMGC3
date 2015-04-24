@@ -225,14 +225,6 @@ for infilen in file_list:
   if args.title:
     ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
 
-  if args.noclumps:  
-    #fig.set_rasterized(True)
-    fig.savefig(figname)
-    if args.show: plt.show()
-    else: fig.clf()
-    print 'WARNING: No-clump flag set, plain PCM plotted. Skipping peak detection...  '
-    continue
-
   #-------------------------Unsharp masking-----------------------------------------------------
   if args.unsharp:
     #Compute median filtered image
@@ -294,6 +286,16 @@ for infilen in file_list:
     #fig2.set_rasterized(True)
     fig2.savefig(usharp_figname)
 
+  if args.noclumps:
+    #fig.set_rasterized(True)
+    fig.savefig(figname)
+    if args.unsharp: fig2.savefig(usharp_figname)
+    if args.show: plt.show()
+    else: fig.clf()
+    print 'WARNING: No-clump flag set, plain PCM plotted. Skipping peak detection...  '
+    continue
+
+
   #--------------------Manage formats to run the Fellwaker peak detection algorithm---------------------------------------------
   if args.unsharp: zi=zi_sharp_Nsig
  
@@ -331,7 +333,7 @@ for infilen in file_list:
   pid=np.arange(xpix.size) + 1  #Peak IDs, must start from 1
 
   #Keep only peaks with counts > minheight and with sizes>=1 (clumps have to be at least 1 pixel in size)
-  mask=(cheight>=minheight) & (dx_pix>=0.5) & (dy_pix>=0.5) 
+  mask=(cheight>=minheight) & ((dx_pix>=1.) | (dy_pix>=1.)) 
   if not mask.any(): 
     print 'No peaks above minheight or with size>=1pix found'
     continue
