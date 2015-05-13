@@ -43,7 +43,7 @@ __what__= sys.argv[0]+": This program detects peaks in pole count maps using the
 parser = argparse.ArgumentParser(description='Detect peaks in mGC3/nGC3/GC3 pole count maps')
 parser.add_argument('infile',metavar='infile',help='Input file containing pole count maps (*.cts file)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
-parser.add_argument('-m',help='Plot mGC3/nGC3/GC3/mGC3hel/AUX pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','AUX'])
+parser.add_argument('-m',help='Plot mGC3/nGC3/GC3/mGC3hel/AUX pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','AUX','mGC3hel'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)

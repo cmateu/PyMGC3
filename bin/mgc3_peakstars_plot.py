@@ -27,6 +27,7 @@ parser.add_argument('-xlim',metavar='xo xf',help='Set X limits (space-separated)
 parser.add_argument('-ylim',metavar='yo yf',help='Set Y limits (space-separated)',action='store',nargs=2,type=np.float)
 parser.add_argument('-zlim',metavar='zo zf',help='Set Z limits (space-separated)',action='store',nargs=2,type=np.float)
 parser.add_argument('-title',help='Plot title', action='store',default=None)
+parser.add_argument('-helio',help='Use heliocentric coords in Aitoff plot', action='store_true',default=False)
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ms',help='Marker size for peak stars. Use ms=0 for fullcat only.',action='store',default=3,type=np.float)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
@@ -88,7 +89,7 @@ for ff in range(len(file_list)):
   fig1name='%s.xyz%s.%s' % (figname_root,args.ext[0],args.fig)
   fig2name='%s.sph%s.%s' % (figname_root,args.ext[0],args.fig)
 
-  IDpole=dat[:,args.idcol]
+  IDpole=dat[:,args.idcol-1]
   l,b,parallax=dat[:,spars['lon_col']],dat[:,spars['lat_col']],dat[:,spars['par_col']]
   mulstar,mub,vrad=dat[:,spars['pm_lon_col']],dat[:,spars['pm_lat_col']],dat[:,spars['vrad_col']]
   
@@ -97,11 +98,16 @@ for ff in range(len(file_list)):
   #ss.x,ss.y,ss.z=dat[:,8-1],dat[:,9-1],dat[:,10-1] #for tests only
 
   npoles=np.int(np.max(IDpole))
+  print npoles
+ # npoles_id=IDpole.unique().size
   
   print 'Npeaks=',npoles
   #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
-  cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.85, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
+  #cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.85, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
+  #cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
+  cmapp=plt.cm.spectral(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
+
   if npoles<=10:
      cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
 #     cmapp=['darkviolet','slateblue','deeppink','royalblue','orchid','red','gray','pink','limegreen','navy']
@@ -134,7 +140,8 @@ for ff in range(len(file_list)):
    #---
    ax2.plot(ss.x[mask],ss.z[mask],'.',color=cmapp[kk],**s_props)
    #---Aitoff--------
-   xmoll,ymoll=m(ss.phi[mask],ss.theta[mask])
+   if args.helio: xmoll,ymoll=m(ss.l[mask],ss.b[mask])
+   else:          xmoll,ymoll=m(ss.phi[mask],ss.theta[mask])
    m.plot(xmoll,ymoll,'.',color=cmapp[kk],**s_props)
 
   if args.catfile:
