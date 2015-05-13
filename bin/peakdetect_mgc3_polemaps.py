@@ -43,7 +43,7 @@ __what__= sys.argv[0]+": This program detects peaks in pole count maps using the
 parser = argparse.ArgumentParser(description='Detect peaks in mGC3/nGC3/GC3 pole count maps')
 parser.add_argument('infile',metavar='infile',help='Input file containing pole count maps (*.cts file)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
-parser.add_argument('-m',help='Plot mGC3/nGC3/GC3/AUX pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','AUX'])
+parser.add_argument('-m',help='Plot mGC3/nGC3/GC3/mGC3hel/AUX pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','AUX'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
@@ -62,6 +62,7 @@ parser.add_argument('-s','--show',help='Show plot in window. Default is False', 
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float)
+parser.add_argument('-md','--mindip',help='Fellwalker MinDip param, two clumps are merged if height difference <MinDip. Default 2*RMS', action='store',default=None)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
 peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-fr','--frms',help='Default option. Min peak height is frms*RMS. Default fr=5.', action='store',type=np.float,default=5.)
@@ -89,7 +90,8 @@ else:
 mode=args.m.lower()
 mode_ori=args.m
 print 'Pole counts plotted: ', mode_ori
-if 'mgc3' in mode:   counts_col=3-1
+if 'hel' in mode:   counts_col=4-1
+elif 'mgc3' in mode:   counts_col=3-1
 elif 'ngc3' in mode: counts_col=6-1
 elif 'gc3'  in mode: counts_col=5-1
 elif 'aux'  in mode: counts_col=8-1
@@ -168,8 +170,8 @@ for infilen in file_list:
   x,y=m(phi,theta)
 
   #------------Grid-data for contour plotting---------------
-  npix=500
   #npix=400
+  npix=500
   clevels=30
   xo,xf=np.min(x),np.max(x)
   yo,yf=np.min(x),np.max(x)
@@ -322,8 +324,13 @@ for infilen in file_list:
      minheight=args.frms*rms
    else: 
      minheight=args.ffrac*np.max(zi)
+  if args.mindip is None:
+    mindip='' #Will use Fellwalker's default
+  else:
+    mindip='config="fellwalker.mindip=%f" ' % (np.float(args.mindip))
   print 'Finding clumps with Fellwalker'
-  os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" ' % (starlink_path,rms,args.maxjump)) 
+  #os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" ' % (starlink_path,rms,args.maxjump)) 
+  os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" %s ' % (starlink_path,rms,args.maxjump,mindip)) 
 
   #------------------------------Deal with identified peaks (peak centroids, etc)---------------------------
   #Read-in output table with identified clumps
@@ -431,12 +438,15 @@ for infilen in file_list:
   header_info=header_info+'#         FellWalker.MaxJump=%.0f\n' % (args.maxjump)
   if args.unsharp:
     header_info=header_info+'#         MinHeight=%-4.1f (Nsigma-units)\n' % (minheight)
+    if args.mindip is not None: header_info=header_info+'#         MinDip=%-4.1f (Nsigma-units)\n' % (np.float(args.mindip))
   else:
    if args.frms is not None: 
      header_info=header_info+'#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms)
    else: 
     header_info=header_info+'#         MinHeight=%d (=%.2f*max_cts)\n' % (minheight,args.ffrac)
-  header_info=header_info+'#         FWXM=%.2f (stored pixels associated to each clump)\n' % (args.fwxm)
+   if args.mindip is not None: header_info=header_info+'#         MinDip=%-4.1f (cts)\n' % (np.float(args.mindip))
+  if args.unsharp: header_info=header_info+'#         Nmedian=%d\n' % (args.nmed)
+  header_info=header_info+'#         FWXM=%.4f (stored pixels associated to each clump)\n' % (args.fwxm)
   header_info=header_info+'#----------------------------------------------------------------------\n'
   #Print on file
   clumpfile.write(header_info)
@@ -489,7 +499,7 @@ for infilen in file_list:
   #If flag is set, plot new figure indicating pixels associated to each clump
   if not args.noclumps:
     #Plot identified clumps on top of pole count map and print out
-    cmapp=plt.cm.gist_ncar(np.linspace(0., 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    #cmapp=plt.cm.gist_ncar(np.linspace(0., 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
     cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
     if u_pid.size<=10:
      cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
