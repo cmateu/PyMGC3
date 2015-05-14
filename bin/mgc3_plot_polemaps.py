@@ -14,7 +14,7 @@ __what__= sys.argv[0]+": This program detects peaks in pole count maps using the
 parser = argparse.ArgumentParser(description='Plot mGC3/nGC3/GC3 pole count maps')
 parser.add_argument('infile',metavar='infile',help='Input file containing pole count maps (*.cts file)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
-parser.add_argument('-m',help='Plot mGC3/nGC3/GC3 pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3'])
+parser.add_argument('-m',help='Plot mGC3/nGC3/GC3/mGC3hel pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','mGC3hel'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-proj',help='Projection npaeqd/ortho/mollweide. Default is npaeqd', action='store',default='npaeqd',choices=['npaeqd','ortho','moll'])
 parser.add_argument('-log',help='Plot pole-count map in log-scale', action='store_true',default=False)
@@ -48,7 +48,8 @@ else:
 mode=args.m.lower()
 mode_ori=args.m
 print 'Pole counts plotted: ', mode_ori
-if 'mgc3' in mode:   counts_col=3-1
+if 'hel' in mode:    counts_col=4-1
+elif 'mgc3' in mode: counts_col=3-1
 elif 'ngc3' in mode: counts_col=6-1
 elif 'gc3'  in mode: counts_col=5-1
 
@@ -77,6 +78,9 @@ colormap=plt.cm.jet
 #colormap=plt.cm.spectral
 for infilen in file_list:
 
+  #Default title----------------------------------
+  args.title=infilen
+
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
   figname_root=infilen.replace('.mgc3.cts','')
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,args.proj[:3],pmode,args.fig)
@@ -97,16 +101,17 @@ for infilen in file_list:
   nx,ny=1,1
 
   mer_grid=[0.,360.,args.dlon]
-  par_grid=[-90.,+90.,args.dlat]
+  #par_grid=[-90.,+90.,args.dlat]
+  par_grid=[-args.dlat,+90.,args.dlat]
 
   if 'npa' in args.proj or 'moll' in args.proj:
     #For npa and moll projections, plot map as viewed from lon0 only
     fig=plt.figure(1,figsize=(8,8))
     dw=0.8
     wo=(1.-dw)/2.
-    wyo=0.75*wo
+    wyo=0.05*wo
     fig.subplots_adjust(left=wo,right=dw+wo,top=dw+wo,bottom=wyo)
-    nrow,ncol=1,1
+    nrow,ncol,nplot=1,1,1
     opts=[(1,args.lon0),] 
     proj_dict={'boundinglat':args.lat0,'resolution':'l'}
     if args.ms==-1: ms=70.
@@ -123,8 +128,8 @@ for infilen in file_list:
   for ii,l0 in opts:
     ax=fig.add_subplot(nrow,ncol,ii)
     m = Basemap(projection=args.proj,lon_0=l0,ax=ax,**proj_dict)
-    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='gray',latmax=args.latmax)
-    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='gray')
+    m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
+    m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
     m.drawmapboundary()
 
     x,y=m(phi,theta)
@@ -161,9 +166,9 @@ for infilen in file_list:
 
   #Plot colorbar
   if 'npa' in args.proj:
-   cax0=plt.gca()
-   cax=plt.axes([wo,1.2*wyo+dw,dw,0.02])
-   cb=plt.colorbar(c,cax=cax,orientation='horizontal',format='%4.1f',label='prueba')
+   cax0=plt.gca().get_position()
+   cax=plt.axes([cax0.x0,cax0.y0+dw+0.05,dw,0.02])
+   cb=plt.colorbar(c,cax=cax,orientation='horizontal',format='%4.1f')
    cax.xaxis.set_ticks_position('top')
    #Labels and such
    if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
@@ -173,6 +178,9 @@ for infilen in file_list:
    else:
       cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
    cax.xaxis.set_label_position('top')
+
+  if args.title:
+    ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
 
   fig.savefig(figname)
   if args.show: plt.show()
