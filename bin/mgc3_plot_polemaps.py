@@ -30,6 +30,8 @@ parser.add_argument('-c','--contour',help='Plot pole-count contour map instead o
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-title',help='Plot title', action='store',default=None)
+parser.add_argument('-pls',metavar='PLSFILE',help='Overplot poles from peakdetect output file (.pls)', action='store',default=None)
+parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
 
 
 #---------Parse----------------------------
@@ -163,6 +165,26 @@ for infilen in file_list:
     #Labels and such
     if 'npa' not in args.proj: ax.set_title('%s pole-counts' % (mode_ori))
 
+  #If given, read in pls file
+  if args.pls is not None:
+   poleIDs,phis,thetas=scipy.genfromtxt(args.pls,unpack=True,usecols=(0,1,2))
+   u_pid=np.unique(poleIDs)
+   #Define colormap consistently with peakdetect
+   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+   if u_pid.size<=10:
+     cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
+   for kk in np.arange(u_pid.size):
+     #Project pole coords
+     xpoles,ypoles=m(phis,thetas)
+     #plot current peak only
+     idmask=poleIDs==u_pid[kk]
+     m.scatter(xpoles[idmask],ypoles[idmask],c=cmapp[kk],edgecolors='none',s=20,marker='o',alpha=args.alpha)
+     #Peak ID labels
+     u_xpeak,u_ypeak=np.median(xpoles[idmask]),np.median(ypoles[idmask])
+     m.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
+     ax.text(u_xpeak,u_ypeak,'%d' % (u_pid[kk]),fontsize=7,color='black',
+                horizontalalignment='center',verticalalignment='center',zorder=101)
+
 
   #Plot colorbar
   if 'npa' in args.proj:
@@ -185,49 +207,5 @@ for infilen in file_list:
   fig.savefig(figname)
   if args.show: plt.show()
   else: fig.clf()
-
-#  #--------------------UNSHARP MASKING--------------------------------------------------------------------
-#  ax=fig.add_subplot(nx,ny,3)
-#  m = Basemap(projection='npaeqd',boundinglat=-10,lon_0=0,resolution='l',ax=ax)
-#  m.drawmeridians(np.arange(0.,360.,20.))
-#  m.drawparallels(np.arange(-90.,90.,30.))
-#  nsm=30
-#  zi_smooth=scipy.ndimage.median_filter(zi,size=(nsm,nsm),mode='wrap')
-#  m.contourf(xi,yi,zi_smooth,25,cmap=colormap)
-#
-#  ax=fig.add_subplot(nx,ny,4)
-#  zi_sharp=zi-zi_smooth
-#  phii,thetai=m(xi,yi)
-#  ax.imshow(zi_sharp,interpolation='nearest',origin='lower',aspect='auto',cmap=colormap)
-#
-#  #Reshape matrix into 1D array
-#  M=zi_sharp
-#  M_1d=M.flatten()
-#  xs=np.reshape(np.array(len(yi)*list(xi)),np.shape(M))
-#  ys=np.reshape(np.array(len(xi)*list(yi)),np.shape(M.T))
-#  ys=ys.transpose()
-#  xs=xs.flatten()
-#  ys=ys.flatten()
-#  phis,thetas=m(xs,ys,inverse=True)
-#
-#  ax=fig.add_subplot(nx,ny,5)
-#  m = Basemap(projection='npaeqd',boundinglat=0,lon_0=0,resolution='l',ax=ax)
-#  m.drawmeridians(np.arange(0.,360.,20.))
-#  m.drawparallels(np.arange(-90.,90.,30.))
-#  my_extent=[xi[0],xi[-1],yi[0],yi[-1]]
-#  #ax.imshow(zi_sharp,interpolation='nearest',origin='lower',aspect='auto',cmap=colormap,extent=my_extent)
-#  #m.contourf(xi,yi,zi_sharp,30,cmap=colormap)
-#  c=m.scatter(xs,ys,c=M_1d,edgecolor='none',s=50,cmap=colormap)
-#
-#
-#  proj='ortho'
-#  print proj
-#  ax=fig.add_subplot(nx,ny,6)
-#  m = Basemap(projection=proj,lat_0=50,lon_0=0.,resolution='l',ax=ax,area_thresh = 1000.)
-#  m.drawmeridians(np.arange(0, 360, 20))
-#  m.drawparallels(np.arange(-90, 90, 20))
-#  m.drawmapboundary()
-#  xso,yso=m(phis,thetas)
-#  c=m.scatter(xso,yso,c=M_1d,edgecolor='none',s=20,cmap=colormap)
 
 
