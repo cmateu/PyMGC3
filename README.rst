@@ -22,6 +22,7 @@ nGC3 uses positional and proper motion data.
 
 March 2015 - Unsharp mask option (and new cmd-line parameters) added to peak detection 
 code (peakdetect_mgc3_polemaps.py). Peak detection can now be done in unsharp-masked PCM.
+
 Feb 2015 - New python scripts added for plotting (mgc3_plot_polemaps.py) and automatically detecting 
 peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
 
