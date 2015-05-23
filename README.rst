@@ -20,6 +20,8 @@ nGC3 uses positional and proper motion data.
 
 **LATEST FEATURES:**
 
+March 2015 - Unsharp mask option (and new cmd-line parameters) added to peak detection 
+code (peakdetect_mgc3_polemaps.py). Peak detection can now be done in unsharp-masked PCM.
 Feb 2015 - New python scripts added for plotting (mgc3_plot_polemaps.py) and automatically detecting 
 peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
 
@@ -35,7 +37,7 @@ peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
 - The peak detection utility peakdetect_mgc3_polemaps.py uses the
   Starlink implementation of the Fellwalker code by `Berry 2014 <http://arxiv.org/abs/1411.6267v1>`__,
   assuming it is installed at /star-2014A. The code is *not* supplied
-  with this bundle, but is publicly available at the `Starlink website <http://starlink.jach.hawaii.edu>`__.
+  with this bundle, but its publicly available at the `Starlink website <http://starlink.jach.hawaii.edu>`__.
 
 **FILES PROVIDED**
 
