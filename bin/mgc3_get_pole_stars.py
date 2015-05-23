@@ -55,7 +55,7 @@ polelist=scipy.genfromtxt(polelistname,comments='#',usecols=(0,1,2))
 if np.ndim(polelist)==1: polelist=np.array([polelist,])
 
 #Figure the output filename
-eind=polelistname.rfind('.'+args.m.lower()) #Find .mgc3, .ng3, .gc3 extension (the dot is needed to avoid confusion for gc3)
+eind=polelistname.rfind('.'+args.m.lower()) #Find .mgc3,.ngc3,.gc3 extension (the dot is needed to avoid confusion for gc3)
 if eind==-1: 
   sys.exit('WARNING: Method extension %s not found in pls filename.\nCheck the consistency of selected method to extract stars with the one used for the pole list provided.\nExiting...' % (args.m.lower()))
 if 'peak.pls' in polelistname: pext='peak.pst' 

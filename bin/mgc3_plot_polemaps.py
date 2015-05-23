@@ -32,7 +32,8 @@ parser.add_argument('-s','--show',help='Show plot in window. Default is False', 
 parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-pls',metavar='PLSFILE',help='Overplot poles from peakdetect output file (.pls)', action='store',default=None)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
-
+parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
+parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 
 #---------Parse----------------------------
 args = parser.parse_args()
@@ -77,14 +78,15 @@ ori='horizontal'
 ni=0
 
 colormap=plt.cm.jet
-#colormap=plt.cm.spectral
+if args.bw: colormap=plt.cm.gray
+
 for infilen in file_list:
 
   #Default title----------------------------------
   args.title=infilen
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
-  figname_root=infilen.replace('.mgc3.cts','')
+  figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,args.proj[:3],pmode,args.fig)
   print 'Output filename:', figname
 

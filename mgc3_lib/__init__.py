@@ -476,7 +476,10 @@ class pole_grid(my_constants):
       self.np_ngc3[mask_muposgal]=self.np_ngc3[mask_muposgal]+1
 
     if return_mask:
-      if 'mGC3' in return_mask: 
+      if 'hel' in return_mask:
+        if verbose: print '   Selecting stars fulfilling mGC3hel criteria'
+        return mask_hel
+      elif 'mGC3' in return_mask: 
         if verbose: print '   Selecting stars fulfilling mGC3 criteria'
         return mask_gal
       elif 'nGC3' in return_mask: 
