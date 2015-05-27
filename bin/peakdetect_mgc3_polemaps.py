@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pylab as plt
 import scipy
+import scipy.interpolate
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 import sys
@@ -8,7 +9,6 @@ import argparse
 import scipy.ndimage
 import pyfits
 import os
-
 class xypix_converter:
   
   def __init__(self,m,npix=256,rangex=(0.,1.),rangey=(0.,1.)):
@@ -248,7 +248,7 @@ for infilen in file_list:
     if not args.twohemispheres: zi_smooth[ti1d<0.]=np.nan  #Unless -t is explicitly set, don't plot S-counts
     c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormaps,vmin=0.)
     cb=plt.colorbar(c1,ax=axs,orientation='horizontal',format='%d',pad=0,aspect=30)
-    cb.set_label('%s pole-counts (%sstars/pole)' % (mode_ori,factorl),fontsize=15)
+    cb.set_label('%s pole-counts (stars/pole)' % (mode_ori),fontsize=15)
     axs.set_title('Smoothed %s PCM' % (mode_ori),fontsize=15)
     #-------------subtracted image-----------------------------------------
     axu=fig2.add_subplot(1,3,2)
@@ -265,14 +265,13 @@ for infilen in file_list:
     else:
        cb.set_label('%s pole-counts (%sstars/pole)' % (mode_ori,factorl),fontsize=15)
     axu.set_title('Unsharp-masked %s PCM' % (mode_ori),fontsize=15)
-    #----------------subtracted image in Nsgima units---------------------------------
+    #----------------subtracted image in Nsigma units---------------------------------
     axn=fig2.add_subplot(1,3,3)
     mn = Basemap(projection=proj,ax=axn,**proj_dict)
     mn.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
     mn.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
     mn.drawmapboundary()
     colormap_nsig=plt.cm.spectral
-    #colormap_nsig.set_over('firebrick')
     zi_sharp_cut=zi_sharp_Nsig.copy()
     sigmax=12.  #Maximum Nsigma for contour and color display
     zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
@@ -283,10 +282,28 @@ for infilen in file_list:
     cb.set_label('Significance ($N\sigma$)',fontsize=15)
     axn.set_title('Unsharp-masked %s PCM (N$\sigma$)' % (mode_ori),fontsize=15)
     #---------
-    axu.text(0.5,0.97,args.title,transform=fig2.transFigure,horizontalalignment='center',verticalalignment='center',fontsize=17)
+    axu.text(0.5,0.97,args.title,transform=fig2.transFigure,horizontalalignment='center',
+             verticalalignment='center',fontsize=17)
     usharp_figname='%s.%s.%s.%s.usharp.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
     #fig2.set_rasterized(True)
     fig2.savefig(usharp_figname)
+    #-------------------------------Print smoothed and unsharp masked PCMs------------
+    usharp_filen='%s.%s.%s.%s.usharp.cts' % (figname_root,mode,proj[:3],pmode)
+    head='%3s %7s %8s %8s %8s' % ('phi','theta','Nsmooth','Nusharp','Nusharp_Nsig')
+    pi1d,ti1d,zi_smooth_1d=pi1d.flatten(),ti1d.flatten(),zi_smooth.flatten()
+    pi1d[pi1d<0]=pi1d[pi1d<0]+360.
+    mask=(ti1d>0) & (ti1d<=90) & (zi_smooth.flatten()>0)
+    usharp_file=open(usharp_filen,'w')
+    usharp_file.write('#Smoothed map stats: \n')
+    usharp_file.write('# Min=%.0f Max=%.0f Mean=%.0f StdDev=%.0f\n# Median=%.0f P10=%.0f P90=%.0f\n' 
+                      % (np.min(zi_smooth_1d[mask]),np.max(zi_smooth_1d[mask]),
+                         np.mean(zi_smooth_1d[mask]),np.std(zi_smooth_1d[mask]),
+                         np.median(zi_smooth_1d[mask]),np.percentile(zi_smooth_1d[mask],10),
+                         np.percentile(zi_smooth_1d[mask],90)))
+    scipy.savetxt(usharp_file,np.array([pi1d[mask],ti1d[mask],zi_smooth.flatten()[mask],zi_sharp.flatten()[mask],
+                  zi_sharp_Nsig.flatten()[mask]]).T,fmt='%6.3f %7.3f %8.1f %8.1f %8.1f',
+                  header=head)
+    #pi1d,ti1d,zi_smooth_1d=pi1d[mask],ti1d[mask],zi_smooth_1d[mask]
 
   if args.noclumps:
     #fig.set_rasterized(True)
@@ -363,9 +380,9 @@ for infilen in file_list:
   xpix_2d,ypix_2d=np.meshgrid(inds,inds)
   xinds,yinds=xpix_2d.flatten(),ypix_2d.flatten()
   pcts_1d=zi.flatten()
+  if args.unsharp: smooth_cts_1d,sharp_cts_1d=zi_smooth_1d,zi_sharp.flatten()
   cmask_1d=cmask_dat.flatten() #cmask goes with pid, i.e. pid=cmask_1d.unique()
   xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds,yinds)
-
   #----------Deal with clumps that go from one hemisphere to the other-------------------------------
   #Loop over clump IDs, if centroid is in the N, save all its pixels
   #Peak data
@@ -376,6 +393,7 @@ for infilen in file_list:
   u_xcmask,u_ycmask=np.array([]),np.array([])
   u_phicmask,u_thetacmask=np.array([]),np.array([])
   u_cmask_1d,u_pcts_1d=np.array([]),np.array([])
+  if args.unsharp: u_smooth_cts_1d,u_sharp_cts_1d=np.array([]),np.array([])
   for ii in range(thetapeak.size):
    if thetapeak[ii]>=0: #North peaks
      #Save peak data
@@ -389,6 +407,9 @@ for infilen in file_list:
      u_xcmask,u_ycmask=np.append(u_xcmask,xcmask[peakmask]),np.append(u_ycmask,ycmask[peakmask])
      u_phicmask,u_thetacmask=np.append(u_phicmask,phicmask[peakmask]),np.append(u_thetacmask,thetacmask[peakmask])
      u_cmask_1d,u_pcts_1d=np.append(u_cmask_1d,cmask_1d[peakmask]),np.append(u_pcts_1d,pcts_1d[peakmask])
+     if args.unsharp: 
+      u_smooth_cts_1d=np.append(u_smooth_cts_1d,smooth_cts_1d[peakmask])
+      u_sharp_cts_1d =np.append(u_sharp_cts_1d,sharp_cts_1d[peakmask])
    
   from astropy.coordinates import SkyCoord
   from astropy import units as aunits
@@ -416,6 +437,9 @@ for infilen in file_list:
           u_xcmask,u_ycmask=np.append(u_xcmask,xcmask[peakmask][mask_tol]),np.append(u_ycmask,ycmask[peakmask][mask_tol])
           u_phicmask,u_thetacmask=np.append(u_phicmask,phicmask[peakmask][mask_tol]),np.append(u_thetacmask,thetacmask[peakmask][mask_tol])
           u_cmask_1d,u_pcts_1d=np.append(u_cmask_1d,cmaskc[mask_tol]),np.append(u_pcts_1d,pcts_1d[peakmask][mask_tol])
+          if args.unsharp: 
+           u_smooth_cts_1d=np.append(u_smooth_cts_1d,smooth_cts_1d[peakmask][mask_tol])
+           u_sharp_cts_1d =np.append(u_sharp_cts_1d,sharp_cts_1d[peakmask][mask_tol])
      else:
        continue
 
@@ -424,6 +448,8 @@ for infilen in file_list:
   u_xcmask,u_ycmask=u_xcmask[tmask],u_ycmask[tmask]
   u_phicmask,u_thetacmask=u_phicmask[tmask],u_thetacmask[tmask]
   u_cmask_1d,u_pcts_1d=u_cmask_1d[tmask],u_pcts_1d[tmask]
+  if args.unsharp: 
+   u_smooth_cts_1d,u_sharp_cts_1d=u_smooth_cts_1d[tmask],u_sharp_cts_1d[tmask]
 
   u_newid=np.arange(u_phipeak.size) + 1  #Rename so IDs will be consecutive numbers starting from 1
 
@@ -469,6 +495,7 @@ for infilen in file_list:
   dphi=phi_plus_dphi-u_phipeak
   dtheta=u_thetapeak-theta_minus_dtheta
 
+
   #Print peak data on file---------------------------------
   fmt='%4d '+6*'%8.3f '+'%10.0f '
   scipy.savetxt(clumpfile,np.array([u_newid,u_phipeak,u_thetapeak,u_phipeakc,u_thetapeakc,dphi,dtheta,u_cheight]).T,fmt=fmt)
@@ -506,14 +533,20 @@ for infilen in file_list:
 #     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
 
     file_clumppixfname=open(clumppixfname,'w')
-    file_clumppixfname.write('#%6s %10s %10s\n' % ('IDpole','phi_pole','theta_pole'))
+    file_clumppixfname.write('#%6s %10s %10s %10s %10s\n' % ('IDpole','phi_pole','theta_pole','Nsmooth','Nsharp'))
     for kk in np.arange(u_pid.size):
       #Save only pixels inside the FWXM of the peak and with counts>minheight
       pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
       #plot current peak only
       m.scatter(u_xcmask[pmask],u_ycmask[pmask],c=cmapp[kk],edgecolors='none',s=20,marker='o',alpha=args.alpha)
       u_newid_cmask=u_newid[kk]*np.ones_like(u_cmask_1d[pmask])
-      scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask]]).T,fmt='%7d %10.4f %10.4f')
+      #Sum smoothed counts over each clump
+      Nsm,Nsh=u_smooth_cts_1d[pmask],u_sharp_cts_1d[pmask]
+      exp_purity=Nsh.sum()/np.float(Nsh.sum()+Nsm.sum())
+      #scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask]]).T,
+      #               fmt='%7d %10.4f %10.4f')
+      scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask],Nsm,Nsh]).T,
+                    fmt='%7d %10.4f %10.4f %10.1f %10.1f')
 
     cfigname='%s.%s.%s.%s.pls.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
     fig.savefig(cfigname)
