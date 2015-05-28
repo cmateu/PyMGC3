@@ -451,7 +451,7 @@ for infilen in file_list:
   if args.unsharp: 
    u_smooth_cts_1d,u_sharp_cts_1d=u_smooth_cts_1d[tmask],u_sharp_cts_1d[tmask]
 
-  u_newid=np.arange(u_phipeak.size) + 1  #Rename so IDs will be consecutive numbers starting from 1
+  #u_newid=np.arange(u_phipeak.size) + 1  #Rename so IDs will be consecutive numbers starting from 1
 
   #----------------------Printing Ouput peak-file Header and Params on Screen----------------------------------
   #Open output file to store clump coords
@@ -476,13 +476,12 @@ for infilen in file_list:
   header_info=header_info+'#----------------------------------------------------------------------\n'
   #Print on file
   clumpfile.write(header_info)
-  hfmt='#%3s '+6*'%8s '+'%10s '+'\n'
-  clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_cts'))
+  hfmt='#%3s '+6*'%8s '+'%10s %10s %10s %10s'+'\n'
+  clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_cts','exp_purity','Nsmooth','Nsharp'))
   #-------------------------------------------------------------------------------------------------------------
   #Print on screen
   print header_info
   print '# NC=%d clumps saved ' % (u_xpix.size)
-  for kk in range(u_pid.size): print '# Clump oldID=%3d, newID=%3d, height=%d' % (u_pid[kk],u_newid[kk],u_cheight[kk])
   print '#----------------------------------------------------------------'
 
   ##Convert pix coords to physical units 
@@ -495,10 +494,27 @@ for infilen in file_list:
   dphi=phi_plus_dphi-u_phipeak
   dtheta=u_thetapeak-theta_minus_dtheta
 
-
-  #Print peak data on file---------------------------------
-  fmt='%4d '+6*'%8.3f '+'%10.0f '
-  scipy.savetxt(clumpfile,np.array([u_newid,u_phipeak,u_thetapeak,u_phipeakc,u_thetapeakc,dphi,dtheta,u_cheight]).T,fmt=fmt)
+  #Compute expected purity
+  #exp_purity,Nsm_l,Nsh_l=np.array([]),np.array([]),np.array([])
+  fmt='%4d '+6*'%8.3f '+'%10.0f %10.3f %10.1f %10.1f\n'
+  newid,u_newid=0,np.array([])
+  for kk in range(u_pid.size):  
+    #Using only the pixels that will be printed out
+    pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight) & (u_smooth_cts_1d>0)
+    Nsm,Nsh=np.sum(u_smooth_cts_1d[pmask]),np.sum(u_sharp_cts_1d[pmask])
+    exp_purity=Nsh/np.float(Nsh+Nsm)
+    if pmask.any():
+     newid=newid+1
+     u_newid=np.append(u_newid,newid)
+     print '# Clump oldID=%3d, newID=%3d, height=%d' % (u_pid[kk],newid,u_cheight[kk])
+     #Print peak data on file---------------------------------
+     clumpfile.write(fmt % (newid,u_phipeak[kk],u_thetapeak[kk],u_phipeakc[kk],u_thetapeakc[kk],
+                            dphi[kk],dtheta[kk],u_cheight[kk],exp_purity,Nsm,Nsh))
+    else: 
+     u_newid=np.append(u_newid,0)
+     print '# Skipping clump oldID=%3d, no pixels>threshold_height'  % (u_pid[kk])
+  print '#----------------------------------------------------------------'
+  print u_newid.size,u_pid.size
 
   if args.noclumps:  
     #fig.set_rasterized(True)
@@ -510,9 +526,10 @@ for infilen in file_list:
   if not args.nolabels:
     #Peak ID labels
     for aax,mm in zip(axl,ml):
-      mm.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
-      for ii in range(u_newid.size): 
-         aax.text(u_xpeak[ii],u_ypeak[ii],u_newid[ii],fontsize=7,color='black',
+      mm.scatter(u_xpeak[u_newid>0],u_ypeak[u_newid>0],c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
+      for ii in range(u_newid.size):
+       if u_newid[ii]>0: 
+         aax.text(u_xpeak[ii],u_ypeak[ii],'%d' % (u_newid[ii]),fontsize=7,color='black',
                    horizontalalignment='center',verticalalignment='center',zorder=101)
   else:
     for mm in ml:
@@ -535,6 +552,7 @@ for infilen in file_list:
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s %10s %10s\n' % ('IDpole','phi_pole','theta_pole','Nsmooth','Nsharp'))
     for kk in np.arange(u_pid.size):
+     if u_newid[kk]>0:
       #Save only pixels inside the FWXM of the peak and with counts>minheight
       pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
       #plot current peak only
@@ -542,9 +560,6 @@ for infilen in file_list:
       u_newid_cmask=u_newid[kk]*np.ones_like(u_cmask_1d[pmask])
       #Sum smoothed counts over each clump
       Nsm,Nsh=u_smooth_cts_1d[pmask],u_sharp_cts_1d[pmask]
-      exp_purity=Nsh.sum()/np.float(Nsh.sum()+Nsm.sum())
-      #scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask]]).T,
-      #               fmt='%7d %10.4f %10.4f')
       scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask],Nsm,Nsh]).T,
                     fmt='%7d %10.4f %10.4f %10.1f %10.1f')
 
