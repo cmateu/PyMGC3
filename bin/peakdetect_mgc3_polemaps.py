@@ -496,17 +496,27 @@ for infilen in file_list:
 
   #Compute expected purity
   #exp_purity,Nsm_l,Nsh_l=np.array([]),np.array([]),np.array([])
-  fmt='%4d '+6*'%8.3f '+'%10.0f %10.3f %10.1f %10.1f\n'
+  fmt='%4d '+6*'%8.3f '+'%10.1f %10.3f %10.0f %10.0f\n'
   newid,u_newid=0,np.array([])
   for kk in range(u_pid.size):  
     #Using only the pixels that will be printed out
-    pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight) & (u_smooth_cts_1d>0)
-    Nsm,Nsh=np.sum(u_smooth_cts_1d[pmask]),np.sum(u_sharp_cts_1d[pmask])
-    exp_purity=Nsh/np.float(Nsh+Nsm)
+    imask = (u_cmask_1d==u_pid[kk]) 
+    if args.unsharp:
+     pmask = (u_cmask_1d==u_pid[kk]) & (u_sharp_cts_1d>=args.fwxm*np.max(u_sharp_cts_1d[imask])) & (u_pcts_1d>=minheight)
+     Nsm,Nsh=np.sum(u_smooth_cts_1d[pmask]),np.sum(u_sharp_cts_1d[pmask])
+     if pmask.any():
+      Nsigma=np.max(u_sharp_cts_1d[pmask].astype(float)/np.sqrt(u_smooth_cts_1d[pmask]))
+      exp_purity=Nsh/np.float(Nsh+Nsm)
+    else:
+     pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
+     Nsm,Nsh=0,0
+     exp_purity=-1
     if pmask.any():
      newid=newid+1
      u_newid=np.append(u_newid,newid)
-     print '# Clump oldID=%3d, newID=%3d, height=%d' % (u_pid[kk],newid,u_cheight[kk])
+     #Fix peak height, this was wrong because Fellwalker returns the sum over each clump (I think)
+     if args.unsharp: u_cheight[kk]=Nsigma
+     print '# Clump oldID=%3d, newID=%3d, height=%.1f' % (u_pid[kk],newid,u_cheight[kk])
      #Print peak data on file---------------------------------
      clumpfile.write(fmt % (newid,u_phipeak[kk],u_thetapeak[kk],u_phipeakc[kk],u_thetapeakc[kk],
                             dphi[kk],dtheta[kk],u_cheight[kk],exp_purity,Nsm,Nsh))
@@ -554,12 +564,17 @@ for infilen in file_list:
     for kk in np.arange(u_pid.size):
      if u_newid[kk]>0:
       #Save only pixels inside the FWXM of the peak and with counts>minheight
-      pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
+      imask = (u_cmask_1d==u_pid[kk]) 
+      if args.unsharp:
+       pmask = (u_cmask_1d==u_pid[kk]) & (u_sharp_cts_1d>=args.fwxm*np.max(u_sharp_cts_1d[imask])) & (u_pcts_1d>=minheight)
+      else:
+       pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
       #plot current peak only
       m.scatter(u_xcmask[pmask],u_ycmask[pmask],c=cmapp[kk],edgecolors='none',s=20,marker='o',alpha=args.alpha)
       u_newid_cmask=u_newid[kk]*np.ones_like(u_cmask_1d[pmask])
       #Sum smoothed counts over each clump
-      Nsm,Nsh=u_smooth_cts_1d[pmask],u_sharp_cts_1d[pmask]
+      if args.unsharp: Nsm,Nsh=u_smooth_cts_1d[pmask],u_sharp_cts_1d[pmask]
+      else: Nsm,Nsh=np.zeros_like(u_phicmask[pmask]),np.zeros_like(u_phicmask[pmask])
       scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask],Nsm,Nsh]).T,
                     fmt='%7d %10.4f %10.4f %10.1f %10.1f')
 
