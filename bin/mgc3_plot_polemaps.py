@@ -148,7 +148,7 @@ for infilen in file_list:
          else: vmax=args.vmax
          c=m.scatter(x,y,c=pole_cts/10**lmax, edgecolor='none',s=ms,cmap=colormap,vmin=vmin,vmax=vmax)
     else:
-       npix=300
+       npix=500
        clevels=30
        xi = np.linspace(np.min(x),np.max(x),npix)
        yi = np.linspace(np.min(y),np.max(y),npix)
@@ -169,7 +169,7 @@ for infilen in file_list:
 
   #If given, read in pls file
   if args.pls is not None:
-   poleIDs,phis,thetas=scipy.genfromtxt(args.pls,unpack=True,usecols=(0,1,2))
+   poleIDs,phis,thetas,pheight=scipy.genfromtxt(args.pls,unpack=True,usecols=(0,1,2,-1))
    u_pid=np.unique(poleIDs)
    #Define colormap consistently with peakdetect
    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
@@ -182,7 +182,8 @@ for infilen in file_list:
      idmask=poleIDs==u_pid[kk]
      m.scatter(xpoles[idmask],ypoles[idmask],c=cmapp[kk],edgecolors='none',s=20,marker='o',alpha=args.alpha)
      #Peak ID labels
-     u_xpeak,u_ypeak=np.median(xpoles[idmask]),np.median(ypoles[idmask])
+     #u_xpeak,u_ypeak=np.median(xpoles[idmask]),np.median(ypoles[idmask])
+     u_xpeak,u_ypeak=xpoles[idmask][np.argmax(pheight[idmask])],ypoles[idmask][np.argmax(pheight[idmask])]
      m.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
      ax.text(u_xpeak,u_ypeak,'%d' % (u_pid[kk]),fontsize=7,color='black',
                 horizontalalignment='center',verticalalignment='center',zorder=101)
