@@ -70,7 +70,7 @@ Source your .cshrc.
 
 If you do not have root access, you can install in the custom directory path_to_dir.
 First, add the directory's path path_to_dir and path_to_dir/lib/python2.7/site-packages/ 
-to the PYTHONPATH variable in your .cshrc/.bashrc file. Then install using the --prefix option::
+to the PYTHONPATH variable in your .cshrc/.bashrc file and source it. Then install using the --prefix option::
 
     python setup.py install --prefix=path_to_dir
 
