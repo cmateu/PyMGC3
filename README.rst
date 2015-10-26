@@ -68,12 +68,13 @@ In a terminal, run the following command::
 
 Source your .cshrc.
 
-If you do not have root access, install in a custom directory using the --prefix option::
+If you do not have root access, you can install in the custom directory path_to_dir.
+First, add the directory's path path_to_dir and path_to_dir/lib/python2.7/site-packages/ 
+to the PYTHONPATH variable in your .cshrc/.bashrc file. Then install using the --prefix option::
 
     python setup.py install --prefix=path_to_dir
 
-In this case, add path_to_dir/PyMGC3/bin to your PATH in your .csrhc or .bashrc file.
-Also add path_to_dir/PyMGC3/bin and path_to_dir/PyMGC3/ to PYTHONPATH also in your .cshrc/.bashrc file.
+Add path_to_dir/bin to your PATH in your .csrhc or .bashrc file.
 
 Quick Guide
 -----------
