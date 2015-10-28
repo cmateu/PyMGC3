@@ -6,6 +6,7 @@ from mpl_toolkits.basemap import Basemap
 import sys
 import argparse
 import scipy.ndimage
+import scipy.interpolate
 import pyfits
 import os
 
@@ -177,10 +178,11 @@ for infilen in file_list:
   yo,yf=np.min(x),np.max(x)
   xi = np.linspace(xo,xf,npix)
   yi = np.linspace(yo,yf,npix)
-  zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
+  zi=plt.griddata(x,y,pole_cts,xi,yi)
   #1-D flattened arrays
   xi1d,yi1d=np.meshgrid(xi,yi)
   pi1d,ti1d=m(xi1d,yi1d,inverse=True)
+  #zi = scipy.interpolate.griddata((x,y), pole_cts, (xi1d,yi1d), method='nearest')
 
   lmax=np.floor(np.log10(np.max(pole_cts)))
   if 'r' in pmode: 
@@ -302,8 +304,11 @@ for infilen in file_list:
   if args.unsharp: zi=zi_sharp_Nsig
  
   hdu = pyfits.PrimaryHDU()
+  print np.shape(zi), np.shape(zi.data)
   zi.data[zi is np.nan]=-1
   hdu.data=zi.data
+  #zi[zi is np.nan]=-1
+  #hdu.data=zi
   hdu.writeto('_zp.fits', clobber=True)
 
   #convert fits to ndf
