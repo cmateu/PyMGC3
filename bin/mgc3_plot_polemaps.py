@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pylab as plt
 import scipy
+import scipy.interpolate
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 import sys
@@ -152,8 +153,12 @@ for infilen in file_list:
        clevels=30
        xi = np.linspace(np.min(x),np.max(x),npix)
        yi = np.linspace(np.min(y),np.max(y),npix)
-       zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
-       if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+       zi = plt.griddata(x,y,pole_cts,xi,yi, interp='linear') #,'nn')
+       grid_x, grid_y = np.meshgrid(xi,yi)
+#       zi = scipy.interpolate.griddata((x,y), pole_cts, (grid_x, grid_y), method='nearest')
+       print 'new zi', np.shape(zi)
+       #if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+       if args.log: c=m.contourf(grid_x, grid_y,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
        else:
          if args.vmin is not None: vmin=args.vmin
          else: vmin=np.min(zi)
@@ -163,7 +168,8 @@ for infilen in file_list:
          zii[(zii<vmin)]=vmin
          zii[(zii>vmax)]=vmax
          lmax=np.floor(np.log10(vmax))
-         c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
+         c=m.contourf(grid_x, grid_y,zii/10**lmax, clevels,cmap=colormap)
+         #c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
     #Labels and such
     if 'npa' not in args.proj: ax.set_title('%s pole-counts' % (mode_ori))
 
