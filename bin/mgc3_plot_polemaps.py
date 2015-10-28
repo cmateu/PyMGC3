@@ -153,11 +153,12 @@ for infilen in file_list:
        clevels=30
        xi = np.linspace(np.min(x),np.max(x),npix)
        yi = np.linspace(np.min(y),np.max(y),npix)
-       zi = plt.griddata(x,y,pole_cts,xi,yi, interp='linear') #,'nn')
+       # zi = plt.griddata(x,y,pole_cts,xi,yi, interp='linear') #,'nn') #less portable option
        grid_x, grid_y = np.meshgrid(xi,yi)
-#       zi = scipy.interpolate.griddata((x,y), pole_cts, (grid_x, grid_y), method='nearest')
-       print 'new zi', np.shape(zi)
-       #if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+       grid_phi, grid_theta = m(grid_x, grid_y,inverse=True)
+       zi = scipy.interpolate.griddata((x,y), pole_cts, (grid_x, grid_y), method='nearest')
+       zi[grid_theta<0]=np.nan
+
        if args.log: c=m.contourf(grid_x, grid_y,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
        else:
          if args.vmin is not None: vmin=args.vmin
@@ -169,7 +170,7 @@ for infilen in file_list:
          zii[(zii>vmax)]=vmax
          lmax=np.floor(np.log10(vmax))
          c=m.contourf(grid_x, grid_y,zii/10**lmax, clevels,cmap=colormap)
-         #c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
+
     #Labels and such
     if 'npa' not in args.proj: ax.set_title('%s pole-counts' % (mode_ori))
 
