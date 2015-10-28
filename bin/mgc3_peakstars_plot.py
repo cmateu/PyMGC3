@@ -10,6 +10,7 @@ import pyfits
 import os
 import myutils
 import mgc3_lib
+import gzip
 #----------------------------------------------
 __version__ = '1.0'
 __docformat__ = "reredtext en"
@@ -80,7 +81,28 @@ for ff in range(len(file_list)):
   unit='(kpc)'
 
   if args.catfile:
-    cdat=scipy.genfromtxt(cat_list[ff],comments='#')
+    if 'gz' in cat_list[ff]:
+      cat_listf=gzip.open(cat_list[ff],'r')
+    else:
+      cat_listf=open(cat_list[ff],'r')
+    cdat=scipy.genfromtxt(cat_listf,comments='#')
+    #Apply whatever filters may be defined by the AUX pars
+    mask=np.ones(cdat[:,0].size,dtype='bool')
+    for NAUX in range(1,spars['NAUX']+1,1):
+      mykey_col='AUX%d_col' % (NAUX)
+      mykey_valo='AUX%d_o' % (NAUX)
+      mykey_valf='AUX%d_f' % (NAUX)
+      #Skip if col=998   
+      if spars[mykey_col]!=998:
+       print ' Cutting input catalogue with %.1f<%s[%d]<%.1f' % (spars[mykey_valo],
+              mykey_col,spars[mykey_col]+1,spars[mykey_valf])
+       #Create mask 
+       mask_i = (cdat[:,spars[mykey_col]]>spars[mykey_valo]) & (cdat[:,spars[mykey_col]]<spars[mykey_valf])
+       #Combine masks
+       mask = mask & mask_i
+    #Filter
+    cdat=cdat[mask,:]
+    #Parse
     cl,cb,cparallax=cdat[:,spars['lon_col']],cdat[:,spars['lat_col']],cdat[:,spars['par_col']]
     cmulstar,cmub,cvrad=cdat[:,spars['pm_lon_col']],cdat[:,spars['pm_lat_col']],cdat[:,spars['vrad_col']]
     css=myutils.helio_obj(cl,cb,fp*cparallax,fm*cmulstar,fm*cmub,cvrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
@@ -98,18 +120,14 @@ for ff in range(len(file_list)):
   #ss.x,ss.y,ss.z=dat[:,8-1],dat[:,9-1],dat[:,10-1] #for tests only
 
   npoles=np.int(np.max(IDpole))
-  print npoles
  # npoles_id=IDpole.unique().size
   
   print 'Npeaks=',npoles
-  #cmapp=plt.cm.gist_ncar(np.linspace(0, 0.9, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
-  #cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.85, npoles ))  #Upper limit is 0.85 to avoid last colors of the colormap
-  #cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
-  cmapp=plt.cm.spectral(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
-
+#  cmapp=plt.cm.spectral(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
   if npoles<=10:
      cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
+
 #     cmapp=['darkviolet','slateblue','deeppink','royalblue','orchid','red','gray','pink','limegreen','navy']
   #cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
 #     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
@@ -136,17 +154,17 @@ for ff in range(len(file_list)):
   for kk in range(npoles):
    mask= (IDpole==kk+1)
    #---Cartesian---------
-   ax1.plot(ss.x[mask],ss.y[mask],'.',color=cmapp[kk],**s_props)
+   ax1.plot(-ss.x[mask],ss.y[mask],'.',color=cmapp[kk],**s_props)
    #---
-   ax2.plot(ss.x[mask],ss.z[mask],'.',color=cmapp[kk],**s_props)
+   ax2.plot(-ss.x[mask],ss.z[mask],'.',color=cmapp[kk],**s_props)
    #---Aitoff--------
    if args.helio: xmoll,ymoll=m(ss.l[mask],ss.b[mask])
    else:          xmoll,ymoll=m(ss.phi[mask],ss.theta[mask])
    m.plot(xmoll,ymoll,'.',color=cmapp[kk],**s_props)
 
   if args.catfile:
-   ax1.plot(css.x,css.y,'k.',**c_props)
-   ax2.plot(css.x,css.z,'k.',**c_props)
+   ax1.plot(-css.x,css.y,'k.',**c_props)
+   ax2.plot(-css.x,css.z,'k.',**c_props)
    cxmoll,cymoll=m(css.phi,css.theta)
    m.plot(cxmoll,cymoll,'k.',**c_props)
 

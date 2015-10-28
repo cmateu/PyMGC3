@@ -153,6 +153,7 @@ for infilen in file_list:
        xi = np.linspace(np.min(x),np.max(x),npix)
        yi = np.linspace(np.min(y),np.max(y),npix)
        zi = plt.griddata(x,y,pole_cts,xi,yi) #,'nn')
+       print 'xi,zi', np.shape(xi),np.shape(zi)
        if args.log: c=m.contourf(xi,yi,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
        else:
          if args.vmin is not None: vmin=args.vmin
@@ -175,6 +176,8 @@ for infilen in file_list:
    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
    if u_pid.size<=10:
      cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
+
+
    for kk in np.arange(u_pid.size):
      #Project pole coords
      xpoles,ypoles=m(phis,thetas)

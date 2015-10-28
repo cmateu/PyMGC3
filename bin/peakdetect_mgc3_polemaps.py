@@ -357,7 +357,9 @@ for infilen in file_list:
   pid=np.arange(xpix.size) + 1  #Peak IDs, must start from 1
 
   #Keep only peaks with counts > minheight and with sizes>=1 (clumps have to be at least 1 pixel in size)
-  mask=(cheight>=minheight) & ((dx_pix>=1.) | (dy_pix>=1.)) 
+  mask=(cheight>=minheight) #& ((dx_pix>=1.) | (dy_pix>=1.)) 
+  #mask=(cheight>=minheight) & ((dx_pix>=1.) | (dy_pix>=1.)) 
+  #mask=(cheight>=minheight) & ((dx_pix>=2.) | (dy_pix>=2.)) 
   if not mask.any(): 
     print 'No peaks above minheight or with size>=1pix found'
     continue
@@ -511,7 +513,8 @@ for infilen in file_list:
      pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
      Nsm,Nsh=0,0
      exp_purity=-1
-    if pmask.any():
+    #if pmask.any(): 
+    if pmask.sum()>5: #Require at least five pixels above threshold
      newid=newid+1
      u_newid=np.append(u_newid,newid)
      #Fix peak height, this was wrong because Fellwalker returns the sum over each clump (I think)
@@ -522,7 +525,7 @@ for infilen in file_list:
                             dphi[kk],dtheta[kk],u_cheight[kk],exp_purity,Nsm,Nsh))
     else: 
      u_newid=np.append(u_newid,0)
-     print '# Skipping clump oldID=%3d, no pixels>threshold_height'  % (u_pid[kk])
+     print '# Skipping clump oldID=%3d, less than 5 pixels>threshold_height'  % (u_pid[kk])
   print '#----------------------------------------------------------------'
   print u_newid.size,u_pid.size
 
@@ -586,3 +589,5 @@ for infilen in file_list:
   
   if args.show: plt.show()
   else: fig.clf()
+  fig.clf()
+  if args.unsharp: fig2.clf()
