@@ -171,18 +171,18 @@ for infilen in file_list:
   x,y=m(phi,theta)
 
   #------------Grid-data for contour plotting---------------
-  #npix=400
   npix=500
   clevels=30
   xo,xf=np.min(x),np.max(x)
   yo,yf=np.min(x),np.max(x)
   xi = np.linspace(xo,xf,npix)
   yi = np.linspace(yo,yf,npix)
-  zi=plt.griddata(x,y,pole_cts,xi,yi)
   #1-D flattened arrays
   xi1d,yi1d=np.meshgrid(xi,yi)
   pi1d,ti1d=m(xi1d,yi1d,inverse=True)
-  #zi = scipy.interpolate.griddata((x,y), pole_cts, (xi1d,yi1d), method='nearest')
+  zi1 = scipy.interpolate.griddata((x,y), pole_cts, (xi1d,yi1d), method='linear')
+  tmask=(ti1d<-90.) | (ti1d>90.)
+  zi=np.ma.masked_array(zi1,mask=tmask) #These masks in masked-arrays work the other way, True are masked-OUT values
 
   lmax=np.floor(np.log10(np.max(pole_cts)))
   if 'r' in pmode: 
@@ -197,19 +197,10 @@ for infilen in file_list:
    zii=zi.copy()
    if args.log: 
      if not args.twohemispheres: zii[ti1d<0.]=0.
-     print '------------AQUI--------------------'
      c=m.contourf(xi,yi,np.log10(zii),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax,antialiased=False)
    else:
-     #Use vmin and vmax for plotting only
-     if args.vmin is not None: vmin=args.vmin
-     else: vmin=np.min(zi)
-     if args.vmax is not None: vmax=args.vmax
-     else: vmax=np.max(zi)
-     zii[(zii<vmin)]=vmin
-     zii[(zii>vmax)]=vmax
-     lmax=np.floor(np.log10(vmax))
      if not args.twohemispheres: zii[ti1d<0.]=np.nan
-     c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap)
+     c=m.contourf(xi,yi,zii/10**lmax, clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
 
   #Plot colorbar
   cax0=plt.gca().get_position()
@@ -324,8 +315,6 @@ for infilen in file_list:
   print np.shape(zi), np.shape(zi.data)
   zi.data[zi is np.nan]=-1
   hdu.data=zi.data
-  #zi[zi is np.nan]=-1
-  #hdu.data=zi
   hdu.writeto('_zp.fits', clobber=True)
 
   #convert fits to ndf
