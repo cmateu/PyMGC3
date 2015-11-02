@@ -7,6 +7,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import bovy_coords as bovyc
 import gzip 
+import matplotlib.colors 
+import matplotlib.cm 
 
 #############################################################################
 # VERSION: 
@@ -130,4 +132,27 @@ class helio_obj:
     m=bovyc.XYZ_to_lbd(self.x,self.y,self.z,degree=degree)
     self.phi,self.theta,self.Rgal=m.T
     self.phi=(self.phi+180.) % 360.    
+
+#--------------color maps---------------------------------------------------
+
+def create_cmap_from_list(colorlist,cmap_name):
+
+  cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list(cmap_name,colorlist)
+  matplotlib.cm.register_cmap(cmap=cmap2)
+  return cmap2
+
+
+#Implementations from Paul Tol's SRON notes on Colour Maps
+
+def get_sron_rainbow(N=12):
+
+ if N==12:
+   colorlist=['#781C81','#413B93','#4065B1','#488BC2','#55A1B1','#63AD99',
+   #colorlist=['#413B93','#4065B1','#488BC2','#55A1B1','#63AD99',
+              '#7FB972','#B5BD4C','#D9AD3C','#E68E34','#E6642C','#D92120']
+   cmap=create_cmap_from_list(colorlist,'sron_rainbow12')
+
+ return cmap
+
+
 

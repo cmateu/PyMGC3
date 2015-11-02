@@ -10,6 +10,8 @@ import scipy.ndimage
 import scipy.interpolate
 import pyfits
 import os
+import myutils
+
 class xypix_converter:
   
   def __init__(self,m,npix=256,rangex=(0.,1.),rangey=(0.,1.)):
@@ -117,6 +119,10 @@ ori='horizontal'
 ni=0
 
 colormap=plt.cm.jet
+colormap=myutils.get_sron_rainbow()
+colormap_nsig=plt.cm.spectral
+#colormap_nsig=myutils.get_sron_rainbow()
+
 if args.bw: colormap=plt.cm.gray
 for infilen in file_list:
 
@@ -233,25 +239,23 @@ for infilen in file_list:
     fig2.subplots_adjust(bottom=0.01,top=0.99,left=0.03,right=0.97,wspace=0.1)
     #----------------smoothed image---------------------------------
     axs=fig2.add_subplot(1,3,1)
-    colormaps=plt.cm.jet
     ms = Basemap(projection=proj,ax=axs,**proj_dict)
-    ms.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
-    ms.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+    ms.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='grey',lw=2.)
+    ms.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='grey',lw=2.)
     ms.drawmapboundary()
     if not args.twohemispheres: zi_smooth[ti1d<0.]=np.nan  #Unless -t is explicitly set, don't plot S-counts
-    c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormaps,vmin=0.)
+    c1=ms.contourf(xi,yi,zi_smooth, clevels,cmap=colormap,vmin=0.)
     cb=plt.colorbar(c1,ax=axs,orientation='horizontal',format='%d',pad=0,aspect=30)
     cb.set_label('%s pole-counts (stars/pole)' % (mode_ori),fontsize=15)
     axs.set_title('Smoothed %s PCM' % (mode_ori),fontsize=15)
     #-------------subtracted image-----------------------------------------
     axu=fig2.add_subplot(1,3,2)
-    colormaps=plt.cm.jet
     mu = Basemap(projection=proj,ax=axu,**proj_dict)
     mu.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
     mu.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
     mu.drawmapboundary()
     if not args.twohemispheres: zi_sharp[ti1d<0.]=0.  #Unless -t is explicitly set, don't plot S-counts
-    c3=mu.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormaps,vmin=0.)
+    c3=mu.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormap,vmin=0.)
     cb=plt.colorbar(c3,ax=axu,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
     if args.log:
        cb.set_label('%s log-pole-counts (dex stars/pole)' % (mode_ori),fontsize=15)
@@ -264,7 +268,6 @@ for infilen in file_list:
     mn.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
     mn.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
     mn.drawmapboundary()
-    colormap_nsig=plt.cm.spectral
     zi_sharp_cut=zi_sharp_Nsig.copy()
     sigmax=12.  #Maximum Nsigma for contour and color display
     zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
