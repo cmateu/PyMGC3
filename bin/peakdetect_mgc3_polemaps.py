@@ -118,7 +118,7 @@ ori='vertical'
 ori='horizontal'
 ni=0
 
-colormap=plt.cm.jet
+#colormap=plt.cm.jet
 colormap=myutils.get_sron_rainbow()
 colormap_nsig=plt.cm.spectral
 #colormap_nsig=myutils.get_sron_rainbow()
