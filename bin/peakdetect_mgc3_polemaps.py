@@ -121,7 +121,7 @@ ni=0
 #colormap=plt.cm.jet
 colormap=myutils.get_sron_rainbow()
 colormap_nsig=plt.cm.spectral
-#colormap_nsig=myutils.get_sron_rainbow()
+colormap_nsig=myutils.get_sron_rainbow()
 
 if args.bw: colormap=plt.cm.gray
 for infilen in file_list:

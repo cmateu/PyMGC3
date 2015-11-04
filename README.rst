@@ -1,6 +1,6 @@
 PyMGC3 Package
 ======
-
+ 
 **DESCRIPTION:**
 
 PyMGC3 is a Python toolkit to apply the Modified Great Circle 
