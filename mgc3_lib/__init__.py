@@ -73,7 +73,7 @@ def read_inputcat_for_mgc3(filename,pardic=None):
   #Do cuts
   mask = obsdata[:,0]==obsdata[:,0]  #Initialize mask to all-True-vector
   if pardic:
-    for NAUX in range(1,spars['NAUX']+1,1):
+    for NAUX in range(1,pardic['NAUX']+1,1):
       mykey_col='AUX%d_col' % (NAUX)
       mykey_valo='AUX%d_o' % (NAUX)
       mykey_valf='AUX%d_f' % (NAUX)
