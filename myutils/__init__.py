@@ -151,6 +151,10 @@ def get_sron_rainbow(N=12):
    #colorlist=['#413B93','#4065B1','#488BC2','#55A1B1','#63AD99',
               '#7FB972','#B5BD4C','#D9AD3C','#E68E34','#E6642C','#D92120']
    cmap=create_cmap_from_list(colorlist,'sron_rainbow12')
+ elif N==11:
+   colorlist=['#413B93','#4065B1','#488BC2','#55A1B1','#63AD99',
+              '#7FB972','#B5BD4C','#D9AD3C','#E68E34','#E6642C','#D92120']
+   cmap=create_cmap_from_list(colorlist,'sron_rainbow11')
 
  return cmap
 
