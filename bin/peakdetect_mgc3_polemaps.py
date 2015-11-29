@@ -119,9 +119,9 @@ ori='horizontal'
 ni=0
 
 #colormap=plt.cm.jet
-colormap=myutils.get_sron_rainbow()
+colormap=myutils.get_sron_rainbow(N=11)
 colormap_nsig=plt.cm.spectral
-colormap_nsig=myutils.get_sron_rainbow()
+#colormap_nsig=myutils.get_sron_rainbow()
 
 if args.bw: colormap=plt.cm.gray
 for infilen in file_list:
@@ -497,15 +497,20 @@ for infilen in file_list:
   #exp_purity,Nsm_l,Nsh_l=np.array([]),np.array([]),np.array([])
   fmt='%4d '+6*'%8.3f '+'%10.1f %10.3f %10.0f %10.0f\n'
   newid,u_newid=0,np.array([])
+
   for kk in range(u_pid.size):  
     #Using only the pixels that will be printed out
     imask = (u_cmask_1d==u_pid[kk]) 
+    if not imask.any(): continue
     if args.unsharp:
      pmask = (u_cmask_1d==u_pid[kk]) & (u_sharp_cts_1d>=args.fwxm*np.max(u_sharp_cts_1d[imask])) & (u_pcts_1d>=minheight)
-     Nsm,Nsh=np.sum(u_smooth_cts_1d[pmask]),np.sum(u_sharp_cts_1d[pmask])
      if pmask.any():
+      Nsm,Nsh=np.sum(u_smooth_cts_1d[pmask]),np.sum(u_sharp_cts_1d[pmask])
       Nsigma=np.max(u_sharp_cts_1d[pmask].astype(float)/np.sqrt(u_smooth_cts_1d[pmask]))
       exp_purity=Nsh/np.float(Nsh+Nsm)
+     else:
+      Nsm,Nsh=0.,0.
+      Nsigma,exp_purity=0.,-1
     else:
      pmask = (u_cmask_1d==u_pid[kk]) & (u_pcts_1d>=args.fwxm*u_cheight[kk]) & (u_pcts_1d>=minheight)
      Nsm,Nsh=0,0
@@ -524,7 +529,6 @@ for infilen in file_list:
      u_newid=np.append(u_newid,0)
      print '# Skipping clump oldID=%3d, less than 5 pixels>threshold_height'  % (u_pid[kk])
   print '#----------------------------------------------------------------'
-  print u_newid.size,u_pid.size
 
   if args.noclumps:  
     #fig.set_rasterized(True)
@@ -561,7 +565,8 @@ for infilen in file_list:
 
     file_clumppixfname=open(clumppixfname,'w')
     file_clumppixfname.write('#%6s %10s %10s %10s %10s\n' % ('IDpole','phi_pole','theta_pole','Nsmooth','Nsharp'))
-    for kk in np.arange(u_pid.size):
+
+    for kk in np.arange(u_newid.size):
      if u_newid[kk]>0:
       #Save only pixels inside the FWXM of the peak and with counts>minheight
       imask = (u_cmask_1d==u_pid[kk]) 
