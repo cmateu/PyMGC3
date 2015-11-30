@@ -7,6 +7,7 @@ from mpl_toolkits.basemap import Basemap
 import sys
 import argparse
 import scipy.ndimage
+import myutils
 
 __version__ = '1.1'
 __docformat__ = "reredtext en"
@@ -78,7 +79,8 @@ ori='vertical'
 ori='horizontal'
 ni=0
 
-colormap=plt.cm.jet
+#colormap=plt.cm.jet
+colormap=myutils.get_sron_rainbow(N=11)
 if args.bw: colormap=plt.cm.gray
 
 for infilen in file_list:
