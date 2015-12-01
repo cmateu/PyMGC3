@@ -86,7 +86,7 @@ if args.bw: colormap=plt.cm.gray
 for infilen in file_list:
 
   #Default title----------------------------------
-  args.title=infilen
+  if args.title is None: args.title=infilen
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
   figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
