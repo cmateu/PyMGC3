@@ -133,7 +133,7 @@ for infilen in file_list:
      pmode=pmode+'l'
 
   #Default title----------------------------------
-  args.title=infilen
+  if not args.title: args.title=infilen
 
   #Output figure and file names
   figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
