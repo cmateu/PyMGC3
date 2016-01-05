@@ -54,6 +54,9 @@ parser.add_argument('-nolabels',help='Plot peak ID labels', action='store_true',
 parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
+parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float)
+parser.add_argument('-mlab','--merlabels',help='Show meridian labels. Default is False', action='store_true',default=False)
+parser.add_argument('-plab','--parlabels',help='Show parallel labels. Default is False', action='store_true',default=False)
 parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=20.,type=np.float)
@@ -61,6 +64,7 @@ parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', ac
 parser.add_argument('-ms',help='Marker size. Default: 50 for npaeqd.', action='store',default=50,type=np.float)
 parser.add_argument('-r','--raw',help='Plot raw grid pole-count map instead of contour map.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
+parser.add_argument('-force_onehemisph',help='Force using one hemisphere allways', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
@@ -146,7 +150,7 @@ for infilen in file_list:
   theta2=np.append(thetao,-thetao)
   pole_cts2=np.append(pole_ctso,pole_ctso) 
 
-  if args.twohemispheres or args.unsharp:
+  if args.twohemispheres or args.unsharp and not args.force_onehemisph:
    phi,theta,pole_cts=phi2,theta2,pole_cts2
   else: 
    phi,theta,pole_cts=phio,thetao,pole_ctso 
@@ -171,8 +175,14 @@ for infilen in file_list:
 
   ax=fig.add_subplot(nrow,ncol,nplot)
   m = Basemap(projection=proj,ax=ax,**proj_dict)
-  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color='lightgrey',lw=2.)
-  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color='lightgrey',lw=2.)
+  grid_color=(0.65,0.65,0.65)
+  if args.merlabels: mlabels_dic={'labels':[1,0,0,0],'labelstyle':'+/-'}
+  else: mlabels_dic={'labels':[0,0,0,0]}
+  if args.parlabels: plabels_dic={'labels':[0,0,0,1],'labelstyle':'+/-'}
+  else: plabels_dic={'labels':[0,0,0,0]}
+  m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color=grid_color,linewidth=1.,
+                   latmax=args.latmax,**mlabels_dic)
+  m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color=grid_color,linewidth=1.,**plabels_dic)
   m.drawmapboundary()
   x,y=m(phi,theta)
 
