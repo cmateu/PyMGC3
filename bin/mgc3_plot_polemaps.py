@@ -26,6 +26,7 @@ parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', ac
 parser.add_argument('-dlon',help='Spacing between meridians. Default is 20.', action='store',default=30.,type=np.float)
 parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float)
 parser.add_argument('-mlab','--merlabels',help='Show meridian labels. Default is False', action='store_true',default=False)
+parser.add_argument('-mlabr','--merlabelsr',help='Show meridian labels (right axes). Default is False', action='store_true',default=False)
 parser.add_argument('-plab','--parlabels',help='Show parallel labels. Default is False', action='store_true',default=False)
 parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
@@ -88,7 +89,7 @@ if args.bw: colormap=plt.cm.gray
 for infilen in file_list:
 
   #Default title----------------------------------
-  if args.title is None: args.title=infilen
+  if args.title is None or args.llist: args.title=infilen
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
   figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
@@ -138,8 +139,9 @@ for infilen in file_list:
     ax=fig.add_subplot(nrow,ncol,ii)
     m = Basemap(projection=args.proj,lon_0=l0,ax=ax,**proj_dict)
     grid_color=(0.65,0.65,0.65)
-    if args.merlabels: mlabels_dic={'labels':[1,0,0,0],'labelstyle':'+/-'}
-    else: mlabels_dic={'labels':[0,0,0,0]}
+    mlabels_dic={'labels':[0,0,0,0],'labelstyle':'+/-'}
+    if args.merlabels:  mlabels_dic['labels'][0]=1
+    if args.merlabelsr: mlabels_dic['labels'][1]=1
     if args.parlabels: plabels_dic={'labels':[0,0,0,1],'labelstyle':'+/-'}
     else: plabels_dic={'labels':[0,0,0,0]}
     m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color=grid_color,linewidth=1.,

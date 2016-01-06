@@ -353,7 +353,6 @@ for infilen in file_list:
   else:
     mindip='config="fellwalker.mindip=%f" ' % (np.float(args.mindip))
   print 'Finding clumps with Fellwalker'
-  #os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" ' % (starlink_path,rms,args.maxjump)) 
   os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" %s ' % (starlink_path,rms,args.maxjump,mindip)) 
 
   #------------------------------Deal with identified peaks (peak centroids, etc)---------------------------
