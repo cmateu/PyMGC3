@@ -56,6 +56,7 @@ parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float)
 parser.add_argument('-mlab','--merlabels',help='Show meridian labels. Default is False', action='store_true',default=False)
+parser.add_argument('-mlabr','--merlabelsr',help='Show meridian labels (right axes). Default is False', action='store_true',default=False)
 parser.add_argument('-plab','--parlabels',help='Show parallel labels. Default is False', action='store_true',default=False)
 parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
 parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
@@ -176,8 +177,9 @@ for infilen in file_list:
   ax=fig.add_subplot(nrow,ncol,nplot)
   m = Basemap(projection=proj,ax=ax,**proj_dict)
   grid_color=(0.65,0.65,0.65)
-  if args.merlabels: mlabels_dic={'labels':[1,0,0,0],'labelstyle':'+/-'}
-  else: mlabels_dic={'labels':[0,0,0,0]}
+  mlabels_dic={'labels':[0,0,0,0],'labelstyle':'+/-'}
+  if args.merlabels:  mlabels_dic['labels'][0]=1
+  if args.merlabelsr: mlabels_dic['labels'][1]=1
   if args.parlabels: plabels_dic={'labels':[0,0,0,1],'labelstyle':'+/-'}
   else: plabels_dic={'labels':[0,0,0,0]}
   m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color=grid_color,linewidth=1.,
