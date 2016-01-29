@@ -70,7 +70,9 @@ if args.zlim: print 'Z limits:', args.zlim
 for ff in range(len(file_list)):
 
   infilen=file_list[ff]
-  dat=scipy.genfromtxt(infilen,comments='#')
+  if '.gz' in infilen: infile=gzip.open(infilen)
+  else: infile=open(infilen)
+  dat=scipy.genfromtxt(infile,comments='#')
 
   print 'Plotting stars from file: ',infilen
 
