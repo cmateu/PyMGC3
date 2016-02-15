@@ -69,6 +69,9 @@ def read_inputcat_for_mgc3(filename,pardic=None):
   else: inputfile=open(filename,'r')
 
   obsdata = scipy.genfromtxt(inputfile,comments='#')
+  
+  #Deal with one-line files
+  if np.ndim(obsdata)==1: obsdata=np.reshape(obsdata,(1,obsdata.size))
 
   #Do cuts
   mask = obsdata[:,0]==obsdata[:,0]  #Initialize mask to all-True-vector
