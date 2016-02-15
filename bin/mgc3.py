@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from numpy import array
+from numpy import array,ndim
 import sys
 import scipy
 import mgc3_lib as mgc3_lib

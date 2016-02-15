@@ -108,7 +108,7 @@ def equatorial2galactic_helio(alpha,delta):
    sinb=sindelta*cosbo - cosdelta*sinalpha1*sinbo
    cosb=np.sqrt(1-sinb**2)  #This is ok since cosb>0 for all b in [-pi/2,+pi/2]
    b=np.arctan2(sinb,cosb)
-   #Get longitute
+   #Get longitude
    sinl1=(1./cosb)*(sindelta*sinbo+cosdelta*sinalpha1*cosbo)
    cosl1=(1./cosb)*(cosdelta*cosalpha1)
    #tangent of half-angle
@@ -266,7 +266,7 @@ class pole_grid(my_constants):
 
   def __init__(self,poles=2.,cst=None,pole_grid_dic=None,verbose=True):
 
-   #Inherit my_constance object attributes 
+   #Inherit my_constants object attributes 
    if cst:
      my_constants.__init__(self,rsun=cst.rsun,Ugc_hel=cst.Ugc_hel,Vgc_hel=cst.Vgc_hel,Wgc_hel=Wgc_hel,Ap=cst.Ap,Av=cst.Av)
    else:
