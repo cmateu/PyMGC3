@@ -18,7 +18,7 @@ parser.add_argument('-n','--norm',help='Normalize each PCM *before* adding them 
 args = parser.parse_args()
 
 print 'Reading file list',args.infilel
-infilelist=scipy.genfromtxt(args.infilel[0],dtype='S')
+infilelist=scipy.genfromtxt(args.infilel[0],dtype='S',usecols=(0,),unpack=True)
 
 #Initialize output file
 ofilen=args.ofilen[0]
