@@ -114,8 +114,8 @@ for infilen in file_list:
   nx,ny=1,1
 
   mer_grid=[0.,360.,args.dlon]
-  #par_grid=[-90.,+90.,args.dlat]
-  par_grid=[-args.dlat,+90.,args.dlat]
+  if 'npa' in args.proj: par_grid=[-args.dlat,+90.,args.dlat]
+  else: par_grid=[-90.,+90.,args.dlat]
 
   if 'npa' in args.proj or 'moll' in args.proj:
     #For npa and moll projections, plot map as viewed from lon0 only
@@ -153,6 +153,18 @@ for infilen in file_list:
     m.drawmapboundary()
 
     x,y=m(phi,theta)
+
+    if 'moll' in args.proj:
+      #In Mollweide proj draw labels by hand
+      for ptheta in np.arange(par_grid[0]+par_grid[2],par_grid[1],par_grid[2]):
+        if ptheta<0.: f=0.7
+        else: f=1.
+        xpar,ypar=m(args.lon0-180.,ptheta)
+        ax.text(f*xpar,ypar,'$%+d^\circ$' % (ptheta),horizontalalignment='right',verticalalignment='center',fontsize=10)
+      for mlon in np.arange(mer_grid[0],mer_grid[1],mer_grid[2])[1::2]:
+        xmer,ymer=m(mlon,0.)
+        ax.text(xmer,ymer,'$%d^\circ$' % (mlon),horizontalalignment='left',verticalalignment='top',fontsize=10)
+
 
     lmax=np.floor(np.log10(np.max(pole_cts)))
     if 'r' in pmode: 
@@ -197,6 +209,12 @@ for infilen in file_list:
    tmask=thetas<0.
    phis[tmask]=(phis[tmask]+180.) % 360.
    thetas[tmask]=-thetas[tmask]
+   #If Molweide projection is used, choose 180deg centered on lon0, any theta
+   if 'moll' in args.proj:
+      phis=np.append(phis,(phis+180.) %360.)
+      thetas=np.append(thetas,-thetas)
+      pmask=(phis>=args.lon0-90.) & (phis<args.lon0+90.)
+      phis,thetas=phis[pmask],thetas[pmask]
    #Keep unique pole IDs
    u_pid=np.unique(poleIDs)
    #Define colormap consistently with peakdetect
