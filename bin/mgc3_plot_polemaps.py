@@ -213,8 +213,9 @@ for infilen in file_list:
    if 'moll' in args.proj:
       phis=np.append(phis,(phis+180.) %360.)
       thetas=np.append(thetas,-thetas)
+      poleIDs=np.append(poleIDs,poleIDs)
       pmask=(phis>=args.lon0-90.) & (phis<args.lon0+90.)
-      phis,thetas=phis[pmask],thetas[pmask]
+      phis,thetas,poleIDs=phis[pmask],thetas[pmask],poleIDs[pmask]
    #Keep unique pole IDs
    u_pid=np.unique(poleIDs)
    #Define colormap consistently with peakdetect
