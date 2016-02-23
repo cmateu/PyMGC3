@@ -20,6 +20,8 @@ nGC3 uses positional and proper motion data.
 
 **LATEST FEATURES:**
 
+Feb 2016 - Input list option added to mgc3.py (use -l flag to take input as a list of input files to run mgc3.py). Normalization option added to join_mgc3_maps.py (normalizes each input cts file's max counts and then combines them).   
+
 March 2015 - Unsharp mask option (and new cmd-line parameters) added to peak detection 
 code (peakdetect_mgc3_polemaps.py). Peak detection can now be done in unsharp-masked PCM.
 
@@ -31,7 +33,7 @@ peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
 
 **REQUIREMENTS**
 
-- Python modules required are NUMPY and SCIPY.
+- Python modules required are NUMPY and SCIPY. MATPLOTLIB and BASEMAP are needed for plotting utilities.
 - This programs makes use of the coordinate transformation library
   bovy_coords.py from the `galpy <https://github.com/jobovy/galpy>`__ 
   package by Jo Bovy (2015, in prep.). It is supplied with this bundle.

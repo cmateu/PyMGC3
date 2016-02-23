@@ -193,6 +193,11 @@ for infilen in file_list:
   #If given, read in pls file
   if args.pls is not None:
    poleIDs,phis,thetas,pheight=scipy.genfromtxt(args.pls,unpack=True,usecols=(0,1,2,-1))
+   #Make sure all poles are in northern hemisphere
+   tmask=thetas<0.
+   phis[tmask]=(phis[tmask]+180.) % 360.
+   thetas[tmask]=-thetas[tmask]
+   #Keep unique pole IDs
    u_pid=np.unique(poleIDs)
    #Define colormap consistently with peakdetect
    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
