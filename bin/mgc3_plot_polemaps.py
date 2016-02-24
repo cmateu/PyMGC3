@@ -169,7 +169,7 @@ for infilen in file_list:
         ax.text(f*xpar,ypar,'$%+d^\circ$' % (ptheta),horizontalalignment='right',verticalalignment='center',fontsize=10)
       for mlon in np.arange(mer_grid[0],mer_grid[1],mer_grid[2])[1::2]:
         xmer,ymer=m(mlon,0.)
-        ax.text(xmer,ymer,'$%d^\circ$' % (mlon),horizontalalignment='left',verticalalignment='top',fontsize=10)
+        ax.text(xmer,ymer,'$%d^\circ$' % (mlon),horizontalalignment='left',verticalalignment='top',fontsize=10,color=grid_color)
 
 
     lmax=np.floor(np.log10(np.max(pole_cts)))
