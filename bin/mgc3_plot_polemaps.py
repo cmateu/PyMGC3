@@ -103,7 +103,7 @@ for infilen in file_list:
   theta2=np.append(thetao,-thetao)
   pole_cts2=np.append(pole_ctso,pole_ctso) 
 
-  if args.twohemispheres:
+  if args.twohemispheres or 'moll' in args.proj:
    phi,theta,pole_cts=phi2,theta2,pole_cts2
   else: 
    phi,theta,pole_cts=phio,thetao,pole_ctso 
@@ -119,15 +119,21 @@ for infilen in file_list:
 
   if 'npa' in args.proj or 'moll' in args.proj:
     #For npa and moll projections, plot map as viewed from lon0 only
-    fig=plt.figure(1,figsize=(8,8))
+    if 'npa' in args.proj: fig=plt.figure(1,figsize=(8,8))
+    elif 'moll' in args.proj: fig=plt.figure(1,figsize=(10,6)) 
     dw=0.8
     wo=(1.-dw)/2.
     wyo=0.05*wo
-    fig.subplots_adjust(left=wo,right=dw+wo,top=dw+wo,bottom=wyo)
+    if 'moll' in args.proj: xnudge=0.05
+    else: xnudge=0.
+    fig.subplots_adjust(left=wo-xnudge,right=dw+wo-xnudge,top=dw+wo,bottom=wyo)
     nrow,ncol,nplot=1,1,1
     opts=[(1,args.lon0),] 
     proj_dict={'boundinglat':args.lat0,'resolution':'l'}
-    if args.ms==-1: ms=70.
+    if args.ms==-1: 
+      if 'npa' in args.proj: ms=30.    #tested
+      elif 'moll' in args.proj: ms=12. #tested
+      else: ms=70.
     else: ms=args.ms
   else:
     #For ortho projection, plot map as viewed from lon=0 and lon0+180
@@ -246,16 +252,25 @@ for infilen in file_list:
    else: tlocator,tformat=None,'%4.1f'
    cb=plt.colorbar(c,cax=cax,orientation='horizontal',format=tformat,ticks=tlocator)
    cax.xaxis.set_ticks_position('top')
+  elif 'moll' in args.proj:
+   cax0=plt.gca().get_position()
+   cax=plt.axes([cax0.x0+dw+0.03,cax0.y0+(0.2),0.015,dw*0.65])
+   tlocator,tformat=None,'%4.1f'
+   cb=plt.colorbar(c,cax=cax,orientation='vertical',format=tformat,ticks=tlocator)
 
+  if 'npa' in args.proj or 'moll' in args.proj:
    #Labels and such
    if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
    else: factorl=''
    if 'usharpn' in mode: cax.set_xlabel('%s significance ($N\sigma$)' % (mode_ori))
    elif args.log:
-      cax.set_xlabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
+    if 'npa' in args.proj:  cax.set_xlabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
+    if 'moll' in args.proj: cax.set_ylabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
    else:
-      cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
-   cax.xaxis.set_label_position('top')
+    if 'npa' in args.proj:  cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
+    if 'moll' in args.proj: cax.set_ylabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
+   if 'npa' in args.proj: cax.xaxis.set_label_position('top')
+   elif 'moll' in args.proj: cax.yaxis.set_label_position('right')
 
   if args.title:
     ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
