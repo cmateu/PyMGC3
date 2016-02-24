@@ -215,13 +215,17 @@ for infilen in file_list:
    tmask=thetas<0.
    phis[tmask]=(phis[tmask]+180.) % 360.
    thetas[tmask]=-thetas[tmask]
-   #If Molweide projection is used, choose 180deg centered on lon0, any theta
+   #If Molweide projection is used, plot 180deg centered on lon0
    if 'moll' in args.proj:
       phis=np.append(phis,(phis+180.) %360.)
+      phis_pi=phis
+      phis_pi[phis>180.]=phis_pi[phis>180.]-360.
       thetas=np.append(thetas,-thetas)
       poleIDs=np.append(poleIDs,poleIDs)
-      pmask=(phis>=args.lon0-90.) & (phis<args.lon0+90.)
-      phis,thetas,poleIDs=phis[pmask],thetas[pmask],poleIDs[pmask]
+      pheight=np.append(pheight,pheight)
+      if np.abs(args.lon0)<=90.: pmask=(phis_pi>=args.lon0-90.) & (phis_pi<args.lon0+90.)
+      else: pmask=(phis>=args.lon0-90.) & (phis<args.lon0+90.) ; print 'here'
+      phis,thetas,poleIDs,pheight=phis[pmask],thetas[pmask],poleIDs[pmask],pheight[pmask]
    #Keep unique pole IDs
    u_pid=np.unique(poleIDs)
    #Define colormap consistently with peakdetect
