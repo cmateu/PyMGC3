@@ -1,4 +1,4 @@
-PyMGC3 Package
+PyMGC3 
 ======
  
 **DESCRIPTION:**
@@ -12,8 +12,8 @@ the full mGC3/nGC3/GC3 family of methods described
 in `Mateu et al. (2011) <http://adsabs.harvard.edu/abs/2011MNRAS.415..214M>`__ and 
 `Abedi et al. (2014) <http://adsabs.harvard.edu/abs/2014MNRAS.442.3627A>`__. Briefly, 
 the original GC3 method developed by `Johnston et al. (1996) <http://adsabs.harvard.edu/abs/1996ApJ...465..278J>`__
-uses positional information to search for 'great-circle-cell
-structures'; mGC3 makes use of full 6D data and 
+uses positional information to search for great-circle-cell
+structures; mGC3 makes use of full 6D data and 
 nGC3 uses positional and proper motion data.
 
 ----------
@@ -50,6 +50,7 @@ peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
    * mgc3_plot_polemaps.py
    * peakdetect_mgc3_polemaps.py
    * mgc3_peakstars_plot.py  
+   * join_mgc3_maps.py       
 - Documentation
    * README.rst
 - Libraries
@@ -335,6 +336,35 @@ the -ffrac option::
   peakdetect_mgc3_polemaps.py example_data.test02.mgc3.cts -ffrac 0.6
 
 In this case, peaks must be at least 0.6*max_counts to be saved. 
+
+Program peakdetect_mgc3_polemaps.py
+-----------------------------------
+
+**DESCRIPTION:**
+
+This utility program sums pole counts in a list of pole-count maps.
+
+**SYNTAX:**
+
+The required arguments are a list of pole-count map files (.mgc3.cts) and a name
+for the output file::
+
+  join_mgc3_maps.py  infile_list outfilename
+
+Its highly recommended to use the .mgc3.cts extension for the output file, for 
+consistency with the rest of PyMGC3 programs. 
+
+The -n option normalizes the different pole counts (GC3,nGC3,mGC3, etc.) 
+in each of the input pole-count maps before adding them up.
+
+**INPUTS AND OUTPUTS:**
+
+Input files are assumed to have the same format as mgc3.py outputs. The output
+file will have the same format as well.
+
+When the -n option is used, an extra set of output files (e.g. outfilename.mgc3.pls)
+is produced listing the coordinates and counts for the maximum used for normalization
+of each input file.
 
 Attribution
 -----------
