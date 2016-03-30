@@ -4,6 +4,7 @@ import scipy
 import argparse
 import os
 import sys
+import myutils
 
 __version__ = '2.0.1'
 __docformat__ = "reredtext en"
@@ -19,11 +20,15 @@ args = parser.parse_args()
 
 print 'Reading file list',args.infilel
 infilelist=scipy.genfromtxt(args.infilel[0],dtype='S',usecols=(0,),unpack=True)
+if np.ndim(infilelist)==0: infilelist=np.array([infilelist,])
 
 #Initialize output file
 ofilen=args.ofilen[0]
-os.system("awk '$0~/#/ {print $0}' %s > %s " % (infilelist[0],ofilen))
-ofile=open(ofilen,'a')
+ofile=open(ofilen,'w')
+heads=myutils.get_header_line(infilelist[0])
+for head_line in heads: 
+  ofile.write(head_line+'\n')
+#os.system("awk '$0~/#/ {print $0}' %s > %s " % (infilelist[0],ofilen))
 
 #If --norm, print coords for each files's max counts in pls output file
 if args.norm:
