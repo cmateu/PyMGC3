@@ -337,7 +337,7 @@ the -ffrac option::
 
 In this case, peaks must be at least 0.6*max_counts to be saved. 
 
-Program peakdetect_mgc3_polemaps.py
+Program join_mgc3_maps.py
 -----------------------------------
 
 **DESCRIPTION:**
