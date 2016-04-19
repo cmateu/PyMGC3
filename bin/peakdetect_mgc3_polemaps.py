@@ -111,6 +111,10 @@ if args.raw:
 else: 
   pmode='c'
   print 'Plotting contour pole-count map'
+#If log-flag is set, do everything with log(counts)
+if args.log: 
+   print 'Do peak detection on linear scale but show plot on log scale'
+   pmode=pmode+'l'
 
 if args.twohemispheres:
   print 'Plotting both hemispheres in pole-count map'
@@ -132,10 +136,6 @@ if args.bw: colormap=plt.cm.gray
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
-  #If log-flag is set, do everything with log(counts)
-  if args.log: 
-     print 'Do peak detection on linear scale but show plot on log scale'
-     pmode=pmode+'l'
 
   #Default title----------------------------------
   if not args.title: args.title=infilen
