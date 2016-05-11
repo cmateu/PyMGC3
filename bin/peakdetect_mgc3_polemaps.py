@@ -76,6 +76,8 @@ peakargs = parser.add_mutually_exclusive_group()
 peakargs.add_argument('-fr','--frms',help='Default option. Min peak height is frms*RMS. Default fr=5.', action='store',type=np.float,default=5.)
 peakargs.add_argument('-ff','--ffrac',help='Min peak height is fmax*max_pole_counts', action='store',type=np.float)
 parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5. If -U, fx is in N-sigma units', action='store',default=0.5,type=np.float)
+parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float)
+parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float)
 parser.add_argument('-U','--unsharp',help='Detect peaks in unsharp-masked image. Default is False', action='store_true',default=False)
 parser.add_argument('-ns','--nsigma',help='If -U is set, set N-sigma threshold for detections. Default is 3.', action='store',type=np.float,default=3.)
 parser.add_argument('-nmed',help='If -U is set, size of neighbourhood for median computation. Default is 60.', action='store',type=np.float,default=60.)
@@ -551,10 +553,10 @@ for infilen in file_list:
   if not args.nolabels:
     #Peak ID labels
     for aax,mm in zip(axl,ml):
-      mm.scatter(u_xpeak[u_newid>0],u_ypeak[u_newid>0],c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
+      mm.scatter(u_xpeak[u_newid>0],u_ypeak[u_newid>0],c='w',alpha=0.5,edgecolor='k',s=110*args.fcirc,zorder=100)
       for ii in range(u_newid.size):
        if u_newid[ii]>0: 
-         aax.text(u_xpeak[ii],u_ypeak[ii],'%d' % (u_newid[ii]),fontsize=7,color='black',
+         aax.text(u_xpeak[ii],u_ypeak[ii],'%d' % (u_newid[ii]),fontsize=7*args.flabels,color='black',
                    horizontalalignment='center',verticalalignment='center',zorder=101)
   else:
     for mm in ml:

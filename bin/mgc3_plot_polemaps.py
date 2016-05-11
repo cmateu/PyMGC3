@@ -37,6 +37,8 @@ parser.add_argument('-s','--show',help='Show plot in window. Default is False', 
 parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-pls',metavar='PLSFILE',help='Overplot poles from peakdetect output file (.pls)', action='store',default=None)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
+parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float)
+parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 
@@ -243,8 +245,8 @@ for infilen in file_list:
      #Peak ID labels
      #u_xpeak,u_ypeak=np.median(xpoles[idmask]),np.median(ypoles[idmask])
      u_xpeak,u_ypeak=xpoles[idmask][np.argmax(pheight[idmask])],ypoles[idmask][np.argmax(pheight[idmask])]
-     m.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110,zorder=100)
-     ax.text(u_xpeak,u_ypeak,'%d' % (u_pid[kk]),fontsize=7,color='black',
+     m.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110*(args.fcirc),zorder=100)
+     ax.text(u_xpeak,u_ypeak,'%d' % (u_pid[kk]),fontsize=7*args.flabels,color='black',
                 horizontalalignment='center',verticalalignment='center',zorder=101)
 
 
