@@ -69,6 +69,7 @@ parser.add_argument('-force_onehemisph',help='Force using one hemisphere allways
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
+parser.add_argument('-cmap',help='Choose color map. Default is sron', action='store',default='sron',choices=['sron','gray','gray_r','viridis','inferno'])
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float)
 parser.add_argument('-md','--mindip',help='Fellwalker MinDip param, two clumps are merged if height difference <MinDip. Default 2*RMS', action='store',default=None)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
@@ -130,11 +131,16 @@ ori='horizontal'
 ni=0
 
 #colormap=plt.cm.jet
-colormap=myutils.get_sron_rainbow(N=11)
-colormap_nsig=plt.cm.spectral
-#colormap_nsig=myutils.get_sron_rainbow()
+if 'inferno' in args.cmap:
+ colormap=newcmap.inferno
+elif 'viridis' in args.cmap:
+ colormap=newcmap.viridis
+elif 'gray' in args.cmap:
+ if '_r' not in args.cmap: colormap=plt.cm.gray
+ else: colormap=plt.cm.gray_r
+else:
+ colormap=myutils.get_sron_rainbow(N=11)
 
-if args.bw: colormap=plt.cm.gray
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)

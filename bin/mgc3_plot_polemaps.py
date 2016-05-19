@@ -8,6 +8,7 @@ import sys
 import argparse
 import scipy.ndimage
 import myutils
+import newpy_colormaps as newcmap
 
 __version__ = '1.1'
 __docformat__ = "reredtext en"
@@ -39,7 +40,7 @@ parser.add_argument('-pls',metavar='PLSFILE',help='Overplot poles from peakdetec
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
 parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float)
 parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float)
-parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
+parser.add_argument('-cmap',help='Choose color map. Default is sron', action='store',default='sron',choices=['sron','gray','gray_r','viridis','inferno'])
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 
 #---------Parse----------------------------
@@ -88,8 +89,15 @@ ori='horizontal'
 ni=0
 
 #colormap=plt.cm.jet
-colormap=myutils.get_sron_rainbow(N=11)
-if args.bw: colormap=plt.cm.gray
+if 'inferno' in args.cmap:
+ colormap=newcmap.inferno
+elif 'viridis' in args.cmap:
+ colormap=newcmap.viridis
+elif 'gray' in args.cmap:
+ if '_r' not in args.cmap: colormap=plt.cm.gray
+ else: colormap=plt.cm.gray_r
+else:
+ colormap=myutils.get_sron_rainbow(N=11)
 
 for infilen in file_list:
 
