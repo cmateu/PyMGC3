@@ -70,6 +70,7 @@ parser.add_argument('-s','--show',help='Show plot in window. Default is False', 
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
 parser.add_argument('-cmap',help='Choose color map. Default is sron', action='store',default='sron',choices=['sron','gray','gray_r','viridis','inferno'])
+parser.add_argument('-npix',help='Default number of pixels to resample image for contour plotting', action='store',type=np.int,default=500)
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float)
 parser.add_argument('-md','--mindip',help='Fellwalker MinDip param, two clumps are merged if height difference <MinDip. Default 2*RMS', action='store',default=None)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
@@ -141,6 +142,8 @@ elif 'gray' in args.cmap:
 else:
  colormap=myutils.get_sron_rainbow(N=11)
 
+colormap_nsig=plt.cm.spectral
+
 for infilen in file_list:
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
@@ -197,7 +200,8 @@ for infilen in file_list:
   x,y=m(phi,theta)
 
   #------------Grid-data for contour plotting---------------
-  npix=500
+  #npix=500
+  npix=args.npix
   clevels=30
   xo,xf=np.min(x),np.max(x)
   yo,yf=np.min(x),np.max(x)
