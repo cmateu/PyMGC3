@@ -32,7 +32,7 @@ parser.add_argument('-helio',help='Use heliocentric coords in Aitoff plot', acti
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ms',help='Marker size for peak stars.Delfault 1. Use ms=0 for fullcat only.',action='store',default=1,type=np.float)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
-parser.add_argument('-ic','--idcol',help='Column containing stream ID (counting from 1). Default is last col.', action='store',default=-1,type=np.int)
+parser.add_argument('-ic','--idcol',help='Column containing stream ID (counting from 1). Default is last col.', action='store',default=0,type=np.int)
 
 
 #---------Parse----------------------------

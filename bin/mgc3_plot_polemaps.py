@@ -250,9 +250,10 @@ for infilen in file_list:
      #plot current peak only
      idmask=poleIDs==u_pid[kk]
      m.scatter(xpoles[idmask],ypoles[idmask],c=cmapp[kk],edgecolors='none',s=20,marker='o',alpha=args.alpha)
-     #Peak ID labels
-     #u_xpeak,u_ypeak=np.median(xpoles[idmask]),np.median(ypoles[idmask])
-     u_xpeak,u_ypeak=xpoles[idmask][np.argmax(pheight[idmask])],ypoles[idmask][np.argmax(pheight[idmask])]
+     #Peak ID labels (weighed by counts)
+     #u_xpeak,u_ypeak=xpoles[idmask][np.argmax(pheight[idmask])],ypoles[idmask][np.argmax(pheight[idmask])]
+     u_xpeak=(xpoles[idmask]*pheight[idmask]).sum()/pheight[idmask].sum()
+     u_ypeak=(ypoles[idmask]*pheight[idmask]).sum()/pheight[idmask].sum()
      m.scatter(u_xpeak,u_ypeak,c='w',alpha=0.5,edgecolor='k',s=110*(args.fcirc),zorder=100)
      ax.text(u_xpeak,u_ypeak,'%d' % (u_pid[kk]),fontsize=7*args.flabels,color='black',
                 horizontalalignment='center',verticalalignment='center',zorder=101)
