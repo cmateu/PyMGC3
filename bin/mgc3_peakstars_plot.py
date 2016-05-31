@@ -17,9 +17,9 @@ __docformat__ = "reredtext en"
 #
 parser = argparse.ArgumentParser(description='Plot stars associated to each of the poles in a list')
 parser.add_argument('parfile',metavar='parameter_file',help='Input catalogue parameter file',action='store',nargs=1)
-parser.add_argument('infile',metavar='inpstfile',help='Input file containing catalogue for stars associated to peaks',nargs=1,action='store')
+parser.add_argument('infile',metavar='inpstfile',help='Input file containing catalogue for stars associated to peaks (gzip input supported)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take inpstfile as list of mgc3.cts files')
-parser.add_argument('-cat','--catfile',metavar='catfile',help='Full input catalogue. Must be a list when using -l',action='store',default=False,nargs=1)
+parser.add_argument('-cat','--catfile',metavar='catfile',help='Full input catalogue (gzip input supported). Must be a list when using -l',action='store',default=False,nargs=1)
 parser.add_argument('-ext',metavar='outext',help='Output suffix [optional]',action='store',default=['',],nargs=1)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=30.,type=np.float)
@@ -29,6 +29,7 @@ parser.add_argument('-ylim',metavar='yo yf',help='Set Y limits (space-separated)
 parser.add_argument('-zlim',metavar='zo zf',help='Set Z limits (space-separated)',action='store',nargs=2,type=np.float)
 parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-helio',help='Use heliocentric coords in Aitoff plot', action='store_true',default=False)
+parser.add_argument('-grid',help='Plot grid', action='store_true',default=False)
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ms',help='Marker size for peak stars.Delfault 1. Use ms=0 for fullcat only.',action='store',default=1,type=np.float)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
@@ -122,6 +123,7 @@ for ff in range(len(file_list)):
   #ss.x,ss.y,ss.z=dat[:,8-1],dat[:,9-1],dat[:,10-1] #for tests only
 
   npoles=np.unique(IDpole).size
+  unique_IDpoles=np.unique(IDpole)
   
   print 'Npeaks=',npoles
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
@@ -148,7 +150,7 @@ for ff in range(len(file_list)):
   s_props={'ms':args.ms,'zorder':1,'alpha':1.,'mec':'None'}
 
   for kk in range(npoles):
-   mask= (IDpole==kk+1)
+   mask= (IDpole==unique_IDpoles[kk])
    #---Cartesian---------
    ax1.plot(-ss.x[mask],ss.y[mask],'.',color=cmapp[kk],**s_props)
    #---
@@ -188,6 +190,11 @@ for ff in range(len(file_list)):
   if args.zlim: 
    ax2.set_ylim(args.zlim)
    ax3.set_ylim(args.zlim)
+
+  if args.grid:
+    ax1.grid(axis='both',color=(0.3,0.3,0.3))
+    ax2.grid(axis='both',color=(0.3,0.3,0.3))
+    ax3.grid(axis='both',color=(0.3,0.3,0.3))
 
   ax1.set_xlabel('X '+unit)
   ax2.set_xlabel('X '+unit)
