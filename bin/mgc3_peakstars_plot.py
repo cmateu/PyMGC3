@@ -121,24 +121,18 @@ for ff in range(len(file_list)):
 
   #ss.x,ss.y,ss.z=dat[:,8-1],dat[:,9-1],dat[:,10-1] #for tests only
 
-  npoles=np.int(np.max(IDpole))
- # npoles_id=IDpole.unique().size
+  npoles=np.unique(IDpole).size
   
   print 'Npeaks=',npoles
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
-#  cmapp=plt.cm.spectral(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
   if npoles<=10:
      cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
 
-#     cmapp=['darkviolet','slateblue','deeppink','royalblue','orchid','red','gray','pink','limegreen','navy']
-  #cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
-#     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
-
-
-  fig1=plt.figure(1,figsize=(13,6))
+  fig1=plt.figure(1,figsize=(16,6))
   fig1.subplots_adjust(wspace=0.2,left=0.08,right=0.97)
-  ax1=fig1.add_subplot(121)
-  ax2=fig1.add_subplot(122)
+  ax1=fig1.add_subplot(131)
+  ax2=fig1.add_subplot(132)
+  ax3=fig1.add_subplot(133)
 
   fig2=plt.figure(2,figsize=(10,6))
   fig2.subplots_adjust(left=0.05,right=0.95,bottom=0.05,top=0.95)
@@ -159,6 +153,8 @@ for ff in range(len(file_list)):
    ax1.plot(-ss.x[mask],ss.y[mask],'.',color=cmapp[kk],**s_props)
    #---
    ax2.plot(-ss.x[mask],ss.z[mask],'.',color=cmapp[kk],**s_props)
+   #---
+   ax3.plot(ss.y[mask],ss.z[mask],'.',color=cmapp[kk],**s_props)
    #---Aitoff--------
    if args.helio: xmoll,ymoll=m(ss.l[mask],ss.b[mask])
    else:          xmoll,ymoll=m(ss.phi[mask],ss.theta[mask])
@@ -167,6 +163,7 @@ for ff in range(len(file_list)):
   if args.catfile:
    ax1.plot(-css.x,css.y,'k.',**c_props)
    ax2.plot(-css.x,css.z,'k.',**c_props)
+   ax3.plot(css.y,css.z,'k.',**c_props)
    cxmoll,cymoll=m(css.phi,css.theta)
    m.plot(cxmoll,cymoll,'k.',**c_props)
 
@@ -187,13 +184,17 @@ for ff in range(len(file_list)):
    ax2.set_xlim(args.xlim)
   if args.ylim: 
    ax1.set_ylim(args.ylim)
+   ax3.set_xlim(args.ylim)
   if args.zlim: 
    ax2.set_ylim(args.zlim)
+   ax3.set_ylim(args.zlim)
 
   ax1.set_xlabel('X '+unit)
   ax2.set_xlabel('X '+unit)
+  ax3.set_xlabel('Y '+unit)
   ax1.set_ylabel('Y '+unit)
   ax2.set_ylabel('Z '+unit)
+  ax3.set_ylabel('Z '+unit)
   if args.title: ax1.set_title(args.title)
   if args.title: ax4.set_title(args.title)
   fig1.savefig(fig1name)
