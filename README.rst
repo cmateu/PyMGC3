@@ -69,7 +69,7 @@ In a terminal, run the following command::
 
     sudo python setup.py install
 
-Source your .cshrc.
+Source your .cshrc
 
 If you do not have root access, you can install in the custom directory path_to_dir.
 First, add the directory's path path_to_dir and path_to_dir/lib/python2.7/site-packages/ 
@@ -105,7 +105,7 @@ to the maxima in the pole count map::
    
 Plot the mGC3 pole count map in a north-polar-azimuthal equidistant projection::
 
-    mgc3_plot_polemaps.py example_data.mgc3.cts
+    mgc3_plot_polemaps.py example_data.test01.mgc3.cts
 
 
 Program mgc3.py
@@ -138,11 +138,11 @@ should be printed::
 
     mgc3.py
 
-    usage: mgc3.py [-h] [-farea] [-ppar] [-v] [-doc]
-               parameter_file data_file outfile_extension
+    usage: mgc3.py [-h] [-l] [-farea] [-ppar] [-v] [-doc]
+                   parameter_file data_file outfile_ext
     mgc3.py: error: too few arguments
 
-Run with -h or --help argument for full help like this::
+Run with -h or --help argument for full help, like this::
 
     mgc3.py -h
 
@@ -162,7 +162,8 @@ is explained briefly by a comment in the sample parameter file header.
 
 *data_file*
 
-Name of the input catalogue file. Assumed to be ascii format, with comments preceeded by #.
+Name of the input catalogue file. Assumed to be ascii format (.gzip supported), with comments preceeded by #.
+This file can also be read as a list of input catalogue filenames with the -l option.
 
 *ext_prefix*
 
@@ -199,20 +200,21 @@ select stars associated to each of the poles in the list.
 
 Run without arguments for a short help message to explain inputs and optional arguments::
 
-    get_mgc3pole_stars.py
-    usage: mgc3_get_pole_stars.py [-h] [-ppar] [-m {mGC3,nGC3,GC3}] [-v] [-doc]
-                                  parameter_file data_file outfile_ext pole_list
-
+    mgc3_get_pole_stars.py
+    usage: mgc3_get_pole_stars.py [-h] [-ext outfile_ext] [-ppar]
+                                  [-m {mGC3,nGC3,GC3}] [-v] [-doc]
+                                  parameter_file data_file pole_list
     mgc3_get_pole_stars.py: error: too few arguments
+
 
 Run with -h or --help for full help::
 
-    get_mgc3pole_stars.py -h
+    mgc3_get_pole_stars.py -h
 
 **OUTPUT:**
 
 The output file infile.mgc3.pst is identical to the input catalogue, but including only stars associated 
-with the given poles and with an additional column at the end indicating the pole_ID for the pole
+with the given poles plus an additional column at the end indicating the pole_ID for the pole
 each star is associated with.
 
 **EXAMPLE:**
@@ -245,36 +247,63 @@ If the -l flag is set, this is assumed to be a list of pole count map files
 The program has several optional keywords and flags to customize the output plot, for a full list
 and details run with the -h or --help flag::
 
-	usage: mgc3_plot_polemaps.py [-h] [-l] [-m {mGC3,nGC3,GC3}] [-f {png,eps,pdf}]
-	                             [-proj {npaeqd,ortho,moll}] [-log] [-lon0 LON0]
-	                             [-lat0 LAT0] [-dlat DLAT] [-dlon DLON]
-	                             [-vmin VMIN] [-vmax VMAX] [-ms MS] [-c] [-t] [-s]
-	                             infile
-	
-	Plot mGC3/nGC3/GC3 pole count maps
-	
-	positional arguments:
-	  infile                Input file containing pole count maps (*.cts file)
-	
-	optional arguments:
-	  -h, --help            show this help message and exit
-	  -l, --llist           Take infile as list of mgc3.cts files
-	  -m {mGC3,nGC3,GC3}    Plot mGC3/nGC3/GC3 pole count map. Default is mGC3
-	  -f {png,eps,pdf}, --fig {png,eps,pdf}
-	                        Output plot type png/eps. Default is png
-	  -proj {npaeqd,ortho,moll}
-	                        Projection npaeqd/ortho/mollweide. Default is npaeqd
-	  -log                  Plot pole-count map in log-scale
-	  -lon0 LON0            Longitude for Y-axis. Default is 0.
-	  -lat0 LAT0            Bounding latitude for plot. Default is 90.
-	  -dlat DLAT            Spacing between parallels. Default is 20.
-	  -dlon DLON            Spacing between meridians. Default is 20.
-	  -vmin VMIN            Min counts for color-scale. Default is min(cts)
-	  -vmax VMAX            Max counts for color-scale. Default is max(cts)
-	  -ms MS                Marker size. Default: 15/40 for npaeqd/ortho.
-	  -c, --contour         Plot pole-count contour map instead of raw grid.
-	  -t, --twohemispheres  Plot both hemispheres in pole-count map.
-	  -s, --show            Show plot in window. Default is False
+        usage: mgc3_plot_polemaps.py [-h] [-l]
+                                     [-m {mGC3,nGC3,GC3,mGC3hel,smooth,usharpc,usharpn}]
+                                     [-f {png,eps,pdf}] [-proj {npaeqd,ortho,moll}]
+                                     [-log] [-lon0 LON0] [-lat0 LAT0] [-dlat DLAT]
+                                     [-dlon DLON] [-latmax LATMAX] [-mlab] [-mlabr]
+                                     [-plab] [-vmin VMIN] [-vmax VMAX] [-ms MS] [-c]
+                                     [-t] [-s] [-title TITLE] [-pls PLSFILE]
+                                     [-al ALPHA] [-flab FLABELS] [-fcirc FCIRC]
+                                     [-cmap {sron,gray,gray_r,viridis,inferno}]
+                                     [-ext outfile_ext]
+                                     infile
+        
+        Plot mGC3/nGC3/GC3 pole count maps
+        
+        positional arguments:
+          infile                Input file containing pole count maps (\*.cts file)
+        
+        optional arguments:
+          -h, --help            show this help message and exit
+          -l, --llist           Take infile as list of mgc3.cts files
+          -m {mGC3,nGC3,GC3,mGC3hel,smooth,usharpc,usharpn}
+                                Plot mGC3/nGC3/GC3/mGC3hel pole count map. Default is
+                                mGC3
+          -f {png,eps,pdf}, --fig {png,eps,pdf}
+                                Output plot type png/eps. Default is png
+          -proj {npaeqd,ortho,moll}
+                                Projection npaeqd/ortho/mollweide. Default is npaeqd
+          -log                  Plot pole-count map in log-scale
+          -lon0 LON0            Longitude for Y-axis. Default is 0.
+          -lat0 LAT0            Bounding latitude for plot. Default is 90.
+          -dlat DLAT            Spacing between parallels. Default is 20.
+          -dlon DLON            Spacing between meridians. Default is 20.
+          -latmax LATMAX        Max latitude upto which meridians are drawn. Default
+                                is 80.
+          -mlab, --merlabels    Show meridian labels. Default is False
+          -mlabr, --merlabelsr  Show meridian labels (right axes). Default is False
+          -plab, --parlabels    Show parallel labels. Default is False
+          -vmin VMIN            Min counts for color-scale. Default is min(cts)
+          -vmax VMAX            Max counts for color-scale. Default is max(cts)
+          -ms MS                Marker size. Default: 15/40 for npaeqd/ortho.
+          -c, --contour         Plot pole-count contour map instead of raw grid.
+          -t, --twohemispheres  Plot both hemispheres in pole-count map.
+          -s, --show            Show plot in window. Default is False
+          -title TITLE          Plot title
+          -pls PLSFILE          Overplot poles from peakdetect output file (.pls)
+          -al ALPHA, --alpha ALPHA
+                                Clump transparency. Default 0.4
+          -flab FLABELS, --flabels FLABELS
+                                Increase size of peak labels by factor flab. Default
+                                1.
+          -fcirc FCIRC, --fcirc FCIRC
+                                Increase size of peak markers by factor fcirc. Default
+                                1.
+          -cmap {sron,gray,gray_r,viridis,inferno}
+                                Choose color map. Default is sron
+          -ext outfile_ext      Output suffix [optional]. If given output will be
+                                infile.outfile_ext.mgc3.pst
 
 **EXAMPLES:**
 
@@ -299,7 +328,7 @@ Pole count contour plots can be plotted with the -c option::
 
   mgc3_plot_polemaps.py example_data.test02.mgc3.cts -m nGC3 -f png -dlat 30 -dlon 20 -c
 
-The output figure is called example_data.test02.mgc3.npa.c.png. Note: the -c option is working 
+The output figure is called example_data.test02.mgc3.npa.c.png. Note: the -c option works
 only in the npaeqd projection for now.
 
 
@@ -369,7 +398,7 @@ of each input file.
 Attribution
 -----------
 
-Cecilia Mateu - cmateu at astrosen.unam.mx
+Cecilia Mateu - cmateu at cida.gob.ve 
 
 If you have used this code in your research, please let me know and consider acknowledging this package.
 
