@@ -8,7 +8,7 @@ import sys
 import argparse
 import scipy.ndimage
 import myutils
-import newpy_colormaps as newcmap
+import myutils.newpy_colormaps as newcmap
 
 __version__ = '1.1'
 __docformat__ = "reredtext en"
