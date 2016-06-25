@@ -38,6 +38,7 @@ parser.add_argument('-s','--show',help='Show plot in window. Default is False', 
 parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-pls',metavar='PLSFILE',help='Overplot poles from peakdetect output file (.pls)', action='store',default=None)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
+parser.add_argument('-ff','--ffonts',help='Increase size tick and axes labels by factor ff. Default 1.', action='store',default=1.0,type=np.float)
 parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float)
 parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float)
 parser.add_argument('-cmap',help='Choose color map. Default is sron', action='store',default='sron',choices=['sron','gray','gray_r','viridis','inferno'])
@@ -163,6 +164,8 @@ for infilen in file_list:
     if args.merlabelsr: mlabels_dic['labels'][1]=1
     if args.parlabels: plabels_dic={'labels':[0,0,0,1],'labelstyle':'+/-'}
     else: plabels_dic={'labels':[0,0,0,0]}
+    mlabels_dic['fontsize']=14.*args.ffonts
+    plabels_dic['fontsize']=14.*args.ffonts
     m.drawmeridians(np.arange(mer_grid[0],mer_grid[1],mer_grid[2]),color=grid_color,linewidth=1.,
                      latmax=args.latmax,**mlabels_dic)
     m.drawparallels(np.arange(par_grid[0],par_grid[1],par_grid[2]),color=grid_color,linewidth=1.,**plabels_dic)
@@ -176,10 +179,10 @@ for infilen in file_list:
         if ptheta<0.: f=0.7
         else: f=1.
         xpar,ypar=m(args.lon0-180.,ptheta)
-        ax.text(f*xpar,ypar,'$%+d^\circ$' % (ptheta),horizontalalignment='right',verticalalignment='center',fontsize=10)
+        ax.text(f*xpar,ypar,'$%+d^\circ$' % (ptheta),horizontalalignment='right',verticalalignment='center',fontsize=10*args.ffonts)
       for mlon in np.arange(mer_grid[0],mer_grid[1],mer_grid[2])[1::2]:
         xmer,ymer=m(mlon,0.)
-        ax.text(xmer,ymer,'$%d^\circ$' % (mlon),horizontalalignment='left',verticalalignment='top',fontsize=10,color=grid_color)
+        ax.text(xmer,ymer,'$%d^\circ$' % (mlon),horizontalalignment='left',verticalalignment='top',fontsize=10*args.ffonts,color=grid_color)
 
 
     lmax=np.floor(np.log10(np.max(pole_cts)))
@@ -260,17 +263,19 @@ for infilen in file_list:
 
 
   #Plot colorbar
+  plt.rc('xtick', labelsize=13.*args.ffonts)
+  plt.rc('ytick', labelsize=13.*args.ffonts)
   if 'npa' in args.proj:
    cax0=plt.gca().get_position()
    cax=plt.axes([cax0.x0,cax0.y0+dw+0.05,dw,0.02])
    if 'usharpn' in mode:  tlocator,tformat=plt.MultipleLocator(1.),'%d'
-   else: tlocator,tformat=None,'%4.1f'
+   else: tlocator,tformat=plt.MaxNLocator(nbins=6,prune='both'),'%4.1f'
    cb=plt.colorbar(c,cax=cax,orientation='horizontal',format=tformat,ticks=tlocator)
    cax.xaxis.set_ticks_position('top')
   elif 'moll' in args.proj:
    cax0=plt.gca().get_position()
    cax=plt.axes([cax0.x0+dw+0.03,cax0.y0+(0.2),0.015,dw*0.65])
-   tlocator,tformat=None,'%4.1f'
+   tlocator,tformat=plt.MaxNLocator(nbins=6,prune='both'),'%4.1f'
    cb=plt.colorbar(c,cax=cax,orientation='vertical',format=tformat,ticks=tlocator)
 
   if 'npa' in args.proj or 'moll' in args.proj:
@@ -279,16 +284,18 @@ for infilen in file_list:
    else: factorl=''
    if 'usharpn' in mode: cax.set_xlabel('%s significance ($N\sigma$)' % (mode_ori))
    elif args.log:
-    if 'npa' in args.proj:  cax.set_xlabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
-    if 'moll' in args.proj: cax.set_ylabel('%s log-pole-counts ($\log_{10}$-stars/pole)' % (mode_ori))
+    cblabel='%s (log-stars/pole)' % (mode_ori)
    else:
-    if 'npa' in args.proj:  cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
-    if 'moll' in args.proj: cax.set_ylabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
-   if 'npa' in args.proj: cax.xaxis.set_label_position('top')
-   elif 'moll' in args.proj: cax.yaxis.set_label_position('right')
+    cblabel='%s (%s stars/pole)' % (mode_ori,factorl)
+   if 'npa' in args.proj: 
+     cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
+     cax.xaxis.set_label_position('top')
+   elif 'moll' in args.proj:
+     cax.set_ylabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts) 
+     cax.yaxis.set_label_position('right')
 
   if args.title:
-    ax.text(0.5,1.14,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16)
+    ax.text(0.5,1.1+0.04*args.ffonts,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16*args.ffonts)
 
   fig.savefig(figname)
   if args.show: plt.show()
