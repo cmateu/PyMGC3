@@ -55,7 +55,7 @@ HISTORY:
 
 #Parse command line arguments
 
-__version__ = '4.0'
+__version__ = '5.0'
 __docformat__ = "reredtext en"
 __what__= sys.argv[0]+": This program computes mGC3 pole counts for the input catalogue"
 #
@@ -106,7 +106,9 @@ for filename in file_list:
   if args.farea:
     print 'Initializing auxiliary pole grid for farea computation...'
     mygrid_foot=mgc3_lib.pole_grid(poles=survey_pars['grid_step'])
+    print 'naux', int((len(survey_pars.keys())-19)/3.)
     foot_survey,foot_survey_pars=mygrid_foot.get_uniform_survey_footprint(obsdata,pars=survey_pars)
+    print 'naux', int((len(survey_pars.keys())-19)/3.)
     mygrid_foot.mgc3(foot_survey,pars=foot_survey_pars)
   else:
     mygrid_foot=mygrid
@@ -126,11 +128,12 @@ for filename in file_list:
   naux_pars=int((len(survey_pars.keys())-19)/3.)
   for na in range(naux_pars):
    auxl='AUX%d' % (na+1)
+   print auxl
    ak1,ak2,ak3=auxl+'_col',auxl+'_o',auxl+'_f'
    ofile.write('#%s=%s, %s=%s, %s=%s\n' % (ak1,survey_pars[ak1]+1,ak2,survey_pars[ak2],ak3,survey_pars[ak3]))
   ofile.write('#---------------------------------------------------------------------------\n')
-  ofile.write("#%9s %10s %10s %10s %10s %10s %10s\n" % ("phi","theta","np_mgc3gal","np_mgc3hel",'np_gc3gal',"np_ngc3gal",'farea'))
-  scipy.savetxt(ofile,array([mygrid.l,mygrid.b,mygrid.np_mgc3,mygrid.mgc3hel,mygrid.np_gc3,mygrid.np_ngc3,mygrid_foot.farea]).T,fmt='%10.3f %10.3f %10d %10d %10d %10d %10.4f')
+  ofile.write("#%9s %10s %10s %10s %10s %10s %10s %10s\n" % ("phi","theta","np_mgc3gal","np_mgc3hel",'np_gc3gal',"np_ngc3gal","np_gc3hel",'farea'))
+  scipy.savetxt(ofile,array([mygrid.l,mygrid.b,mygrid.np_mgc3,mygrid.mgc3hel,mygrid.np_gc3,mygrid.np_ngc3,mygrid.gc3hel,mygrid_foot.farea]).T,fmt='%10.3f %10.3f %10d %10d %10d %10d %10d %10.4f')
   ofile.close()
 print 'Done'
 

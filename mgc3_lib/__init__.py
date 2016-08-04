@@ -275,7 +275,7 @@ class pole_grid(my_constants):
    #Initialize empty arrays
    self.l,self.b=np.array([]),np.array([])
    self.mgc3hel,self.np_mgc3, self.np_gc3=np.array([]),np.array([]),np.array([])
-   self.np_ngc3,self.farea=np.array([]),np.array([])
+   self.np_ngc3,self.gc3hel,self.farea=np.array([]),np.array([]),np.array([])
    self.np_mgc3_mask,self.np_gc3_mask=np.array([]),np.array([])
    self.sinlp,self.coslp,self.sinbp,self.cosbp=np.array([]),np.array([]),np.array([]),np.array([])
    self.L_rsun,self.L_vsun=np.array([]),np.array([])
@@ -308,6 +308,7 @@ class pole_grid(my_constants):
      lr,br=l_deg*d2r,b_deg*d2r
      self.l,self.b=np.append(self.l,l_deg),np.append(self.b,b_deg)
      #Count attributes
+     self.gc3hel=np.append(self.gc3hel,0.)
      self.mgc3hel=np.append(self.mgc3hel,0.)
      self.np_mgc3=np.append(self.np_mgc3,0.)
      self.np_gc3=np.append(self.np_gc3,0.)
@@ -444,10 +445,12 @@ class pole_grid(my_constants):
 
     if len(sin_lp)==1:
       self.mgc3hel=np.sum(1*mask_hel)
+      self.gc3hel=np.sum(1*mask_poshel)
       #For f_area computation only
       self.farea=np.sum(1*mask_poshel)
     else:
       self.mgc3hel[mask_hel]=self.mgc3hel[mask_hel]+1
+      self.gc3hel[mask_poshel]=self.gc3hel[mask_poshel]+1
       #For f_area computation only
       self.farea[mask_poshel]=self.farea[mask_poshel]+1
   
@@ -544,7 +547,7 @@ class pole_grid(my_constants):
     new_obs=np.hstack((obs,new_cols))      #append as new columns
     print np.shape(new_obs)
     Nobs=len(obs[0,:])
-    new_pars=pars
+    new_pars=pars.copy()
     new_pars['phi_col']=Nobs
     new_pars['theta_col']=Nobs+1
     new_pars['Rgal_col']=Nobs+2
@@ -559,7 +562,7 @@ class pole_grid(my_constants):
 
     #Compute phi and theta for real survey data
     new_obs,new_pars=self.get_phi_theta_for_survey(obs,pars=pars)
-    obs_lon,obs_lat=new_obs[:,pars['phi_col']],new_obs[:,pars['theta_col']]
+    obs_lon,obs_lat=new_obs[:,new_pars['phi_col']],new_obs[:,new_pars['theta_col']]
     scipy.savetxt('out.phitheta.dat',new_obs)
 
     #Uniform survey
@@ -582,7 +585,7 @@ class pole_grid(my_constants):
     #Create new survey object
     dummy=np.zeros_like(foot_lon)
     foot_survey=np.array([foot_lon,foot_lat,dummy]).T
-    foot_pars=pars
+    foot_pars=pars.copy()
     #This synthetic uniform survey is only used to compute F_area for each pole. Only position angles are necessary  
     #thats why parallax,proper motions and radial velocity are the same dummy column
     foot_pars['lon_col']=0

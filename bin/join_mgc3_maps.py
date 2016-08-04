@@ -46,11 +46,14 @@ for n in range(len(infilelist)):
    print 'Reading file %d of %d (%s)' % (n+1,len(infilelist),infile)
    pcm=scipy.genfromtxt(infile)
 
+   ncountcols=pcm[0,2:-1].size
+   nfinalccol=2+ncountcols
+
    #Initialize normalization factor (off by default)
    fnorm_vec=1.
    if args.norm: 
-     fnorm_vec=1./np.max(pcm[:,2:6],axis=0).astype(float)
-     fmax_ind=np.argmax(pcm[:,2:6],axis=0)
+     fnorm_vec=1./np.max(pcm[:,2:nfinalccol],axis=0).astype(float)
+     fmax_ind=np.argmax(pcm[:,2:nfinalccol],axis=0)
      fnorm_vec[fnorm_vec==0.]=1.  #If the max of any column is zero, change multiplication factor to 1.
      for kk in range(fmax_ind.size):
       try: iidst=infile[infile.find('id')+2:infile.find('id')+2+3]
@@ -60,7 +63,7 @@ for n in range(len(infilelist)):
        
    if n==0:
      pcm_sum=pcm  #Initialize matrix with data for the first file
-     pcm_sum[:,2:6]=pcm_sum[:,2:6]*fnorm_vec   #Normalize each of the counts columns
+     pcm_sum[:,2:nfinalccol]=pcm_sum[:,2:nfinalccol]*fnorm_vec   #Normalize each of the counts columns
      pcm_shape=np.shape(pcm)   #Save first file's shape to check consistency with the rest of the files
    else:
      #Check shape
@@ -69,15 +72,19 @@ for n in range(len(infilelist)):
         print 'Shape nf=',n+1,np.shape(pcm)
         sys.exit('WARNING: Input file shapes are inconsistent. Exiting...')
      #If not first file, add the columns corresponding to pole counts. Leave the rest as in the first file
-     pcm_sum[:,2:6]=pcm_sum[:,2:6]+ (pcm[:,2:6]*fnorm_vec) 
+     pcm_sum[:,2:nfinalccol]=pcm_sum[:,2:nfinalccol]+ (pcm[:,2:nfinalccol]*fnorm_vec) 
   
 
 #Printing output file 
+countsffmt=ncountcols*'%10.4g '
+countsfmt=ncountcols*'%10d '
 print 'Printing output file',ofilen
 if args.norm:
-  scipy.savetxt(ofile,pcm_sum,fmt='%10.3f %10.3f %10.4g %10.4g %10.4g %10.4g %10.4f')
+  fmt='%10.3f %10.3f '+countsffmt+'%10.4f' 
+  scipy.savetxt(ofile,pcm_sum,fmt=fmt)
 else:
-  scipy.savetxt(ofile,pcm_sum,fmt='%10.3f %10.3f %10d %10d %10d %10d %10.4f')
+  fmt='%10.3f %10.3f '+countsfmt+'%10.4f' 
+  scipy.savetxt(ofile,pcm_sum,fmt=fmt)
 
 print 'Done'
 

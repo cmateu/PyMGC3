@@ -20,7 +20,7 @@ parser.add_argument('infile',metavar='data_file',help='Input catalogue file',nar
 parser.add_argument('polelist',metavar='pole_list',help='List of pole coordinates [ID phi_pole theta_pole]',nargs=1,action='store')
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-ppar','--print_parf',help='Print sample parameter file mgc3.par and exit', action='store_true')
-parser.add_argument('-m',help='Select stars using mGC3/nGC3/GC3 method criteria. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3'])
+parser.add_argument('-m',help='Select stars using mGC3/nGC3/GC3/mGC3hel/GC3hel method criteria. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','mGC3hel','GC3hel'])
 parser.add_argument('-v',"--version", help="Print program version", action="version",version='Version '+__version__)
 parser.add_argument('-doc',"--documentation", help="Print short program description", action="version",version=__what__)
 
