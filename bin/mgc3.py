@@ -106,9 +106,7 @@ for filename in file_list:
   if args.farea:
     print 'Initializing auxiliary pole grid for farea computation...'
     mygrid_foot=mgc3_lib.pole_grid(poles=survey_pars['grid_step'])
-    print 'naux', int((len(survey_pars.keys())-19)/3.)
     foot_survey,foot_survey_pars=mygrid_foot.get_uniform_survey_footprint(obsdata,pars=survey_pars)
-    print 'naux', int((len(survey_pars.keys())-19)/3.)
     mygrid_foot.mgc3(foot_survey,pars=foot_survey_pars)
   else:
     mygrid_foot=mygrid
@@ -128,7 +126,6 @@ for filename in file_list:
   naux_pars=int((len(survey_pars.keys())-19)/3.)
   for na in range(naux_pars):
    auxl='AUX%d' % (na+1)
-   print auxl
    ak1,ak2,ak3=auxl+'_col',auxl+'_o',auxl+'_f'
    ofile.write('#%s=%s, %s=%s, %s=%s\n' % (ak1,survey_pars[ak1]+1,ak2,survey_pars[ak2],ak3,survey_pars[ak3]))
   ofile.write('#---------------------------------------------------------------------------\n')
