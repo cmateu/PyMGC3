@@ -17,7 +17,7 @@ __what__= sys.argv[0]+": This program detects peaks in pole count maps using the
 parser = argparse.ArgumentParser(description='Plot mGC3/nGC3/GC3 pole count maps')
 parser.add_argument('infile',metavar='infile',help='Input file containing pole count maps (*.cts file)',nargs=1,action='store')
 parser.add_argument("-l", "--llist", action="store_true",help='Take infile as list of mgc3.cts files')
-parser.add_argument('-m',help='Plot mGC3/nGC3/GC3/mGC3hel pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','GC3hel','mGC3hel','smooth','usharpc','usharpn'])
+parser.add_argument('-m',help='Plot pole count map. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','GC3hel','mGC3hel','smooth','usharpc','usharpn'])
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-proj',help='Projection npaeqd/ortho/mollweide. Default is npaeqd', action='store',default='npaeqd',choices=['npaeqd','ortho','moll'])
 parser.add_argument('-log',help='Plot pole-count map in log-scale', action='store_true',default=False)
