@@ -51,7 +51,7 @@ parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png'
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
 parser.add_argument('-nolabels',help='Plot peak ID labels', action='store_true',default=False)
-parser.add_argument('-title',help='Plot title', action='store',default=None)
+parser.add_argument('-title',help='Plot title. In list mode (-l) this is overriden and the input filename is used by default.', action='store',default=None)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
 parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float)
@@ -151,7 +151,7 @@ for infilen in file_list:
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
 
   #Default title----------------------------------
-  if not args.title: args.title=infilen
+  if not args.title or len(file_list)>1: args.title=infilen
 
   #Output figure and file names
   figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
