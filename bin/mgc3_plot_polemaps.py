@@ -210,15 +210,15 @@ for infilen in file_list:
        if args.log: c=m.contourf(grid_x, grid_y,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
        else:
          if args.vmin is not None: vmin=args.vmin
-         else: vmin=np.min(zi)
+         else: vmin=np.min(zi[zi>=0.]) # to avoid nan
          if args.vmax is not None: vmax=args.vmax
-         else: vmax=np.max(zi)
-         zii=zi
+         else: vmax=np.max(zi[zi>=0.]) #to avoid nan
+         zii=zi.copy()
          zii[(zii<vmin)]=vmin
          zii[(zii>vmax)]=vmax
          lmax=np.floor(np.log10(vmax))
-         if lmax==1: lmax=0.
-         c=m.contourf(grid_x, grid_y,zii/10**lmax, clevels,cmap=colormap)
+         if vmax<100: lmax=0.
+         c=m.contourf(grid_x, grid_y,zii/10**lmax, clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
 
     #Labels and such
     if 'npa' not in args.proj: ax.set_title('%s pole-counts' % (mode_ori))
