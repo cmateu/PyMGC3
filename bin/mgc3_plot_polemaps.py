@@ -101,6 +101,7 @@ elif 'gray' in args.cmap:
 else:
  colormap=myutils.get_sron_rainbow(N=11)
 
+
 for infilen in file_list:
 
   #Default title----------------------------------
@@ -286,10 +287,12 @@ for infilen in file_list:
    if 'usharpn' in mode: cax.set_xlabel('%s significance ($N\sigma$)' % (mode_ori))
    elif args.log:
     cblabel='%s (log-stars/pole)' % (mode_ori)
+    cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
    else:
     cblabel='%s (%s stars/pole)' % (mode_ori,factorl)
+    cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
    if 'npa' in args.proj: 
-     cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
+     #cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
      cax.xaxis.set_label_position('top')
    elif 'moll' in args.proj:
      cax.set_ylabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts) 

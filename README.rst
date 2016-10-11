@@ -197,14 +197,14 @@ Program mgc3_get_pole_stars.py
 **DESCRIPTION:**
 
 This program extracts stars associated to poles given in an input list. By default
-it uses mGC3 criteria, but any of the three methods (mGC3/nGC3/GC3) can be used to 
+it uses mGC3 criteria, but any of the mgc3-family methods (mGC3/nGC3/GC3/mGC3hel/GC3hel) can be used to 
 select stars associated to each of the poles in the list.
 
 Run without arguments for a short help message to explain inputs and optional arguments::
 
     mgc3_get_pole_stars.py
     usage: mgc3_get_pole_stars.py [-h] [-ext outfile_ext] [-ppar]
-                                  [-m {mGC3,nGC3,GC3}] [-v] [-doc]
+                                  [-m {mGC3,nGC3,GC3,mGC3hel,GC3hel}] [-v] [-doc]
                                   parameter_file data_file pole_list
     mgc3_get_pole_stars.py: error: too few arguments
 
@@ -228,12 +228,15 @@ Use the pole count map and pole list examples as the input for this program::
 The output file will be example_data.my_test.mgc3.dat. Try running with the -m nGC3 and -m GC3 flags
 to get \*.ngc3.dat and \*.gc3.dat outputs.
 
+The extension of the input .pls file must be consistent with the method selected to extract the stars,
+the program will exit with a warning if this is not the case to be safe.
+
 Program mgc3_plot_polemaps.py
 -----------------------------
 
 **DESCRIPTION:**
 
-This program plots mGC3/nGC3/GC3 pole count maps in different projections. 
+This program plots mGC3-family (mGC3,nGC3,GC3,mGC3hel,GC3hel) pole count maps in different projections. 
 
 **SYNTAX:**
 
@@ -250,13 +253,14 @@ The program has several optional keywords and flags to customize the output plot
 and details run with the -h or --help flag::
 
         usage: mgc3_plot_polemaps.py [-h] [-l]
-                                     [-m {mGC3,nGC3,GC3,mGC3hel,smooth,usharpc,usharpn}]
+                                     [-m {mGC3,nGC3,GC3,GC3hel,mGC3hel,smooth,usharpc,usharpn}]
                                      [-f {png,eps,pdf}] [-proj {npaeqd,ortho,moll}]
                                      [-log] [-lon0 LON0] [-lat0 LAT0] [-dlat DLAT]
                                      [-dlon DLON] [-latmax LATMAX] [-mlab] [-mlabr]
                                      [-plab] [-vmin VMIN] [-vmax VMAX] [-ms MS] [-c]
                                      [-t] [-s] [-title TITLE] [-pls PLSFILE]
-                                     [-al ALPHA] [-flab FLABELS] [-fcirc FCIRC]
+                                     [-al ALPHA] [-ff FFONTS] [-flab FLABELS]
+                                     [-fcirc FCIRC]
                                      [-cmap {sron,gray,gray_r,viridis,inferno}]
                                      [-ext outfile_ext]
                                      infile
@@ -269,9 +273,8 @@ and details run with the -h or --help flag::
         optional arguments:
           -h, --help            show this help message and exit
           -l, --llist           Take infile as list of mgc3.cts files
-          -m {mGC3,nGC3,GC3,mGC3hel,smooth,usharpc,usharpn}
-                                Plot mGC3/nGC3/GC3/mGC3hel pole count map. Default is
-                                mGC3
+          -m {mGC3,nGC3,GC3,GC3hel,mGC3hel,smooth,usharpc,usharpn}
+                                Plot pole count map. Default is mGC3
           -f {png,eps,pdf}, --fig {png,eps,pdf}
                                 Output plot type png/eps. Default is png
           -proj {npaeqd,ortho,moll}
@@ -296,6 +299,9 @@ and details run with the -h or --help flag::
           -pls PLSFILE          Overplot poles from peakdetect output file (.pls)
           -al ALPHA, --alpha ALPHA
                                 Clump transparency. Default 0.4
+          -ff FFONTS, --ffonts FFONTS
+                                Increase size tick and axes labels by factor ff.
+                                Default 1.
           -flab FLABELS, --flabels FLABELS
                                 Increase size of peak labels by factor flab. Default
                                 1.
@@ -305,7 +311,7 @@ and details run with the -h or --help flag::
           -cmap {sron,gray,gray_r,viridis,inferno}
                                 Choose color map. Default is sron
           -ext outfile_ext      Output suffix [optional]. If given output will be
-                                infile.outfile_ext.mgc3.pst
+                                infile.outfile_ext.mgc3.pst       
 
 **EXAMPLES:**
 
@@ -339,20 +345,21 @@ Program peakdetect_mgc3_polemaps.py
 
 **DESCRIPTION:**
 
-This program detects peaks in pole-count maps. It can also plot the pole count map
-indicating the peaks found.
+This program detects peaks in pole-count maps after unsharp masking and plots the pole count map
+indicating the peaks found. It needs the Fellwalker code to run (Berry 2014).
 
 **SYNTAX:**
 
 The only required argument is the pole-count file (or list when using the -l option). 
-Run with -sc to save and show the detected peaks in a plot of the pole count map:: 
-
-  peakdetect_mgc3_polemaps.py example_data.test02.mgc3.cts -sc 
 
 Run with -h for a full list of options::
 
 
   peakdetect_mgc3_polemaps.py -h
+
+Run with -nc for plotting only:: 
+
+  peakdetect_mgc3_polemaps.py example_data.test02.mgc3.cts -nc 
 
 Most plotting options available are the same as for mgc3_plot_polemaps.py. Two 
 ways are available to select the minimum peak height threshold value::
