@@ -86,15 +86,19 @@ def uniform_spherical_data(N):
 
 class helio_obj:
   #Default values for Sun's position and velocity are from Brown et al. 2005
-  def __init__(self,l,b,parallax,mulstar,mub,vrad,flag_mulstar=True,xyz_sun=[-8.5,0.,0.],vel_sun=[10.3,232.6,5.9],verbose=False,degree=False):
+  def __init__(self,l,b,par_or_rhel,mulstar,mub,vrad,flag_mulstar=True,xyz_sun=[-8.5,0.,0.],vel_sun=[10.3,232.6,5.9],verbose=False,degree=False,using_parallax=True):
 
     #Degree2Radian conversion
     if degree: _d2r=np.pi/180.
     else: _d2r=1.
 
     #Save inputs
-    self.l,self.b,self.parallax=l,b,parallax
-    self.mub,self.vrad,self.Rhel=mub,vrad,1000./self.parallax  #if par in mas/muas, rhel in pc/kpc
+    if using_parallax:
+     self.l,self.b,self.parallax=l,b,par_or_rhel
+     self.mub,self.vrad,self.Rhel=mub,vrad,1000./self.parallax  #if par in mas/muas, rhel in pc/kpc
+    else:
+     self.l,self.b,self.Rhel=l,b,par_or_rhel
+     self.mub,self.vrad,self.parallax=mub,vrad,1000./self.Rhel  #if par in mas/muas, rhel in pc/kpc
     if flag_mulstar:
        self.mulstar=mulstar
        self.mul=mulstar/np.cos(self.b*_d2r)

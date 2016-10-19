@@ -583,7 +583,7 @@ for infilen in file_list:
   if not args.noclumps:
     #Plot identified clumps on top of pole count map and print out
     #cmapp=plt.cm.gist_ncar(np.linspace(0., 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
-    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, u_pid.size))  #Upper limit is 0.85 to avoid last colors of the colormap
+    cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, u_newid.size)) #Upper limit is 0.9 to avoid last colors of the colormap
     if u_pid.size<=10:
      cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
 #     cmapp=['orchid','red','mediumblue','orange','red','royalblue','gray','pink','limegreen','navy']
