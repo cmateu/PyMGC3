@@ -279,7 +279,7 @@ for infilen in file_list:
   if 'npa' in args.proj:
    cax0=plt.gca().get_position()
    cax=plt.axes([cax0.x0,cax0.y0+dw+0.05,dw,0.02])
-   if 'usharpn' in mode:  tlocator,tformat=plt.MultipleLocator(1.),'%d'
+   if 'usharpn' in mode:  tlocator,tformat=plt.MultipleLocator(2.),'%d'
    else: tlocator,tformat=plt.MaxNLocator(nbins=6,prune='both'),'%4.1f'
    cb=plt.colorbar(c,cax=cax,orientation='horizontal',format=tformat,ticks=tlocator)
    cax.xaxis.set_ticks_position('top')
