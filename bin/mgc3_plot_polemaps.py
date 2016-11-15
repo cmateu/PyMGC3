@@ -101,6 +101,9 @@ elif 'gray' in args.cmap:
 else:
  colormap=myutils.get_sron_rainbow(N=11)
 
+if 'usharpn'  in mode:
+  print 'Selecting n-sigma colormap...'
+  colormap=plt.cm.spectral
 
 for infilen in file_list:
 
@@ -188,7 +191,7 @@ for infilen in file_list:
 
 
     lmax=np.floor(np.log10(np.max(pole_cts)))
-    if 'r' in pmode: 
+    if 'r' in pmode and 'usharpn' not in mode:
        if args.log: c=m.scatter(x,y,c=np.log10(pole_cts),edgecolor='none',s=ms,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
        else:        
          if args.vmin is not None: vmin=args.vmin/10**lmax
@@ -207,8 +210,14 @@ for infilen in file_list:
        zi = scipy.interpolate.griddata((x,y), pole_cts, (grid_x, grid_y), method='nearest')
        zi[grid_theta<0]=np.nan
 
-       if args.log: c=m.contourf(grid_x, grid_y,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+       if 'usharpn'  in mode:
+          sigmax=12.  #Maximum Nsigma for contour and color display
+          zi_sharp_cut=zi.copy()
+          zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
+          c=m.contourf(xi,yi,(zi_sharp_cut), np.arange(0.,sigmax+1.,1.),cmap=colormap)
        else:
+        if args.log: c=m.contourf(grid_x, grid_y,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+        else:
          if args.vmin is not None: vmin=args.vmin
          else: vmin=np.min(zi[zi>=0.]) # to avoid nan
          if args.vmax is not None: vmax=args.vmax
