@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser(description='Add mGC3/nGC3/GC3 pole count maps'
 parser.add_argument('infilel',metavar='infile_list',help='Input pole count map list (*.cts files)',nargs=1,action='store')
 parser.add_argument('ofilen',metavar='outfilename',help='Output pole count map name',nargs=1,action='store')
 parser.add_argument('-n','--norm',help='Normalize each PCM *before* adding them together', action='store_true',default=False)
+parser.add_argument('-f','--force',help='Force running with existing files, ignoring missing file warnings', action='store_true',default=False)
 
 #---------Parse----------------------------
 args = parser.parse_args()
@@ -44,7 +45,14 @@ for n in range(len(infilelist)):
    infile=infilelist[n]
 
    print 'Reading file %d of %d (%s)' % (n+1,len(infilelist),infile)
-   pcm=scipy.genfromtxt(infile)
+   try:
+    pcm=scipy.genfromtxt(infile)
+   except IOError:
+    print 'WARNING - File not found: %s' % (infile)
+    if args.force: 
+      print 'Continue...'
+      continue
+    else: sys.exit('Exiting (to force skipping missing files, use -f option)')
 
    ncountcols=pcm[0,2:-1].size
    nfinalccol=2+ncountcols
