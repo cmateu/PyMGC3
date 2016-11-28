@@ -293,7 +293,8 @@ for infilen in file_list:
    #Labels and such
    if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
    else: factorl=''
-   if 'usharpn' in mode: cax.set_xlabel('%s significance ($N\sigma$)' % (mode_ori))
+   if 'usharpn' in mode: 
+    cax.set_xlabel('%s significance ($N\sigma$)' % (mode_ori),fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
    elif args.log:
     cblabel='%s (log-stars/pole)' % (mode_ori)
     cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)

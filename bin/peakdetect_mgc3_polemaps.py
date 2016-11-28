@@ -244,7 +244,7 @@ for infilen in file_list:
   if lmax>0: factorl='$\\times 10^{%d}$ ' % (lmax)
   else: factorl=''
   if args.log:
-     cax.set_xlabel('%s log-pole-counts (dex stars/pole)' % (mode_ori))
+     cax.set_xlabel('%s pole-counts (log-stars/pole)' % (mode_ori))
   else:
      cax.set_xlabel('%s pole-counts (%sstars/pole)' % (mode_ori,factorl))
   cax.xaxis.set_label_position('top') 
@@ -284,7 +284,7 @@ for infilen in file_list:
     c3=mu.contourf(xi,yi,np.log10(zi_sharp),clevels,cmap=colormap,vmin=0.)
     cb=plt.colorbar(c3,ax=axu,orientation='horizontal',format='%4.1f',pad=0,aspect=30)
     if args.log:
-       cb.set_label('%s log-pole-counts (dex stars/pole)' % (mode_ori),fontsize=15)
+       cb.set_label('%s pole-counts (log-stars/pole)' % (mode_ori),fontsize=15)
     else:
        cb.set_label('%s pole-counts (%sstars/pole)' % (mode_ori,factorl),fontsize=15)
     axu.set_title('Unsharp-masked %s PCM' % (mode_ori),fontsize=15)
