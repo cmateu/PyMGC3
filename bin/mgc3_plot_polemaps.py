@@ -9,6 +9,7 @@ import argparse
 import scipy.ndimage
 import myutils
 import myutils.newpy_colormaps as newcmap
+import matplotlib.colors as mcol
 
 __version__ = '1.1'
 __docformat__ = "reredtext en"
@@ -104,6 +105,8 @@ else:
 if 'usharpn'  in mode:
   print 'Selecting n-sigma colormap...'
   colormap=plt.cm.spectral
+  cutcolormap=plt.cm.spectral(np.linspace(0., 1.,100)) 
+  colormap = mcol.ListedColormap(cutcolormap)
 
 for infilen in file_list:
 
