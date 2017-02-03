@@ -4,6 +4,7 @@ import scipy
 import scipy.interpolate
 import numpy as np
 from mpl_toolkits.basemap import Basemap
+import matplotlib.colors as mcol
 import sys
 import argparse
 import scipy.ndimage
@@ -69,7 +70,7 @@ parser.add_argument('-force_onehemisph',help='Force using one hemisphere allways
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
-parser.add_argument('-cmap',help='Choose color map. Default is sron', action='store',default='sron',choices=['sron','gray','gray_r','viridis','inferno'])
+parser.add_argument('-cmap',help='Choose color map (any matplotlib cm). Default is sron', action='store',default=None)
 parser.add_argument('-npix',help='Default number of pixels to resample image for contour plotting', action='store',type=np.int,default=500)
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float)
 parser.add_argument('-md','--mindip',help='Fellwalker MinDip param, two clumps are merged if height difference <MinDip. Default 2*RMS', action='store',default=None)
@@ -134,17 +135,39 @@ ori='horizontal'
 ni=0
 
 #colormap=plt.cm.jet
-if 'inferno' in args.cmap:
+#if 'inferno' in args.cmap:
+# colormap=newcmap.inferno
+#elif 'viridis' in args.cmap:
+# colormap=newcmap.viridis
+#elif 'gray' in args.cmap:
+# if '_r' not in args.cmap: colormap=plt.cm.gray
+# else: colormap=plt.cm.gray_r
+#else:
+# colormap=myutils.get_sron_rainbow(N=11)
+
+if args.cmap is None or 'nsig' in args.cmap or 'sron' in args.cmap:
+ print 'Choosing default color map'
+ colormap=myutils.get_sron_rainbow(N=11)
+elif 'inferno' in args.cmap:
  colormap=newcmap.inferno
 elif 'viridis' in args.cmap:
  colormap=newcmap.viridis
-elif 'gray' in args.cmap:
- if '_r' not in args.cmap: colormap=plt.cm.gray
- else: colormap=plt.cm.gray_r
-else:
- colormap=myutils.get_sron_rainbow(N=11)
+elif 'nsig' not in args.cmap:
+ colormap=getattr(plt.cm,args.cmap)
 
-colormap_nsig=plt.cm.spectral
+if args.cmap is not None and 'spectral_nsig' in args.cmap:
+ cutcolormap=plt.cm.spectral(np.linspace(0., 1.,100))
+ colormap_nsig = mcol.ListedColormap(cutcolormap)
+ colormap_nsig={'cmap':colormap_nsig}
+elif args.cmap is not None:
+   colormap_nsig=getattr(plt.cm,args.cmap)
+   colormap_nsig={'cmap':colormap_nsig}
+else: #Default color list for nsigma mode
+   colorlist=['w','#FFFFE5','#FFF7BC','#b2df8a','#33a02c','#a6cee3','#1965B0','#114477','#fdbf6f','#ff7f00','#e31a1c','#771111'] # me gusta todo - verde,azul,morados,rojos
+   colormap_nsig={'colors':colorlist}
+
+
+#colormap_nsig=plt.cm.spectral
 
 for infilen in file_list:
 
@@ -298,7 +321,7 @@ for infilen in file_list:
     sigmax=12.  #Maximum Nsigma for contour and color display
     zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
     if not args.twohemispheres: zi_sharp_cut[ti1d<0.]=np.nan  #Unless -t is explicitly set, don't plot S-counts
-    c2=mn.contourf(xi,yi,(zi_sharp_cut), np.arange(0.,sigmax+1.,1.),cmap=colormap_nsig)
+    c2=mn.contourf(xi,yi,(zi_sharp_cut), np.arange(0.,sigmax+1.,1.),**colormap_nsig)
     cb=plt.colorbar(c2,ax=axn,orientation='horizontal',format='%4.1f',pad=0,aspect=30,extend='max')
     #Labels and such
     cb.set_label('Significance ($N\sigma$)',fontsize=15)

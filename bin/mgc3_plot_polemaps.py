@@ -10,6 +10,7 @@ import scipy.ndimage
 import myutils
 import myutils.newpy_colormaps as newcmap
 import matplotlib.colors as mcol
+from matplotlib.colors import ListedColormap
 
 __version__ = '1.1'
 __docformat__ = "reredtext en"
@@ -42,7 +43,7 @@ parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', acti
 parser.add_argument('-ff','--ffonts',help='Increase size tick and axes labels by factor ff. Default 1.', action='store',default=1.0,type=np.float)
 parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float)
 parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float)
-parser.add_argument('-cmap',help='Choose color map. Default is sron', action='store',default='sron',choices=['sron','gray','gray_r','viridis','inferno'])
+parser.add_argument('-cmap',help='Choose color map (any matplotlib cm). Default is sron', action='store',default=None)
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 
 #---------Parse----------------------------
@@ -92,21 +93,39 @@ ori='horizontal'
 ni=0
 
 #colormap=plt.cm.jet
-if 'inferno' in args.cmap:
+#if 'inferno' in args.cmap:
+# colormap=newcmap.inferno
+#elif 'viridis' in args.cmap:
+# colormap=newcmap.viridis
+#elif 'gray' in args.cmap:
+# if '_r' not in args.cmap: colormap=plt.cm.gray
+# else: colormap=plt.cm.gray_r
+#else:
+# colormap=myutils.get_sron_rainbow(N=11)
+
+if args.cmap is None or 'sron' in args.cmap:
+ colormap=myutils.get_sron_rainbow(N=11)
+elif 'inferno' in args.cmap:
  colormap=newcmap.inferno
 elif 'viridis' in args.cmap:
  colormap=newcmap.viridis
-elif 'gray' in args.cmap:
- if '_r' not in args.cmap: colormap=plt.cm.gray
- else: colormap=plt.cm.gray_r
 else:
- colormap=myutils.get_sron_rainbow(N=11)
+ colormap=getattr(plt.cm,args.cmap)
 
 if 'usharpn'  in mode:
-  print 'Selecting n-sigma colormap...'
-  colormap=plt.cm.spectral
-  cutcolormap=plt.cm.spectral(np.linspace(0., 1.,100)) 
-  colormap = mcol.ListedColormap(cutcolormap)
+  print 'Selecting n-sigma colorlist...'
+  if args.cmap is not None and 'spectral' in args.cmap:
+   colormap=plt.cm.spectral
+   cutcolormap=plt.cm.spectral(np.linspace(0., 1.,100)) 
+   colormap = mcol.ListedColormap(cutcolormap)
+   colorsel={'cmap':colormap}
+  elif args.cmap is not None:
+   colorsel={'cmap':colormap}
+  #colorlist=['w','#FFFFE5','#FFF7BC','#b2df8a','#33a02c','#cab2d6','#6a3d9a','#882E72','#fdbf6f','#ff7f00','#e31a1c','#771111'] #  - verde
+  #colorlist=['w','#FFFFE5','#FFF7BC','#a6cee3','#1965B0','#CC99BB','#AA4488','#771155','#fdbf6f','#ff7f00','#e31a1c','#771111'] # - azul y morados
+  else: #Default color list for nsigma mode
+   colorlist=['w','#FFFFE5','#FFF7BC','#b2df8a','#33a02c','#a6cee3','#1965B0','#114477','#fdbf6f','#ff7f00','#e31a1c','#771111'] # me gusta todo - verde,azul,morados,rojos
+   colorsel={'colors':colorlist}
 
 for infilen in file_list:
 
@@ -217,9 +236,9 @@ for infilen in file_list:
           sigmax=12.  #Maximum Nsigma for contour and color display
           zi_sharp_cut=zi.copy()
           zi_sharp_cut[zi_sharp_cut>=sigmax]=sigmax
-          c=m.contourf(xi,yi,(zi_sharp_cut), np.arange(0.,sigmax+1.,1.),cmap=colormap)
+          c=m.contourf(xi,yi,(zi_sharp_cut), np.arange(0.,sigmax+1.,1.),**colorsel)
        else:
-        if args.log: c=m.contourf(grid_x, grid_y,np.log10(zi),clevels,cmap=colormap,vmin=args.vmin,vmax=args.vmax)
+        if args.log: c=m.contourf(grid_x, grid_y,np.log10(zi),clevels,vmin=args.vmin,vmax=args.vmax,**colorsel)
         else:
          if args.vmin is not None: vmin=args.vmin
          else: vmin=np.min(zi[zi>=0.]) # to avoid nan
