@@ -565,7 +565,7 @@ for infilen in file_list:
      Nsm,Nsh=0,0
      exp_purity=-1
     #if pmask.any(): 
-    if pmask.sum()>args.npixmin: #Require at least five pixels above threshold
+    if pmask.sum()>args.npixmin:  #Require at least five pixels above threshold
      newid=newid+1
      u_newid=np.append(u_newid,newid)
      #Fix peak height, this was wrong because Fellwalker returns the sum over each clump (I think)
