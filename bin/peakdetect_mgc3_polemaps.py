@@ -71,7 +71,8 @@ parser.add_argument('-s','--show',help='Show plot in window. Default is False', 
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
 parser.add_argument('-cmap',help='Choose color map (any matplotlib cm). Default is sron', action='store',default=None)
-parser.add_argument('-npix',help='Default number of pixels to resample image for contour plotting', action='store',type=np.int,default=500)
+parser.add_argument('-npix',help='Number of pixels to resample image for contour plotting. Default 500.', action='store',type=np.int,default=500)
+parser.add_argument('-npixmin',help='Minimum number of pixels above threshold required for peak detection. Default 5. ', action='store',type=np.int,default=5)
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float)
 parser.add_argument('-md','--mindip',help='Fellwalker MinDip param, two clumps are merged if height difference <MinDip. Default 2*RMS', action='store',default=None)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
@@ -564,7 +565,7 @@ for infilen in file_list:
      Nsm,Nsh=0,0
      exp_purity=-1
     #if pmask.any(): 
-    if pmask.sum()>5: #Require at least five pixels above threshold
+    if pmask.sum()>args.npixmin: #Require at least five pixels above threshold
      newid=newid+1
      u_newid=np.append(u_newid,newid)
      #Fix peak height, this was wrong because Fellwalker returns the sum over each clump (I think)
@@ -575,7 +576,7 @@ for infilen in file_list:
                             dphi[kk],dtheta[kk],u_cheight[kk],exp_purity,Nsm,Nsh))
     else: 
      u_newid=np.append(u_newid,0)
-     print '# Skipping clump oldID=%3d, less than 5 pixels>threshold_height'  % (u_pid[kk])
+     print '# Skipping clump oldID=%3d, less than %d pixels>threshold_height'  % (u_pid[kk],args.npixmin)
   print '#----------------------------------------------------------------'
 
   if args.noclumps:  
