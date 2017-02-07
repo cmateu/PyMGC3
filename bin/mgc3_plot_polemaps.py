@@ -121,10 +121,9 @@ if 'usharpn'  in mode:
    colorsel={'cmap':colormap}
   elif args.cmap is not None:
    colorsel={'cmap':colormap}
-  #colorlist=['w','#FFFFE5','#FFF7BC','#b2df8a','#33a02c','#cab2d6','#6a3d9a','#882E72','#fdbf6f','#ff7f00','#e31a1c','#771111'] #  - verde
-  #colorlist=['w','#FFFFE5','#FFF7BC','#a6cee3','#1965B0','#CC99BB','#AA4488','#771155','#fdbf6f','#ff7f00','#e31a1c','#771111'] # - azul y morados
   else: #Default color list for nsigma mode
-   colorlist=['w','#FFFFE5','#FFF7BC','#b2df8a','#33a02c','#a6cee3','#1965B0','#114477','#fdbf6f','#ff7f00','#e31a1c','#771111'] # me gusta todo - verde,azul,morados,rojos
+   #colorlist=['w','#FFFFE5','#FFF7BC','#b2df8a','#33a02c','#a6cee3','#1965B0','#114477','#fdbf6f','#ff7f00','#e31a1c','#771111'] # me gusta todo - verde,azul,morados,rojos
+   colorlist=['w','#FFFFE5','#FFF7BC','#FEE391','#4EB265','#117733','#a6cee3','#1965B0','#114477','#ff7f00','#e31a1c','#771111']
    colorsel={'colors':colorlist}
 
 for infilen in file_list:
