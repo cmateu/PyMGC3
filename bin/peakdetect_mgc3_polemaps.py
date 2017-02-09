@@ -54,7 +54,7 @@ parser.add_argument('-log',help='Plot detected peaks in log-count map', action='
 parser.add_argument('-nolabels',help='Plot peak ID labels', action='store_true',default=False)
 parser.add_argument('-title',help='Plot title. In list mode (-l) this is overriden and the input filename is used by default.', action='store',default=None)
 parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
-parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
+parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 0.', action='store',default=0.,type=np.float)
 parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float)
 parser.add_argument('-mlab','--merlabels',help='Show meridian labels. Default is False', action='store_true',default=False)
 parser.add_argument('-mlabr','--merlabelsr',help='Show meridian labels (right axes). Default is False', action='store_true',default=False)
@@ -73,6 +73,7 @@ parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default Fal
 parser.add_argument('-cmap',help='Choose color map (any matplotlib cm). Default is sron', action='store',default=None)
 parser.add_argument('-npix',help='Number of pixels to resample image for contour plotting. Default 500.', action='store',type=np.int,default=500)
 parser.add_argument('-npixmin',help='Minimum number of pixels above threshold required for peak detection. Default 5. ', action='store',type=np.int,default=5)
+parser.add_argument('-npixann',help='Annulus radius (pixels) to compute background std. dev. locally. Default 20. If 0, will not compute and assume Poisson stdev.', action='store',type=np.int,default=20)
 parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float)
 parser.add_argument('-md','--mindip',help='Fellwalker MinDip param, two clumps are merged if height difference <MinDip. Default 2*RMS', action='store',default=None)
 parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
@@ -129,6 +130,7 @@ if args.twohemispheres:
 else: print 'Plotting one hemisphere in pole-count map.'
 
 proj='npaeqd'
+#proj='nplaea'
 print 'Plotting using projection:', proj
 
 ori='vertical'
@@ -210,6 +212,7 @@ for infilen in file_list:
   nrow,ncol,nplot=1,1,1
   l0=args.lon0
   proj_dict={'boundinglat':args.lat0,'resolution':'l','lon_0':l0}
+  #if 'laea' in proj: proj_dict['lat_0']=90.
   ms=args.ms
 
   ax=fig.add_subplot(nrow,ncol,nplot)
@@ -283,7 +286,21 @@ for infilen in file_list:
     nsm=args.nmed #neighbourhood for median computation
     zi_smooth=scipy.ndimage.median_filter(zi,size=(nsm,nsm),mode='wrap')
     zi_sharp=zi-zi_smooth
-    zi_sigma=np.sqrt(zi_smooth)  #assuming counts in the PCM follow a Poisson distribution
+    #Compute standard deviation (aprox.) in an annulus around each pixel. This is done through the footprint keyword
+    #The annulus has a width ke
+    ke=args.npixann
+    if ke==0:
+      print 'NOT computing background stdev. Assuming Poisson distribution of counts.'
+      zi_sigma=np.sqrt(zi_smooth)  #assuming counts in the PCM follow a Poisson distribution
+    else:
+      print 'Computing background stdev locally in annulus with radius %d pix' % (ke)
+      Annulus=np.ones((nsm+2*ke,nsm+2*ke)) #Set all initial values to 1, then set to 0 those inside nmed neighbourhood
+      Annulus[ke:-ke,ke:-ke]=0
+      #zi_sigma=scipy.ndimage.generic_filter(zi,np.std,footprint=Annulus,mode='wrap')
+      #Using percentiles is much better than np.std, less affected by outliers (which should be important)
+      zi_P14=scipy.ndimage.percentile_filter(zi,16,footprint=Annulus,mode='wrap')
+      zi_P86=scipy.ndimage.percentile_filter(zi,84,footprint=Annulus,mode='wrap')
+      zi_sigma=(zi_P86-zi_P14)/2.
     zi_sharp_Nsig=zi_sharp/zi_sigma   #express subtracted image in nsigma-units
     #----plot unsharp masked and smoothed images
     fig2=plt.figure(2,figsize=(16,6.3))
@@ -336,7 +353,7 @@ for infilen in file_list:
     fig2.savefig(usharp_figname)
     #-------------------------------Print smoothed and unsharp masked PCMs------------
     usharp_filen='%s.%s.%s.%s.usharp.cts' % (figname_root,mode,proj[:3],pmode)
-    head='%3s %7s %8s %8s %8s' % ('phi','theta','Nsmooth','Nusharp','Nusharp_Nsig')
+    head='%3s %7s %8s %8s %8s %9s' % ('phi','theta','Nsmooth','Nusharp','Nusharp_Nsig','Nsm_sigma')
     pi1d,ti1d,zi_smooth_1d=pi1d.flatten(),ti1d.flatten(),zi_smooth.flatten()
     pi1d[pi1d<0]=pi1d[pi1d<0]+360.
     mask=(ti1d>0) & (ti1d<=90) & (zi_smooth.flatten()>0)
@@ -348,8 +365,8 @@ for infilen in file_list:
                          np.median(zi_smooth_1d[mask]),np.percentile(zi_smooth_1d[mask],10),
                          np.percentile(zi_smooth_1d[mask],90)))
     scipy.savetxt(usharp_file,np.array([pi1d[mask],ti1d[mask],zi_smooth.flatten()[mask],zi_sharp.flatten()[mask],
-                  zi_sharp_Nsig.flatten()[mask]]).T,fmt='%6.3f %7.3f %8.1f %8.1f %8.1f',
-                  header=head)
+                  zi_sharp_Nsig.flatten()[mask],zi_sigma.flatten()[mask]]).T,
+                  fmt='%6.3f %7.3f %8.1f %8.1f %8.1f %9.1f',header=head)
     #pi1d,ti1d,zi_smooth_1d=pi1d[mask],ti1d[mask],zi_smooth_1d[mask]
 
   if args.noclumps:
@@ -566,7 +583,7 @@ for infilen in file_list:
      Nsm,Nsh=0,0
      exp_purity=-1
     #if pmask.any(): 
-    if pmask.sum()>args.npixmin:  #Require at least five pixels above threshold
+    if pmask.sum()>args.npixmin:  #Require at least npixmin pixels above threshold
      newid=newid+1
      u_newid=np.append(u_newid,newid)
      #Fix peak height, this was wrong because Fellwalker returns the sum over each clump (I think)
