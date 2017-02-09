@@ -354,7 +354,7 @@ for infilen in file_list:
     #-------------------------------Print smoothed and unsharp masked PCMs------------
     usharp_filen='%s.%s.%s.%s.usharp.cts' % (figname_root,mode,proj[:3],pmode)
     head='%3s %7s %8s %8s %8s %9s' % ('phi','theta','Nsmooth','Nusharp','Nusharp_Nsig','Nsm_sigma')
-    pi1d,ti1d,zi_smooth_1d=pi1d.flatten(),ti1d.flatten(),zi_smooth.flatten()
+    pi1d,ti1d,zi_smooth_1d,zi_sigma_1d=pi1d.flatten(),ti1d.flatten(),zi_smooth.flatten(),zi_sigma.flatten()
     pi1d[pi1d<0]=pi1d[pi1d<0]+360.
     mask=(ti1d>0) & (ti1d<=90) & (zi_smooth.flatten()>0)
     usharp_file=open(usharp_filen,'w')
@@ -446,7 +446,7 @@ for infilen in file_list:
   xpix_2d,ypix_2d=np.meshgrid(inds,inds)
   xinds,yinds=xpix_2d.flatten(),ypix_2d.flatten()
   pcts_1d=zi.flatten()
-  if args.unsharp: smooth_cts_1d,sharp_cts_1d=zi_smooth_1d,zi_sharp.flatten()
+  if args.unsharp: smooth_cts_1d,sharp_cts_1d,sigma_cts_1d=zi_smooth_1d,zi_sharp.flatten(),zi_sigma_1d
   cmask_1d=cmask_dat.flatten() #cmask goes with pid, i.e. pid=cmask_1d.unique()
   xcmask,ycmask,phicmask,thetacmask = pix_convert.get_phys_from_pix(xinds,yinds)
   #----------Deal with clumps that go from one hemisphere to the other-------------------------------
@@ -459,7 +459,7 @@ for infilen in file_list:
   u_xcmask,u_ycmask=np.array([]),np.array([])
   u_phicmask,u_thetacmask=np.array([]),np.array([])
   u_cmask_1d,u_pcts_1d=np.array([]),np.array([])
-  if args.unsharp: u_smooth_cts_1d,u_sharp_cts_1d=np.array([]),np.array([])
+  if args.unsharp: u_smooth_cts_1d,u_sharp_cts_1d,u_sigma_cts_1d=np.array([]),np.array([]),np.array([])
   for ii in range(thetapeak.size):
    if thetapeak[ii]>=0: #North peaks
      #Save peak data
@@ -476,7 +476,7 @@ for infilen in file_list:
      if args.unsharp: 
       u_smooth_cts_1d=np.append(u_smooth_cts_1d,smooth_cts_1d[peakmask])
       u_sharp_cts_1d =np.append(u_sharp_cts_1d,sharp_cts_1d[peakmask])
-   
+      u_sigma_cts_1d =np.append(u_sigma_cts_1d,sigma_cts_1d[peakmask])
   from astropy.coordinates import SkyCoord
   from astropy import units as aunits
 
@@ -506,6 +506,7 @@ for infilen in file_list:
           if args.unsharp: 
            u_smooth_cts_1d=np.append(u_smooth_cts_1d,smooth_cts_1d[peakmask][mask_tol])
            u_sharp_cts_1d =np.append(u_sharp_cts_1d,sharp_cts_1d[peakmask][mask_tol])
+           u_sigma_cts_1d =np.append(u_sigma_cts_1d,sigma_cts_1d[peakmask][mask_tol])
      else:
        continue
 
@@ -515,7 +516,7 @@ for infilen in file_list:
   u_phicmask,u_thetacmask=u_phicmask[tmask],u_thetacmask[tmask]
   u_cmask_1d,u_pcts_1d=u_cmask_1d[tmask],u_pcts_1d[tmask]
   if args.unsharp: 
-   u_smooth_cts_1d,u_sharp_cts_1d=u_smooth_cts_1d[tmask],u_sharp_cts_1d[tmask]
+   u_smooth_cts_1d,u_sharp_cts_1d,u_sigma_cts_1d=u_smooth_cts_1d[tmask],u_sharp_cts_1d[tmask],u_sigma_cts_1d[tmask]
 
   #u_newid=np.arange(u_phipeak.size) + 1  #Rename so IDs will be consecutive numbers starting from 1
 
@@ -530,6 +531,9 @@ for infilen in file_list:
   header_info=header_info+'#         FellWalker.MaxJump=%.0f\n' % (args.maxjump)
   if args.unsharp:
     header_info=header_info+'#         MinHeight=%-4.1f (Nsigma-units)\n' % (minheight)
+    header_info=header_info+'#         Npix=%d   (number of pixels for image resampling in proj) )\n' % (args.npix)
+    header_info=header_info+'#         Npixmin=%d   (minimum number of pixels above threshold)\n' % (args.npixmin)
+    header_info=header_info+'#         Npixann=%d   (annulus radio for stdev computation, 0=Poisson std)\n' % (args.npixann)
     if args.mindip is not None: header_info=header_info+'#         MinDip=%-4.1f (Nsigma-units)\n' % (np.float(args.mindip))
   else:
    if args.frms is not None: 
@@ -573,7 +577,8 @@ for infilen in file_list:
      pmask = (u_cmask_1d==u_pid[kk]) & (u_sharp_cts_1d>=args.fwxm*np.max(u_sharp_cts_1d[imask])) & (u_pcts_1d>=minheight)
      if pmask.any():
       Nsm,Nsh=np.sum(u_smooth_cts_1d[pmask]),np.sum(u_sharp_cts_1d[pmask])
-      Nsigma=np.max(u_sharp_cts_1d[pmask].astype(float)/np.sqrt(u_smooth_cts_1d[pmask]))
+      #Nsigma=np.max(u_sharp_cts_1d[pmask].astype(float)/np.sqrt(u_smooth_cts_1d[pmask]))
+      Nsigma=np.max(u_sharp_cts_1d[pmask].astype(float)/u_sigma_cts_1d[pmask])  #Use local estimate of sigma
       exp_purity=Nsh/np.float(Nsh+Nsm)
      else:
       Nsm,Nsh=0.,0.
