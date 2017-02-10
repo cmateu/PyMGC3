@@ -546,11 +546,14 @@ for infilen in file_list:
   header_info=header_info+'#-----------------------------------------------------------------------------------\n'
   header_info=header_info+'# Note: Nsmooth and Nsharp are the pole-count integrals over the printed FWXM pixels\n'
   header_info=header_info+'#       peak_nsig is the peak height in n-sigma units                               \n'
+  header_info=header_info+'#       Npixthr is the number of peaks above selected detection threshold           \n'
   header_info=header_info+'#-----------------------------------------------------------------------------------\n'
   #Print on file
   clumpfile.write(header_info)
-  hfmt='#%3s '+6*'%8s '+'%10s %10s %10s %10s'+'\n'
-  clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_nsig','exp_purity','Nsmooth','Nsharp'))
+  #hfmt='#%3s '+6*'%8s '+'%10s %10s %10s %10s'+'\n'
+  #clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_nsig','exp_purity','Nsmooth','Nsharp'))
+  hfmt='#%3s '+6*'%8s '+'%10s %10s %10s %10s %10s'+'\n'
+  clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_nsig','exp_purity','Nsmooth','Nsharp','Npixthr'))
   #-------------------------------------------------------------------------------------------------------------
   #Print on screen
   print header_info
@@ -568,8 +571,7 @@ for infilen in file_list:
   dtheta=u_thetapeak-theta_minus_dtheta
 
   #Compute expected purity
-  #exp_purity,Nsm_l,Nsh_l=np.array([]),np.array([]),np.array([])
-  fmt='%4d '+6*'%8.3f '+'%10.1f %10.3f %10.0f %10.0f\n'
+  fmt='%4d '+6*'%8.3f '+'%10.1f %10.3f %10.0f %10.0f %10.0f\n'
   newid,u_newid=0,np.array([])
 
   for kk in range(u_pid.size):  
@@ -580,7 +582,6 @@ for infilen in file_list:
      pmask = (u_cmask_1d==u_pid[kk]) & (u_sharp_cts_1d>=args.fwxm*np.max(u_sharp_cts_1d[imask])) & (u_pcts_1d>=minheight)
      if pmask.any():
       Nsm,Nsh=np.sum(u_smooth_cts_1d[pmask]),np.sum(u_sharp_cts_1d[pmask])
-      #Nsigma=np.max(u_sharp_cts_1d[pmask].astype(float)/np.sqrt(u_smooth_cts_1d[pmask]))
       Nsigma=np.max(u_sharp_cts_1d[pmask].astype(float)/u_sigma_cts_1d[pmask])  #Use local estimate of sigma
       exp_purity=Nsh/np.float(Nsh+Nsm)
      else:
@@ -598,8 +599,9 @@ for infilen in file_list:
      if args.unsharp: u_cheight[kk]=Nsigma
      print '# Clump oldID=%3d, newID=%3d, height=%.1f' % (u_pid[kk],newid,u_cheight[kk])
      #Print peak data on file---------------------------------
+     Npthr=pmask.sum()
      clumpfile.write(fmt % (newid,u_phipeak[kk],u_thetapeak[kk],u_phipeakc[kk],u_thetapeakc[kk],
-                            dphi[kk],dtheta[kk],u_cheight[kk],exp_purity,Nsm,Nsh))
+                            dphi[kk],dtheta[kk],u_cheight[kk],exp_purity,Nsm,Nsh,Npthr))
     else: 
      u_newid=np.append(u_newid,0)
      print '# Skipping clump oldID=%3d, less than %d pixels>threshold_height'  % (u_pid[kk],args.npixmin)
