@@ -543,11 +543,14 @@ for infilen in file_list:
    if args.mindip is not None: header_info=header_info+'#         MinDip=%-4.1f (cts)\n' % (np.float(args.mindip))
   if args.unsharp: header_info=header_info+'#         Nmedian=%d\n' % (args.nmed)
   header_info=header_info+'#         FWXM=%.4f (stored pixels associated to each clump)\n' % (args.fwxm)
-  header_info=header_info+'#----------------------------------------------------------------------\n'
+  header_info=header_info+'#-----------------------------------------------------------------------------------\n'
+  header_info=header_info+'# Note: Nsmooth and Nsharp are the pole-count integrals over the printed FWXM pixels\n'
+  header_info=header_info+'#       peak_nsig is the peak height in n-sigma units                               \n'
+  header_info=header_info+'#-----------------------------------------------------------------------------------\n'
   #Print on file
   clumpfile.write(header_info)
   hfmt='#%3s '+6*'%8s '+'%10s %10s %10s %10s'+'\n'
-  clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_cts','exp_purity','Nsmooth','Nsharp'))
+  clumpfile.write(hfmt % ('ID','phi_p','theta_p','phi_c','theta_c','dphi','dtheta','peak_nsig','exp_purity','Nsmooth','Nsharp'))
   #-------------------------------------------------------------------------------------------------------------
   #Print on screen
   print header_info
