@@ -601,7 +601,7 @@ for infilen in file_list:
      print '# Clump oldID=%3d, newID=%3d, height=%.1f' % (u_pid[kk],newid,u_cheight[kk])
      #Print peak data on file---------------------------------
      Npthr=pmask.sum()
-     Npcts=np.max(u_sharp_cts_1d[pmask])
+     Npcts=np.max(u_smooth_cts_1d[pmask]+u_sharp_cts_1d[pmask])
      clumpfile.write(fmt % (newid,u_phipeak[kk],u_thetapeak[kk],u_phipeakc[kk],u_thetapeakc[kk],
                             dphi[kk],dtheta[kk],u_cheight[kk],exp_purity,Nsm,Nsh,Npthr,Npcts))
     else: 
