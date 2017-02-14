@@ -20,7 +20,7 @@ nGC3 uses positional and proper motion data.
 
 **LATEST FEATURES:**
 
-Feb 2017 - Standard deviation of background counts now computed locally in annulus around each pixel. New option -npixann added to set annulus radius. Option npixmin added to contril min number of pixels required for valid detections.
+Feb 2017 - Standard deviation of background counts now computed locally in annulus around each pixel. New option -npixann added to set annulus radius. Option npixmin added to control minimum number of pixels required for valid detections.
 
 Aug 2016 - Heliocentric GC3 counts added (np_gc3hel column)
 
