@@ -150,7 +150,7 @@ def print_sample_parfile():
 #AUX1_o      =  Any number of AUX? cols can be used.
 #AUX1_f      =  For multiple AUX? columns, the criteria is combined with boolean AND 
 #----------------Coordinate params------------------
-deg         False
+deg         True
 lon_col     1
 lat_col     2
 coo_glactc  True
