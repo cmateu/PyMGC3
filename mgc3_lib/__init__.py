@@ -604,3 +604,43 @@ class pole_grid(my_constants):
     return (foot_survey,foot_pars)
 
 #---------------------------------------------------------------------------------------
+
+def load_pars_dict(deg=True,lon_col=1,lat_col=2,coo_glactc=True,par_col=3,par_muas=True,pm_lon_col=4,pm_lat_col=5,pm_lon_red=True,pm_muas=True,vrad_col=6,tol_r=2.,tol_v=2.,tol_deg=True,grid_step=1.,grid_lon_o=0.,grid_lon_f=360.,grid_lat_o=0.,grid_lat_f=90.,AUX_col=[],AUX_o=[],AUX_f=[]):
+
+  pdic=dict()
+  pdic['deg']=deg
+  pdic['lon_col']=lon_col-1 #Columns are passed as human-readable/F-style, convert to C-style 
+  pdic['lat_col']=lat_col-1
+  pdic['coo_glactc']=coo_glactc
+  pdic['par_col']=par_col-1
+  pdic['par_muas']=par_muas
+  pdic['pm_lon_col']=pm_lon_col-1
+  pdic['pm_lat_col']=pm_lat_col-1
+  pdic['pm_lon_red']=pm_lon_red
+  pdic['pm_muas']=pm_muas
+  pdic['vrad_col']=vrad_col-1
+  pdic['tol_r']=tol_r
+  pdic['tol_v']=tol_v
+  pdic['tol_deg']=tol_deg
+  pdic['grid_step']=grid_step
+  pdic['grid_lon_o']=grid_lon_o
+  pdic['grid_lon_f']=grid_lon_f
+  pdic['grid_lat_o']=grid_lat_o
+  pdic['grid_lat_f']=grid_lat_f
+
+  if len(AUX_col)>0:
+    #Make sure its iterable
+    if len(AUX_col)==1:
+        AUX_col=[AUX_col,]
+        AUX_o=[AUX_o,]
+        AUX_f=[AUX_f,]
+    pdic['NAUX']=len(AUX_col)
+    for ii in range(len(AUX_col)):
+      keycol='AUX%d_col' % (ii)
+      keyo='AUX%d_o' % (ii)
+      keyf='AUX%d_f' % (ii)
+      pdic[keycol]=AUX_col[ii]
+      pdic[keyo]=AUX_o[ii]
+      pdic[keyf]=AUX_f[ii]
+
+  return pdic
