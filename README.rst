@@ -20,6 +20,8 @@ nGC3 uses positional and proper motion data.
 
 **LATEST FEATURES:**
 
+March 2017 - New utility code combine_mgc3_maps.py, combines two pcms using pole counts from different methods. Usefull, e.g. to combine GC3 + nGC3 when only some stars have proper motion data.
+
 Feb 2017 - Standard deviation of background counts now computed locally in annulus around each pixel. New option -npixann added to set annulus radius. Option npixmin added to control minimum number of pixels required for valid detections.
 
 Aug 2016 - Heliocentric GC3 counts added (np_gc3hel column)
@@ -55,6 +57,7 @@ peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
    * peakdetect_mgc3_polemaps.py
    * mgc3_peakstars_plot.py  
    * join_mgc3_maps.py       
+   * combine_mgc3_maps.py
 - Documentation
    * README.rst
 - Libraries
@@ -406,10 +409,33 @@ When the -n option is used, an extra set of output files (e.g. outfilename.mgc3.
 is produced listing the coordinates and counts for the maximum used for normalization
 of each input file.
 
+Program combine_mgc3_maps.py
+-----------------------------------
+
+**DESCRIPTION:**
+
+This utility program combines pole counts from different methods for two input pole count maps.
+
+**SYNTAX:**
+
+The required arguments are the input file names, method counts to be added and output file name::
+
+  combine_mgc3_maps.py infile1 method1 infile2 method2
+
+Choices for method1 and method2 are: {mGC3,nGC3,GC3,mGC3hel,GC3hel}
+
+Its highly recommended to use the .mgc3.cts extension for the output file, for 
+consistency with the rest of PyMGC3 programs. 
+
+**INPUTS AND OUTPUTS:**
+
+Input files are assumed to have the same format as mgc3.py outputs. The output
+file will have the same format as well.
+
 Attribution
 -----------
 
-Cecilia Mateu - cmateu at cida.gob.ve 
+Cecilia Mateu - cmateu at cida.gob.ve
 
 If you have used this code in your research, please let me know and consider acknowledging this package.
 
