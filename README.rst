@@ -20,7 +20,7 @@ nGC3 uses positional and proper motion data.
 
 **LATEST FEATURES:**
 
-March 2017 - New utility code combine_mgc3_maps.py, combines two pcms using pole counts from different methods. Usefull, e.g. to combine GC3 + nGC3 when only some stars have proper motion data.
+March 2017 - New utility code combine_mgc3_maps.py combines two pcms using pole counts from different methods. Useful, e.g., to combine GC3 + nGC3 when only some stars have proper motion data.
 
 Feb 2017 - Standard deviation of background counts now computed locally in annulus around each pixel. New option -npixann added to set annulus radius. Option npixmin added to control minimum number of pixels required for valid detections.
 
