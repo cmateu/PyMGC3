@@ -299,8 +299,9 @@ class pole_grid(my_constants):
    elif np.ndim(poles)==2:
       ls,bs=poles
       if verbose: print 'Building grid with arbitrary poles:', ls,bs
-      for l,b in zip(ls,bs):
-         self.ini_pole_count_single(l,b)
+      map(self.ini_pole_count_single,ls,bs)
+      #for l,b in zip(ls,bs):
+      #   self.ini_pole_count_single(l,b)
    else:
      sys.exit('Wrong dimension of object passed to poles keyword in pole_grid class. Input dim is: %d' % (np.ndim(poles)))
     
