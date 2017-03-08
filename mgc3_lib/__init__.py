@@ -299,7 +299,7 @@ class pole_grid(my_constants):
    elif np.ndim(poles)==2:
       ls,bs=poles
       if verbose: print 'Building grid with arbitrary poles:', ls,bs
-      for l,b in ls,bs:
+      for l,b in zip(ls,bs):
          self.ini_pole_count_single(l,b)
    else:
      sys.exit('Wrong dimension of object passed to poles keyword in pole_grid class. Input dim is: %d' % (np.ndim(poles)))
@@ -642,5 +642,6 @@ def load_pars_dict(deg=True,lon_col=1,lat_col=2,coo_glactc=True,par_col=3,par_mu
       pdic[keycol]=AUX_col[ii]
       pdic[keyo]=AUX_o[ii]
       pdic[keyf]=AUX_f[ii]
+  else: pdic['NAUX']=0
 
   return pdic
