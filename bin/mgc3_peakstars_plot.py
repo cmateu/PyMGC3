@@ -11,6 +11,8 @@ import os
 import myutils
 import mgc3_lib
 import gzip
+import bovy_coords as bc
+
 #----------------------------------------------
 __version__ = '1.0'
 __docformat__ = "reredtext en"
@@ -32,6 +34,7 @@ parser.add_argument('-helio',help='Use heliocentric coords in Aitoff plot', acti
 parser.add_argument('-grid',help='Plot grid', action='store_true',default=False)
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-ms',help='Marker size for peak stars.Use ms=0 for fullcat only.',action='store',default=-1,type=np.float)
+parser.add_argument('-msc',help='Marker size for full catalogue stars',action='store',default=0.5,type=np.float)
 parser.add_argument('-sl','--show_legend',help='Show IDpole legend in plot', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-ic','--idcol',help='Column containing stream ID (counting from 1). Default is last col.', action='store',default=0,type=np.int)
@@ -107,8 +110,11 @@ for ff in range(len(file_list)):
     #Filter
     cdat=cdat[mask,:]
     #Parse
-    cl,cb,cparallax=cdat[:,spars['lon_col']],cdat[:,spars['lat_col']],cdat[:,spars['par_col']]
+    clon,clat,cparallax=cdat[:,spars['lon_col']],cdat[:,spars['lat_col']],cdat[:,spars['par_col']]
     cmulstar,cmub,cvrad=cdat[:,spars['pm_lon_col']],cdat[:,spars['pm_lat_col']],cdat[:,spars['vrad_col']]
+    glact_flag=spars['coo_glactc']
+    if not glact_flag: cl,cb=bc.radec_to_lb(clon,clat,degree=spars['deg'],epoch=2000.0).T  #if input in equatorial, convert
+    else: cl,cb=lon,lat
     css=myutils.helio_obj(cl,cb,fp*cparallax,fm*cmulstar,fm*cmub,cvrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
 
   figname_root=infilen.replace('.pst','')
@@ -116,9 +122,11 @@ for ff in range(len(file_list)):
   fig2name='%s.sph%s.%s' % (figname_root,args.ext[0],args.fig)
 
   IDpole=dat[:,args.idcol-1]
-  l,b,parallax=dat[:,spars['lon_col']],dat[:,spars['lat_col']],dat[:,spars['par_col']]
+  lon,lat,parallax=dat[:,spars['lon_col']],dat[:,spars['lat_col']],dat[:,spars['par_col']]
   mulstar,mub,vrad=dat[:,spars['pm_lon_col']],dat[:,spars['pm_lat_col']],dat[:,spars['vrad_col']]
-  
+  glact_flag=spars['coo_glactc']
+  if not glact_flag: l,b=bc.radec_to_lb(lon,lat,degree=spars['deg'],epoch=2000.0).T  #if input in equatorial, convert
+  else: l,b=lon,lat
   ss=myutils.helio_obj(l,b,fp*parallax,fm*mulstar,fm*mub,vrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
 
   #ss.x,ss.y,ss.z=dat[:,8-1],dat[:,9-1],dat[:,10-1] #for tests only
@@ -154,7 +162,7 @@ for ff in range(len(file_list)):
    else: args.ms=2
    print 'Setting default ms=',args.ms
 
-  c_props={'ms':0.5,'zorder':0,'alpha':0.7}
+  c_props={'ms':args.msc,'zorder':0,'alpha':0.7}
   s_props={'ms':args.ms,'zorder':1,'alpha':1.,'mec':'None'}
 
   for kk in range(npoles):
