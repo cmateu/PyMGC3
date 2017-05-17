@@ -31,7 +31,8 @@ parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-helio',help='Use heliocentric coords in Aitoff plot', action='store_true',default=False)
 parser.add_argument('-grid',help='Plot grid', action='store_true',default=False)
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
-parser.add_argument('-ms',help='Marker size for peak stars.Delfault 1. Use ms=0 for fullcat only.',action='store',default=1,type=np.float)
+parser.add_argument('-ms',help='Marker size for peak stars.Use ms=0 for fullcat only.',action='store',default=-1,type=np.float)
+parser.add_argument('-sl','--show_legend',help='Show IDpole legend in plot', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-ic','--idcol',help='Column containing stream ID (counting from 1). Default is last col.', action='store',default=0,type=np.int)
 
@@ -128,7 +129,7 @@ for ff in range(len(file_list)):
   print 'Npeaks=',npoles
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
   if npoles<=10:
-     cmapp=['darkviolet','orange','lime','royalblue','orchid','red','gray','pink','limegreen','navy']
+     cmapp=['darkviolet','orange','royalblue','lime','orchid','red','gray','pink','limegreen','navy']
 
   fig1=plt.figure(1,figsize=(16,6))
   fig1.subplots_adjust(wspace=0.2,left=0.08,right=0.97)
@@ -146,13 +147,20 @@ for ff in range(len(file_list)):
   m.drawparallels(parls,color='gray')
   m.drawmapboundary()
 
+  #Use reasonable default for ms
+  if args.ms==-1:
+   if ss.x.size<100: args.ms=15
+   elif ss.x.size>=100 and ss.x.size<500: args.ms=10
+   else: args.ms=2
+   print 'Setting default ms=',args.ms
+
   c_props={'ms':0.5,'zorder':0,'alpha':0.7}
   s_props={'ms':args.ms,'zorder':1,'alpha':1.,'mec':'None'}
 
   for kk in range(npoles):
    mask= (IDpole==unique_IDpoles[kk])
    #---Cartesian---------
-   ax1.plot(-ss.x[mask],ss.y[mask],'.',color=cmapp[kk],**s_props)
+   ax1.plot(-ss.x[mask],ss.y[mask],'.',color=cmapp[kk],label='%d' % (unique_IDpoles[kk]),**s_props)
    #---
    ax2.plot(-ss.x[mask],ss.z[mask],'.',color=cmapp[kk],**s_props)
    #---
@@ -160,7 +168,8 @@ for ff in range(len(file_list)):
    #---Aitoff--------
    if args.helio: xmoll,ymoll=m(ss.l[mask],ss.b[mask])
    else:          xmoll,ymoll=m(ss.phi[mask],ss.theta[mask])
-   m.plot(xmoll,ymoll,'.',color=cmapp[kk],**s_props)
+   m.plot(xmoll,ymoll,'.',color=cmapp[kk],label='%d' % (unique_IDpoles[kk]),**s_props)
+   if args.show_legend: ax4.legend(loc='lower left',bbox_to_anchor=(-0.05,-0.1))
 
   if args.catfile:
    ax1.plot(-css.x,css.y,'k.',**c_props)
