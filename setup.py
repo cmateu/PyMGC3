@@ -12,7 +12,7 @@ setup(
     name='PyMGC3',
     version='1.0.0',
     author='C. Mateu',
-    author_email='cmateu@astrosen.unam.mx',
+    author_email='cmateu.cida@gmail.com,cmateu@cida.gob.ve',
     packages=['bovy_coords','mgc3_lib','myutils'],
     scripts=['bin/mgc3.py','bin/mgc3_get_pole_stars.py','bin/mgc3_plot_polemaps.py','bin/peakdetect_mgc3_polemaps.py','bin/mgc3_peakstars_plot.py','bin/join_mgc3_maps.py','bin/combine_mgc3_maps.py'],
     url='https://github.com/cmateu/PyMGC3',
