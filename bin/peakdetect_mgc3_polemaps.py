@@ -176,7 +176,9 @@ else: #Default color list for nsigma mode
 
 for infilen in file_list:
 
-  if 'gz' in infilen: infile=gzip.open(infilen,'r')
+  if 'gz' in infilen: 
+    infile=gzip.open(infilen,'r')
+    infilen=infile.replace('.gz','')
   else: infile=open(infilen,'r')
 
   phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infile,comments='#',usecols=(0,1,counts_col),unpack=True)
