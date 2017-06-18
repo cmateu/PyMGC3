@@ -378,7 +378,9 @@ for infilen in file_list:
   if args.noclumps:
     #fig.set_rasterized(True)
     fig.savefig(figname)
-    if args.unsharp: fig2.savefig(usharp_figname)
+    if args.unsharp:
+      fig2.savefig(usharp_figname)
+      fig2.clf()
     if args.show: plt.show()
     else: fig.clf()
     print 'WARNING: No-clump flag set, plain PCM plotted. Skipping peak detection...  '
