@@ -5,15 +5,16 @@ import argparse
 import os
 import sys
 import myutils
+import gzip
 
 __version__ = '2.0.1'
 __docformat__ = "reredtext en"
 __what__= sys.argv[0]+": This program combines a list of pole count maps"
 #
 parser = argparse.ArgumentParser(description='Add mGC3/nGC3/GC3 pole count maps')
-parser.add_argument('infile1',metavar='infile1',help='Input pole count map (*.cts file)',nargs=1,action='store')
+parser.add_argument('infile1',metavar='infile1',help='Input pole count map (*.cts file). Gzip supported',nargs=1,action='store')
 parser.add_argument('mode1',help='Select mGC3/nGC3/GC3/mGC3hel/GC3hel method for infile1', action='store',choices=['mGC3','nGC3','GC3','mGC3hel','GC3hel'])
-parser.add_argument('infile2',metavar='infile2',help='Input pole count map (*.cts file)',nargs=1,action='store')
+parser.add_argument('infile2',metavar='infile2',help='Input pole count map (*.cts file). Gzip supported',nargs=1,action='store')
 parser.add_argument('mode2',help='Select mGC3/nGC3/GC3/mGC3hel/GC3hel method for infile2', action='store',choices=['mGC3','nGC3','GC3','mGC3hel','GC3hel'])
 parser.add_argument('ofilen',metavar='outfilename',help='Output pole count map name',nargs=1,action='store')
 parser.add_argument('-f','--force',help='Force running with existing files, ignoring missing file warnings', action='store_true',default=False)
@@ -24,13 +25,19 @@ args = parser.parse_args()
 #Read input files
 try:
   print 'Reading Input File1:',args.infile1[0]
-  pcm1=scipy.genfromtxt(args.infile1[0])
+  #pcm1=scipy.genfromtxt(args.infile1[0])
+  if '.gz' in args.infile1[0]: infile1=gzip.open(args.infile1[0],'r')
+  else: infile1=open(args.infile1[0],'r')
+  pcm1=scipy.genfromtxt(infile1)
 except IOError:
   print 'WARNING - File not found: %s' % (args.infile1[0])
 
 try:
   print 'Reading Input File2:',args.infile2[0]
-  pcm2=scipy.genfromtxt(args.infile2[0])
+  #pcm2=scipy.genfromtxt(args.infile2[0])
+  if '.gz' in args.infile2[0]: infile2=gzip.open(args.infile2[0],'r')
+  else: infile2=open(args.infile2[0],'r')
+  pcm2=scipy.genfromtxt(infile2)
 except IOError:
   print 'WARNING - File not found: %s' % (args.infile1[0])
 
