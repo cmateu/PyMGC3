@@ -5,6 +5,7 @@ import argparse
 import os
 import sys
 import myutils
+import gzip 
 
 __version__ = '2.0.1'
 __docformat__ = "reredtext en"
@@ -46,7 +47,10 @@ for n in range(len(infilelist)):
 
    print 'Reading file %d of %d (%s)' % (n+1,len(infilelist),infile)
    try:
-    pcm=scipy.genfromtxt(infile)
+    if 'gzip' in infile: infilef=gzip.open(infile,'r')
+    else: infilef=open(infile,'r')
+
+    pcm=scipy.genfromtxt(infilef)
    except IOError:
     print 'WARNING - File not found: %s' % (infile)
     if args.force: 

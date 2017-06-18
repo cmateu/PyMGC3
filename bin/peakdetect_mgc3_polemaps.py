@@ -12,6 +12,7 @@ import scipy.interpolate
 import pyfits
 import os
 import myutils
+import gzip
 
 class xypix_converter:
   
@@ -175,7 +176,10 @@ else: #Default color list for nsigma mode
 
 for infilen in file_list:
 
-  phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
+  if 'gz' in infilen: infile=gzip.open(infilen,'r')
+  else: infile=open(infilen,'r')
+
+  phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infile,comments='#',usecols=(0,1,counts_col),unpack=True)
 
   #Default title----------------------------------
   if not args.title or len(file_list)>1: args.title=infilen

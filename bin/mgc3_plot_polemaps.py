@@ -11,6 +11,7 @@ import myutils
 import myutils.newpy_colormaps as newcmap
 import matplotlib.colors as mcol
 from matplotlib.colors import ListedColormap
+import gzip
 
 __version__ = '1.1'
 __docformat__ = "reredtext en"
@@ -132,7 +133,11 @@ for infilen in file_list:
   #Default title----------------------------------
   if args.title is None or args.llist: args.title=infilen
 
-  phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infilen,comments='#',usecols=(0,1,counts_col),unpack=True)
+  if 'gz' in infilen: infile=gzip.open(infilen,'r')
+  else: infile=open(infilen,'r')
+
+  phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infile,comments='#',usecols=(0,1,counts_col),unpack=True)
+
   figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,args.proj[:3],pmode,args.fig)
   print 'Output filename:', figname
