@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser(description='Add mGC3/nGC3/GC3 pole count maps'
 parser.add_argument('infilel',metavar='infile_list',help='Input pole count map list (*.cts files)',nargs=1,action='store')
 parser.add_argument('ofilen',metavar='outfilename',help='Output pole count map name',nargs=1,action='store')
 parser.add_argument('-n','--norm',help='Normalize each PCM *before* adding them together', action='store_true',default=False)
+parser.add_argument('-m','--mean',help='Return mean counts (instead of simple addition)', action='store_true',default=False)
 parser.add_argument('-f','--force',help='Force running with existing files, ignoring missing file warnings', action='store_true',default=False)
 
 #---------Parse----------------------------
@@ -71,8 +72,8 @@ for n in range(len(infilelist)):
       try: iidst=infile[infile.find('id')+2:infile.find('id')+2+3]
       except: iidst=n
       omaxfilel[kk].write('%6s ' % (iidst)) 
-      omaxfilel[kk].write('%10.3f %10.3f %10d\n' % tuple(pcm[fmax_ind[kk],[0,1,kk+2]])) 
-       
+      omaxfilel[kk].write('%10.3f %10.3f %10d\n' % tuple(pcm[fmax_ind[kk],[0,1,kk+2]]))  
+      
    if n==0:
      pcm_sum=pcm  #Initialize matrix with data for the first file
      pcm_sum[:,2:nfinalccol]=pcm_sum[:,2:nfinalccol]*fnorm_vec   #Normalize each of the counts columns
@@ -85,7 +86,10 @@ for n in range(len(infilelist)):
         sys.exit('WARNING: Input file shapes are inconsistent. Exiting...')
      #If not first file, add the columns corresponding to pole counts. Leave the rest as in the first file
      pcm_sum[:,2:nfinalccol]=pcm_sum[:,2:nfinalccol]+ (pcm[:,2:nfinalccol]*fnorm_vec) 
-  
+ 
+#If mean flag set, divide summed counts by number of PCMs added 
+if args.mean:
+  pcm_sum[:,2:nfinalccol]=pcm_sum[:,2:nfinalccol]/np.float(len(infilelist))
 
 #Printing output file 
 countsffmt=ncountcols*'%10.4g '

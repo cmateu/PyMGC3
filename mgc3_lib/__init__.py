@@ -506,6 +506,7 @@ class pole_grid(my_constants):
      print 'No params file found. Using default parameter file mgc3.par'     
      print_sample_parfile()
      pars=parse_pars('mgc3.par')
+     print '--->',pars['par_muas']
 
     #Check coord system. If equatorial, convert coords and proper motions to galactic
     #Makes use of Jo Bovy's coordinate conversion library
