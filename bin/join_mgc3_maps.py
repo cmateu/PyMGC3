@@ -48,7 +48,7 @@ for n in range(len(infilelist)):
 
    print 'Reading file %d of %d (%s)' % (n+1,len(infilelist),infile)
    try:
-    if 'gzip' in infile: infilef=gzip.open(infile,'r')
+    if 'gz' in infile: infilef=gzip.open(infile,'r')
     else: infilef=open(infile,'r')
 
     pcm=scipy.genfromtxt(infilef)
