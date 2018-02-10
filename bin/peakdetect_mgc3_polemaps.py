@@ -100,7 +100,7 @@ if not args.llist:
 else:
  print 'Reading input files from list file: ', args.infile[0]
  file_list=scipy.genfromtxt(args.infile[0],dtype='S')
- if np.ndim(file_list)==0: file_list=array([file_list,])
+ if np.ndim(file_list)==0: file_list=np.array([file_list,])
 
 #Mode-------------------------------------------
 mode=args.m.lower()
