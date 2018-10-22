@@ -215,10 +215,10 @@ def load_constants():
   global d2r
   global Ap
   global Av
-  rsun=8.5          #In kpc
-  Ugc_hel=10.3      #In km/s
-  Vgc_hel=232.6     #In km/s
-  Wgc_hel=5.9       #In km/s
+  rsun=8.34          #In kpc, Reid+ 2014, ApJ, 783, 130
+  Ugc_hel=11.1             #In km/s,  from Shoenrich+ 2010, MNRAS, 403, 1829 
+  Vgc_hel=240.+12.24       #In km/s,  from Shoenrich+ 2010, MNRAS, 403, 1829 
+  Wgc_hel=7.25             #In km/s,  from Shoenrich+ 2010, MNRAS, 403, 1829 
   vsun=np.sqrt(Ugc_hel**2 + Vgc_hel**2 + Wgc_hel**2)
   d2r=np.pi/180.
   Ap=1000.    #muas.kpc
@@ -226,7 +226,10 @@ def load_constants():
 
 class my_constants(object):
                          #kpc         km/s         km/s         km/s  muas.kpc   yr km/s
-   def __init__(self,rsun=8.5,Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9,Ap=1000.,Av=4.74047):
+   def __init__(self,rsun=8.34,Ugc_hel=11.1,Vgc_hel=252.24,Wgc_hel=7.25,Ap=1000.,Av=4.74047):
+    
+     #rsun from Reid+ 2014, ApJ, 783, 130
+     #LSR velocity from Shoenrich+ 2010, MNRAS, 403, 1829
 
      self.rsun=rsun
      self.Ugc_hel=Ugc_hel
