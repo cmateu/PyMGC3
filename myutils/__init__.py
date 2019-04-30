@@ -117,7 +117,7 @@ class helio_obj:
 
     #Convert to heliocentric cartesian. Bovy's library assumes Sun's position is positive
     #tuple output, no .T needed
-    if verbose: print 'Converting Heliocentric Galactic Spherical to Heliocentric Cartesian coords...'
+    if verbose: print('Converting Heliocentric Galactic Spherical to Heliocentric Cartesian coords...')
     m=bovyc.lbd_to_XYZ(self.l,self.b,self.Rhel,degree=degree)
     self.xhel,self.yhel,self.zhel=m.T
     m=bovyc.vrpmllpmbb_to_vxvyvz(self.vrad,self.mulstar,self.mub,self.l,self.b,self.Rhel,XYZ=False,degree=degree)
@@ -125,14 +125,14 @@ class helio_obj:
     #m=bovyc.galcenrect_to_XYZ(self.x,self.y,self.z,Xsun=self.xsun,Ysun=self.ysun,Zsun=self.zsun)a
 
     #Convert Heliocentric Cartesian to Galactocentric Cartesian
-    if verbose: print 'Converting Heliocentric Cartesian to Galactocentric Cartesian coords...'
+    if verbose: print('Converting Heliocentric Cartesian to Galactocentric Cartesian coords...')
     m=bovyc.XYZ_to_galcenrect(self.xhel,self.yhel,self.zhel,Xsun=self.xsun,Ysun=self.ysun,Zsun=self.zsun)
     self.x,self.y,self.z=m
     m=bovyc.vxvyvz_to_galcenrect(self.vxhel,self.vyhel,self.vzhel,vsun=[self.vxsun, self.vysun, self.vzsun])
     self.vx,self.vy,self.vz=m
 
     #Compute Galactocentric Spherical
-    if verbose: print 'Converting Galactocentric Cartesian to Spherical coords...'
+    if verbose: print('Converting Galactocentric Cartesian to Spherical coords...')
     m=bovyc.XYZ_to_lbd(self.x,self.y,self.z,degree=degree)
     self.phi,self.theta,self.Rgal=m.T
     self.phi=(self.phi+180.) % 360.    

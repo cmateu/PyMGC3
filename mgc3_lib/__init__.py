@@ -82,7 +82,7 @@ def read_inputcat_for_mgc3(filename,pardic=None):
       mykey_valf='AUX%d_f' % (NAUX)
       #Skip if col=998   
       if pardic[mykey_col]!=998:
-       print ' Cutting input catalogue with %.1f<%s[%d]<%.1f' % (pardic[mykey_valo],mykey_col,pardic[mykey_col]+1,pardic[mykey_valf])
+       print(' Cutting input catalogue with %.1f<%s[%d]<%.1f' % (pardic[mykey_valo],mykey_col,pardic[mykey_col]+1,pardic[mykey_valf]))
        #Create mask 
        mask_i = (obsdata[:,pardic[mykey_col]]>pardic[mykey_valo]) & (obsdata[:,pardic[mykey_col]]<pardic[mykey_valf])
        #Combine masks
@@ -188,7 +188,7 @@ class print_parfile_action(argparse.Action):
 
 #Parse parameter file
 def parse_pars(parfile):
-  pf=scipy.genfromtxt(parfile,comments='#',dtype='S')
+  pf=scipy.genfromtxt(parfile,comments='#',dtype=str)
 
   naux,dic=0,{}
   for line in pf:
@@ -287,19 +287,19 @@ class pole_grid(my_constants):
         bo,bf=pole_grid_dic['grid_lat_o'],pole_grid_dic['grid_lat_f']
      else: lo,lf,bo,bf=0.,360.,0.,90.
      gstep=poles
-     if verbose: print 'Building grid with gstep=%.2f, (%.2f<lon<%.2f,%.2f<lat<%.2f)' % (gstep,lo,lf,bo,bf)
+     if verbose: print('Building grid with gstep=%.2f, (%.2f<lon<%.2f,%.2f<lat<%.2f)' % (gstep,lo,lf,bo,bf))
      for b in np.arange(bo,bf,gstep):
        lstep=gstep/np.cos(b*d2r)
        for l in np.arange(lo,lf,lstep):
          self.ini_pole_count_single(l,b)       
    elif np.ndim(poles)==1:
       ls,bs=poles
-      if verbose: print 'Using single pole:', ls,bs
+      if verbose: print('Using single pole:', ls,bs)
       self.ini_pole_count_single(ls,bs)
    elif np.ndim(poles)==2:
       ls,bs=poles
-      if verbose: print 'Building grid with arbitrary poles:', ls,bs
-      map(self.ini_pole_count_single,ls,bs)
+      if verbose: print('Building grid with arbitrary poles:', ls,bs)
+      list(map(self.ini_pole_count_single,ls,bs))
       #for l,b in zip(ls,bs):
       #   self.ini_pole_count_single(l,b)
    else:
@@ -331,7 +331,7 @@ class pole_grid(my_constants):
    #Pass fixed keyword values
    map_modgc3 = partial(self.mgc3_single_obs, pars=pars, return_mask=return_mask)
    #Loop over observations
-   map(map_modgc3, obsdata)
+   list(map(map_modgc3, obsdata))
 
    #Normalize appropriately auxiliary counts for area fraction computation
    if pars['tol_deg']: tolr=pars['tol_deg']*self.d2r,
@@ -368,7 +368,7 @@ class pole_grid(my_constants):
     '''
 
     if pars is None:
-     print 'No params file found. Using default parameter file mgc3.par'
+     print('No params file found. Using default parameter file mgc3.par')
      print_sample_parfile()
      pars=parse_pars('mgc3.par')
 
@@ -485,28 +485,28 @@ class pole_grid(my_constants):
     if return_mask:
 
       if 'mGC3hel' in return_mask:
-        if verbose: print '   Selecting stars fulfilling mGC3hel criteria'
+        if verbose: print('   Selecting stars fulfilling mGC3hel criteria')
         return mask_hel
       elif 'GC3hel' in return_mask: 
-        if verbose: print '   Selecting stars fulfilling GC3hel criteria'
+        if verbose: print('   Selecting stars fulfilling GC3hel criteria')
         return mask_poshel
       elif 'mGC3' in return_mask: 
-        if verbose: print '   Selecting stars fulfilling mGC3 criteria'
+        if verbose: print('   Selecting stars fulfilling mGC3 criteria')
         return mask_gal
       elif 'nGC3' in return_mask: 
-        if verbose: print '   Selecting stars fulfilling nGC3 criteria'
+        if verbose: print('   Selecting stars fulfilling nGC3 criteria')
         return mask_muposgal
       else: 
-        if verbose: print '   Selecting stars fulfilling GC3 criteria'
+        if verbose: print('   Selecting stars fulfilling GC3 criteria')
         return mask_posgal
 
   def get_phi_theta_for_survey(self,obs,pars=None):
 
     if pars is None:
-     print 'No params file found. Using default parameter file mgc3.par'     
+     print('No params file found. Using default parameter file mgc3.par')     
      print_sample_parfile()
      pars=parse_pars('mgc3.par')
-     print '--->',pars['par_muas']
+     print('--->',pars['par_muas'])
 
     #Check coord system. If equatorial, convert coords and proper motions to galactic
     #Makes use of Jo Bovy's coordinate conversion library
@@ -531,7 +531,7 @@ class pole_grid(my_constants):
 
     xyz_hel=bc.lbd_to_XYZ(l,b,rhel,degree=False)
     xhel,ygal,zgal=xyz_hel[:,0],xyz_hel[:,1],xyz_hel[:,2]
-    print np.shape(xhel)
+    print(np.shape(xhel))
     xgal=xhel-self.rsun
 
     #convert to spherical galactocentric
@@ -549,9 +549,9 @@ class pole_grid(my_constants):
     #Add this columns to the obsdata matrix and dictionary
     new_cols=np.array([phi,theta,Rgal]).T  #matrix with p,t,r as columns
 
-    print np.shape(obs), np.shape(new_cols)
+    print(np.shape(obs), np.shape(new_cols))
     new_obs=np.hstack((obs,new_cols))      #append as new columns
-    print np.shape(new_obs)
+    print(np.shape(new_obs))
     Nobs=len(obs[0,:])
     new_pars=pars.copy()
     new_pars['phi_col']=Nobs
@@ -562,7 +562,7 @@ class pole_grid(my_constants):
 
   def get_uniform_survey_footprint(self,obs,pars=None,c='k',ms=3.,show=True,Npts=1e4):
     if pars is None:
-     print 'No params file found. Using default parameter file mgc3.par'
+     print('No params file found. Using default parameter file mgc3.par')
      print_sample_parfile()
      pars=parse_pars('mgc3.par')
 
@@ -586,7 +586,7 @@ class pole_grid(my_constants):
     os.system('%s/stilts -Xmx1024M -disk tskymatch2 in1=.aux1 in2=.aux2 ifmt1=ascii ifmt2=ascii ofmt=ascii out=.match ra1=col1 dec1=col2 ra2=col1 dec2=col2 error=1800 join=1and2 find=best' % (stilts_path))
 
     foot_lon,foot_lat=scipy.genfromtxt('.match',unpack=True,usecols=(0,1))
-    print 'Matches',foot_lon.size
+    print('Matches',foot_lon.size)
 
     #Create new survey object
     dummy=np.zeros_like(foot_lon)
