@@ -52,17 +52,17 @@ args = parser.parse_args()
 
 #Parse inputs
 if not args.llist:
- print 'Reading file: %s' % (args.infile)
+ print('Reading file: %s' % (args.infile))
  file_list=[args.infile[0],]
 else:
- print 'Reading input files from list file: ', args.infile[0]
+ print('Reading input files from list file: ', args.infile[0])
  file_list=scipy.genfromtxt(args.infile[0],dtype='S')
  if np.ndim(file_list)==0: file_list=np.array([file_list,])
 
 #Mode-------------------------------------------
 mode=args.m.lower()
 mode_ori=args.m
-print 'Pole counts plotted: ', mode_ori
+print('Pole counts plotted: ', mode_ori)
 if 'hel' in mode and 'mgc3' in mode:  counts_col=4-1
 elif 'gc3hel' in mode: counts_col=7-1
 elif 'mgc3' in mode: counts_col=3-1
@@ -76,19 +76,19 @@ elif 'usigma'  in mode: counts_col,mode_ori=6-1,'Background St.Dev.'
 #Parse raw/contour mode-------------------------
 if args.contour: 
   pmode='c'
-  print 'Plotting contour pole-count map'
+  print('Plotting contour pole-count map')
 else: 
   pmode='r'
-  print 'Plotting raw pole-count map'
+  print('Plotting raw pole-count map')
 if args.log:
-  print 'Plotting pole-count map in log-scale'
+  print('Plotting pole-count map in log-scale')
   pmode=pmode+'l'
 
 if args.twohemispheres:
-  print 'Plotting both hemispheres in pole-count map'
-else: print 'Plotting one hemisphere in pole-count map.'
+  print('Plotting both hemispheres in pole-count map')
+else: print('Plotting one hemisphere in pole-count map.')
 
-print 'Plotting using projection:', args.proj
+print('Plotting using projection:', args.proj)
 
 ori='vertical'
 ori='horizontal'
@@ -115,7 +115,7 @@ else:
  colormap=getattr(plt.cm,args.cmap)
 
 if 'usharpn'  in mode:
-  print 'Selecting n-sigma colorlist...'
+  print('Selecting n-sigma colorlist...')
   if args.cmap is not None and 'spectral' in args.cmap:
    colormap=plt.cm.spectral
    cutcolormap=plt.cm.spectral(np.linspace(0., 1.,100)) 
@@ -140,7 +140,7 @@ for infilen in file_list:
 
   figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,args.proj[:3],pmode,args.fig)
-  print 'Output filename:', figname
+  print('Output filename:', figname)
 
   phi2=np.append(phio,(phio+180.) % 360.)
   theta2=np.append(thetao,-thetao)
@@ -305,7 +305,7 @@ for infilen in file_list:
   plt.rc('ytick', labelsize=13.*args.ffonts)
   if 'npa' in args.proj:
    cax0=plt.gca().get_position()
-   cax=plt.axes([cax0.x0,cax0.y0+dw+0.05,dw,0.02])
+   cax=plt.axes([cax0.x0,cax0.y0+dw+0.01,dw,0.02])
    if 'usharpn' in mode:  tlocator,tformat=plt.MultipleLocator(2.),'%d'
    else: tlocator,tformat=plt.MaxNLocator(nbins=6,prune='both'),'%4.1f'
    cb=plt.colorbar(c,cax=cax,orientation='horizontal',format=tformat,ticks=tlocator)
@@ -336,7 +336,7 @@ for infilen in file_list:
      cax.yaxis.set_label_position('right')
 
   if args.title:
-    ax.text(0.5,1.1+0.04*args.ffonts,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16*args.ffonts)
+    ax.text(0.5,1.1+0.05*args.ffonts,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16*args.ffonts)
 
   fig.savefig(figname)
   if args.show: plt.show()

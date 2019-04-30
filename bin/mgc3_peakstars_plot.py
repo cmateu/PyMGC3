@@ -45,10 +45,10 @@ args = parser.parse_args()
 
 #Parse inputs
 if not args.llist:
- print 'Reading file: %s' % (args.infile)
+ print('Reading file: %s' % (args.infile))
  file_list=[args.infile[0],]
 else:
- print 'Reading input files from list file: ', args.infile[0]
+ print('Reading input files from list file: ', args.infile[0])
  file_list=scipy.genfromtxt(args.infile[0],dtype='S')
  if np.ndim(file_list)==0: file_list=array([file_list,])
 
@@ -64,13 +64,13 @@ if args.catfile:
      if np.ndim(cat_list)==0: cat_list=array([cat_list,])
 
 parfile = args.parfile[0]
-print 'Reading Parameter file %s ...' % (parfile)
+print('Reading Parameter file %s ...' % (parfile))
 spars=mgc3_lib.parse_pars(parfile)
 
 #Parse xyz-limits if given
-if args.xlim: print 'X limits:', args.xlim
-if args.ylim: print 'Y limits:', args.ylim
-if args.zlim: print 'Z limits:', args.zlim
+if args.xlim: print('X limits:', args.xlim)
+if args.ylim: print('Y limits:', args.ylim)
+if args.zlim: print('Z limits:', args.zlim)
 
 for ff in range(len(file_list)):
 
@@ -79,7 +79,7 @@ for ff in range(len(file_list)):
   else: infile=open(infilen)
   dat=scipy.genfromtxt(infile,comments='#')
 
-  print 'Plotting stars from file: ',infilen
+  print('Plotting stars from file: ',infilen)
 
   if spars['par_muas']: fp=1.
   else: fp=1000.
@@ -101,8 +101,8 @@ for ff in range(len(file_list)):
       mykey_valf='AUX%d_f' % (NAUX)
       #Skip if col=998   
       if spars[mykey_col]!=998:
-       print ' Cutting input catalogue with %.1f<%s[%d]<%.1f' % (spars[mykey_valo],
-              mykey_col,spars[mykey_col]+1,spars[mykey_valf])
+       print(' Cutting input catalogue with %.1f<%s[%d]<%.1f' % (spars[mykey_valo],
+              mykey_col,spars[mykey_col]+1,spars[mykey_valf]))
        #Create mask 
        mask_i = (cdat[:,spars[mykey_col]]>spars[mykey_valo]) & (cdat[:,spars[mykey_col]]<spars[mykey_valf])
        #Combine masks
@@ -114,7 +114,7 @@ for ff in range(len(file_list)):
     cmulstar,cmub,cvrad=cdat[:,spars['pm_lon_col']],cdat[:,spars['pm_lat_col']],cdat[:,spars['vrad_col']]
     glact_flag=spars['coo_glactc']
     if not glact_flag: cl,cb=bc.radec_to_lb(clon,clat,degree=spars['deg'],epoch=2000.0).T  #if input in equatorial, convert
-    else: cl,cb=lon,lat
+    else: cl,cb=clon,clat
     css=myutils.helio_obj(cl,cb,fp*cparallax,fm*cmulstar,fm*cmub,cvrad,degree=spars['deg'],flag_mulstar=spars['pm_lon_red'])
 
   figname_root=infilen.replace('.pst','')
@@ -134,7 +134,7 @@ for ff in range(len(file_list)):
   npoles=np.unique(IDpole).size
   unique_IDpoles=np.unique(IDpole)
   
-  print 'Npeaks=',npoles
+  print('Npeaks=',npoles)
   cmapp=plt.cm.gist_ncar_r(np.linspace(0.1, 0.9, npoles))  #Upper limit is 0.85 to avoid last colors of the colormap
   if npoles<=10:
      cmapp=['darkviolet','orange','royalblue','lime','orchid','red','gray','pink','limegreen','navy']
@@ -160,7 +160,7 @@ for ff in range(len(file_list)):
    if ss.x.size<100: args.ms=15
    elif ss.x.size>=100 and ss.x.size<500: args.ms=10
    else: args.ms=2
-   print 'Setting default ms=',args.ms
+   print('Setting default ms=',args.ms)
 
   c_props={'ms':args.msc,'zorder':0,'alpha':0.7}
   s_props={'ms':args.ms,'zorder':1,'alpha':1.,'mec':'None'}

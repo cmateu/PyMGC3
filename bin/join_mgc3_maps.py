@@ -21,7 +21,7 @@ parser.add_argument('-f','--force',help='Force running with existing files, igno
 #---------Parse----------------------------
 args = parser.parse_args()
 
-print 'Reading file list',args.infilel
+print('Reading file list',args.infilel)
 infilelist=scipy.genfromtxt(args.infilel[0],dtype='S',usecols=(0,),unpack=True)
 if np.ndim(infilelist)==0: infilelist=np.array([infilelist,])
 
@@ -46,16 +46,16 @@ for n in range(len(infilelist)):
    
    infile=infilelist[n]
 
-   print 'Reading file %d of %d (%s)' % (n+1,len(infilelist),infile)
+   print('Reading file %d of %d (%s)' % (n+1,len(infilelist),infile))
    try:
     if 'gz' in infile: infilef=gzip.open(infile,'r')
     else: infilef=open(infile,'r')
 
     pcm=scipy.genfromtxt(infilef)
    except IOError:
-    print 'WARNING - File not found: %s' % (infile)
+    print('WARNING - File not found: %s' % (infile))
     if args.force: 
-      print 'Continue...'
+      print('Continue...')
       continue
     else: sys.exit('Exiting (to force skipping missing files, use -f option)')
 
@@ -81,8 +81,8 @@ for n in range(len(infilelist)):
    else:
      #Check shape
      if pcm_shape!=np.shape(pcm):
-        print 'Shape nf= 1',pcm_shape
-        print 'Shape nf=',n+1,np.shape(pcm)
+        print('Shape nf= 1',pcm_shape)
+        print('Shape nf=',n+1,np.shape(pcm))
         sys.exit('WARNING: Input file shapes are inconsistent. Exiting...')
      #If not first file, add the columns corresponding to pole counts. Leave the rest as in the first file
      pcm_sum[:,2:nfinalccol]=pcm_sum[:,2:nfinalccol]+ (pcm[:,2:nfinalccol]*fnorm_vec) 
@@ -94,7 +94,7 @@ if args.mean:
 #Printing output file 
 countsffmt=ncountcols*'%10.4g '
 countsfmt=ncountcols*'%10d '
-print 'Printing output file',ofilen
+print('Printing output file',ofilen)
 if args.norm:
   fmt='%10.3f %10.3f '+countsffmt+'%10.4f' 
   scipy.savetxt(ofile,pcm_sum,fmt=fmt)
@@ -102,5 +102,5 @@ else:
   fmt='%10.3f %10.3f '+countsfmt+'%10.4f' 
   scipy.savetxt(ofile,pcm_sum,fmt=fmt)
 
-print 'Done'
+print('Done')
 

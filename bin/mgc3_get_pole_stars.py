@@ -34,23 +34,23 @@ if args.print_parf:
   sys.exit('Exiting.')
 
 #Parse parameter file
-print 'Reading Parameter file %s ...' % (parfile)
+print('Reading Parameter file %s ...' % (parfile))
 survey_pars=mgc3_lib.parse_pars(parfile)
 
 #print 'Reading input file %s ...' % (filename)
 #obsdata = scipy.genfromtxt(filename,comments='#')
 #print 'Input file shape (rows,cols): ', obsdata.shape
 
-print 'Reading input file %s ...' % (filename)
+print('Reading input file %s ...' % (filename))
 obsdata,ugfilename=mgc3_lib.read_inputcat_for_mgc3(filename,pardic=survey_pars)
-print 'Input file shape (rows,cols): ', obsdata.shape
+print('Input file shape (rows,cols): ', obsdata.shape)
 
 
 #Save input file header
 head = myutils.get_header_line(filename)
 head[-1]=head[-1]+' IDpole' 
 
-print 'Reading pole list file %s ... ' % (polelistname)
+print('Reading pole list file %s ... ' % (polelistname))
 polelist=scipy.genfromtxt(polelistname,comments='#',usecols=(0,1,2))
 if np.ndim(polelist)==1: polelist=np.array([polelist,])
 
@@ -61,7 +61,7 @@ if eind==-1:
 if 'peak.pls' in polelistname: pext='peak.pst' 
 else: pext='pst'
 outfilename='%s%s.%s.%s' % (polelistname[:eind],ext_prefix,args.m.lower(),pext)
-print 'Printing output file %s ...' % (outfilename)
+print('Printing output file %s ...' % (outfilename))
 
 #Open output file and print the exact same header the input file had, with an extra column
 outfile=open(outfilename,'w')
@@ -76,7 +76,7 @@ indep_pole_ids=-1*np.ones(obsdata[:,0].size)
 for id_pole,phi_pole,theta_pole in polelist:
   mygrid=mgc3_lib.pole_grid(poles=[phi_pole,theta_pole])
   cat_mask=mygrid.mgc3_allobs_one_pole(obsdata,pars=survey_pars,return_mask=args.m)
-  print '   stars associated to pole %s: %d' % (id_pole,np.sum(1*cat_mask))
+  print('   stars associated to pole %s: %d' % (id_pole,np.sum(1*cat_mask)))
   #combine mask with OR
   indep_mask=indep_mask | cat_mask
   #label stars added to the mask in this step with current poleid
@@ -87,6 +87,6 @@ print_data=obsdata[indep_mask,:].T
 indep_pole_ids=indep_pole_ids[indep_mask]
 scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids]).T)
 
-print 'Output file written: %s' % (outfilename)
+print('Output file written: %s' % (outfilename))
 
 

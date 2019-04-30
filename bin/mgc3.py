@@ -75,16 +75,16 @@ args = parser.parse_args()
 parfile, ext_prefix = args.parfile[0], args.ext_prefix[0]
 
 #Parse parameter file
-print 'Reading Parameter file %s ...' % (parfile)
+print(('Reading Parameter file %s ...' % (parfile)))
 survey_pars=mgc3_lib.parse_pars(parfile)
 
 #Parse inputs
 
 if not args.llist:
- print 'Reading file: %s' % (args.infile)
+ print(('Reading file: %s' % (args.infile)))
  file_list=[args.infile[0],]
 else:
- print 'Reading input files from list file: ', args.infile[0]
+ print(('Reading input files from list file: ', args.infile[0]))
  file_list=scipy.genfromtxt(args.infile[0],dtype='S')
  if ndim(file_list)==0: file_list=array([file_list,])
 
@@ -92,19 +92,19 @@ jj=0
 for filename in file_list:
 
   jj=jj+1
-  print 'Reading input file %s (%d of %d) ...' % (filename,jj,len(file_list))
+  print(('Reading input file %s (%d of %d) ...' % (filename,jj,len(file_list))))
 
   obsdata,filename=mgc3_lib.read_inputcat_for_mgc3(filename,pardic=survey_pars)
-  print 'Input file shape (rows,cols): ', obsdata.shape
+  print(('Input file shape (rows,cols): ', obsdata.shape))
   
-  print 'Initializing pole grid...'
+  print('Initializing pole grid...')
   mygrid=mgc3_lib.pole_grid(poles=survey_pars['grid_step'],pole_grid_dic=survey_pars)
   
-  print 'Computing pole counts...'
+  print('Computing pole counts...')
   mygrid.mgc3(obsdata,pars=survey_pars)
   
   if args.farea:
-    print 'Initializing auxiliary pole grid for farea computation...'
+    print('Initializing auxiliary pole grid for farea computation...')
     mygrid_foot=mgc3_lib.pole_grid(poles=survey_pars['grid_step'])
     foot_survey,foot_survey_pars=mygrid_foot.get_uniform_survey_footprint(obsdata,pars=survey_pars)
     mygrid_foot.mgc3(foot_survey,pars=foot_survey_pars)
@@ -113,7 +113,7 @@ for filename in file_list:
     mygrid_foot.farea=mygrid_foot.farea*0.+1.  
   
   outfilename=filename.replace('.dat','')+'.'+ext_prefix+'.mgc3.cts'
-  print 'Printing output file %s ...' % (outfilename)
+  print(('Printing output file %s ...' % (outfilename)))
   ofile=open(outfilename,'w')
   ofile.write('#---------------------------Input Parameters--------------------------------\n')
   ofile.write('#Parameter file: %s\n' % (parfile))
@@ -123,7 +123,7 @@ for filename in file_list:
   ofile.write('#pm_lon_red=%s, pm_muas=%s\n' % (survey_pars['pm_lon_red'],survey_pars['pm_muas']))
   ofile.write('#tol_r=%s, tol_v=%s, grid_step=%s\n' % (survey_pars['tol_r'],survey_pars['tol_v'],survey_pars['grid_step']))
   #If auxcols used, print them as well
-  naux_pars=int((len(survey_pars.keys())-19)/3.)
+  naux_pars=int((len(list(survey_pars.keys()))-19)/3.)
   for na in range(naux_pars):
    auxl='AUX%d' % (na+1)
    ak1,ak2,ak3=auxl+'_col',auxl+'_o',auxl+'_f'
@@ -132,5 +132,5 @@ for filename in file_list:
   ofile.write("#%9s %10s %10s %10s %10s %10s %10s %10s\n" % ("phi","theta","np_mgc3gal","np_mgc3hel",'np_gc3gal',"np_ngc3gal","np_gc3hel",'farea'))
   scipy.savetxt(ofile,array([mygrid.l,mygrid.b,mygrid.np_mgc3,mygrid.mgc3hel,mygrid.np_gc3,mygrid.np_ngc3,mygrid.gc3hel,mygrid_foot.farea]).T,fmt='%10.3f %10.3f %10d %10d %10d %10d %10d %10.4f')
   ofile.close()
-print 'Done'
+print('Done')
 

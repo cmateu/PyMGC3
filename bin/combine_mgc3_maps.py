@@ -11,7 +11,7 @@ __version__ = '2.0.1'
 __docformat__ = "reredtext en"
 __what__= sys.argv[0]+": This program combines a list of pole count maps"
 #
-parser = argparse.ArgumentParser(description='Add mGC3/nGC3/GC3 pole count maps')
+parser = argparse.ArgumentParser(description='Combine two maps from different pole count methods')
 parser.add_argument('infile1',metavar='infile1',help='Input pole count map (*.cts file). Gzip supported',nargs=1,action='store')
 parser.add_argument('mode1',help='Select mGC3/nGC3/GC3/mGC3hel/GC3hel method for infile1', action='store',choices=['mGC3','nGC3','GC3','mGC3hel','GC3hel'])
 parser.add_argument('infile2',metavar='infile2',help='Input pole count map (*.cts file). Gzip supported',nargs=1,action='store')
@@ -24,27 +24,27 @@ args = parser.parse_args()
 
 #Read input files
 try:
-  print 'Reading Input File1:',args.infile1[0]
+  print('Reading Input File1:',args.infile1[0])
   #pcm1=scipy.genfromtxt(args.infile1[0])
   if '.gz' in args.infile1[0]: infile1=gzip.open(args.infile1[0],'r')
   else: infile1=open(args.infile1[0],'r')
   pcm1=scipy.genfromtxt(infile1)
 except IOError:
-  print 'WARNING - File not found: %s' % (args.infile1[0])
+  print('WARNING - File not found: %s' % (args.infile1[0]))
 
 try:
-  print 'Reading Input File2:',args.infile2[0]
+  print('Reading Input File2:',args.infile2[0])
   #pcm2=scipy.genfromtxt(args.infile2[0])
   if '.gz' in args.infile2[0]: infile2=gzip.open(args.infile2[0],'r')
   else: infile2=open(args.infile2[0],'r')
   pcm2=scipy.genfromtxt(infile2)
 except IOError:
-  print 'WARNING - File not found: %s' % (args.infile1[0])
+  print('WARNING - File not found: %s' % (args.infile1[0]))
 
 #Check matching file shapes, exit if mismatch
 if np.shape(pcm1)!=np.shape(pcm2):
-   print 'Shape1=',np.shape(pcm1)
-   print 'Shape2=',np.shape(pcm2)
+   print('Shape1=',np.shape(pcm1))
+   print('Shape2=',np.shape(pcm2))
    sys.exit('WARNING: Input file shapes are inconsistent. Exiting...')
 
 #Initialize all counts as zero
@@ -64,10 +64,10 @@ elif 'mgc3' in mode2: counts_col2=3-1
 elif 'ngc3' in mode2: counts_col2=6-1
 elif 'gc3'  in mode2: counts_col2=5-1
 
-print 'Print File1 method %s ($%d)' % (mode1,counts_col1+1)
-print 'Print File2 method %s ($%d)' % (mode2,counts_col2+1)
+print('Print File1 method %s ($%d)' % (mode1,counts_col1+1))
+print('Print File2 method %s ($%d)' % (mode2,counts_col2+1))
 
-print 'Output stored in column $%d (file1 method column)' % (counts_col1+1)
+print('Output stored in column $%d (file1 method column)' % (counts_col1+1))
 
 #Combine counts and store them in the column corresp. to the mode selected for input file 1
 pcm_sum[:,counts_col1]=pcm1[:,counts_col1]+pcm2[:,counts_col2]
@@ -86,9 +86,9 @@ for head_line in heads:
 
 #Printing output file 
 countsfmt=ncountcols*'%10d '
-print 'Printing output file',ofilen
+print('Printing output file',ofilen)
 fmt='%10.3f %10.3f '+countsfmt+'%10.4f' 
 scipy.savetxt(ofile,pcm_sum,fmt=fmt)
 
-print 'Done'
+print('Done')
 
