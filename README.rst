@@ -20,20 +20,23 @@ nGC3 uses positional and proper motion data.
 
 **LATEST FEATURES:**
 
-April 2018 - Glad to announce: *PyMGC3 is now compatible with Python 3* !!!
 
-March 2017 - New utility code combine_mgc3_maps.py combines two pcms using pole counts from different methods. Useful, e.g., to combine GC3 + nGC3 when only some stars have proper motion data.
+2019/05 - New option -arep added to mgc3_get_pole_stars.py - Allows repetitions when printing out stars associated to a set of poles (a star can appear multiple times) 
 
-Feb 2017 - Standard deviation of background counts now computed locally in annulus around each pixel. New option -npixann added to set annulus radius. Option npixmin added to control minimum number of pixels required for valid detections.
+2019/04 - Glad to announce: *PyMGC3 is now compatible with Python 3* !!!
 
-Aug 2016 - Heliocentric GC3 counts added (np_gc3hel column)
+2017/03 - New utility code combine_mgc3_maps.py combines two pcms using pole counts from different methods. Useful, e.g., to combine GC3 + nGC3 when only some stars have proper motion data.
 
-Feb 2016 - Input list option added to mgc3.py (use -l flag to take input as a list of input files to run mgc3.py). Normalization option added to join_mgc3_maps.py (normalizes each input cts file's max counts and then combines them).   
+2017/02 - Standard deviation of background counts now computed locally in annulus around each pixel. New option -npixann added to set annulus radius. Option npixmin added to control minimum number of pixels required for valid detections.
 
-March 2015 - Unsharp mask option (and new cmd-line parameters) added to peak detection 
+2016/02 - Heliocentric GC3 counts added (np_gc3hel column)
+
+2016/02 - Input list option added to mgc3.py (use -l flag to take input as a list of input files to run mgc3.py). Normalization option added to join_mgc3_maps.py (normalizes each input cts file's max counts and then combines them).   
+
+2015/03 - Unsharp mask option (and new cmd-line parameters) added to peak detection 
 code (peakdetect_mgc3_polemaps.py). Peak detection can now be done in unsharp-masked PCM.
 
-Feb 2015 - New python scripts added for plotting (mgc3_plot_polemaps.py) and automatically detecting 
+2015/03 - New python scripts added for plotting (mgc3_plot_polemaps.py) and automatically detecting 
 peaks (peakdetect_mgc3_polemaps.py) in pole count maps.
 
 ----------

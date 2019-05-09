@@ -21,6 +21,7 @@ parser.add_argument('polelist',metavar='pole_list',help='List of pole coordinate
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 parser.add_argument('-ppar','--print_parf',help='Print sample parameter file mgc3.par and exit', action='store_true')
 parser.add_argument('-m',help='Select stars using mGC3/nGC3/GC3/mGC3hel/GC3hel method criteria. Default is mGC3', action='store',default='mGC3',choices=['mGC3','nGC3','GC3','mGC3hel','GC3hel'])
+parser.add_argument('-arep','--allow_repeats',help='Force printing each star for each pole, allowing a star to be assigned to multiple poles (default behaviour is false)', action='store_true',default=False)
 parser.add_argument('-v',"--version", help="Print program version", action="version",version='Version '+__version__)
 parser.add_argument('-doc',"--documentation", help="Print short program description", action="version",version=__what__)
 
@@ -65,27 +66,41 @@ print('Printing output file %s ...' % (outfilename))
 
 #Open output file and print the exact same header the input file had, with an extra column
 outfile=open(outfilename,'w')
+if args.allow_repeats:
+ outfile.write('#Allow a star to be printed out multiple times if assoc to >1 pole set to %s\n' % (args.allow_repeats))
 outfile.write('#Stars selected according to %s criteria\n' % (args.m))
 scipy.savetxt(outfile,head,fmt='%s')
 
 #The masks associated to each pole will be combined with OR, this way, each star can only be printed once,
-#even if associated to more than one pole
+#even if associated to more than one pole (unless -allow_repeats is ON)
 indep_mask=np.zeros(obsdata[:,0].size,dtype=bool)
 indep_pole_ids=-1*np.ones(obsdata[:,0].size)
+prev_poleid=1
 #Cicle over pole list, one by one
 for id_pole,phi_pole,theta_pole in polelist:
-  mygrid=mgc3_lib.pole_grid(poles=[phi_pole,theta_pole])
-  cat_mask=mygrid.mgc3_allobs_one_pole(obsdata,pars=survey_pars,return_mask=args.m)
+  if id_pole!=prev_poleid and args.allow_repeats:
+    #Print stored stars 
+    print_data=obsdata[indep_mask,:].T
+    scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids[indep_mask]]).T)
+    #Reset mask
+    indep_mask=np.zeros(obsdata[:,0].size,dtype=bool)
+    indep_pole_ids=-1*np.ones(obsdata[:,0].size)
+    #Store new poleid
+    prev_poleid=id_pole
+
+  mygrid = mgc3_lib.pole_grid(poles=[phi_pole,theta_pole])
+  cat_mask = mygrid.mgc3_allobs_one_pole(obsdata,pars=survey_pars,return_mask=args.m)
   print('   stars associated to pole %s: %d' % (id_pole,np.sum(1*cat_mask)))
   #combine mask with OR
-  indep_mask=indep_mask | cat_mask
+  indep_mask = indep_mask | cat_mask
   #label stars added to the mask in this step with current poleid
-  indep_pole_ids[cat_mask]=id_pole
+  indep_pole_ids[cat_mask] = id_pole
 
-#Printing is now done after finishing the loop
-print_data=obsdata[indep_mask,:].T
-indep_pole_ids=indep_pole_ids[indep_mask]
-scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids]).T)
+#Printing is done after finishing the loop if no repetitions are allowed
+if not args.allow_repeats:
+ print_data=obsdata[indep_mask,:].T
+ indep_pole_ids=indep_pole_ids[indep_mask]
+ scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids]).T)
 
 print('Output file written: %s' % (outfilename))
 
