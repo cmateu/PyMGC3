@@ -97,8 +97,16 @@ for filename in file_list:
   obsdata,filename=mgc3_lib.read_inputcat_for_mgc3(filename,pardic=survey_pars)
   print(('Input file shape (rows,cols): ', obsdata.shape))
   
+  #as in Abedi2014: rsun=8.5; Vc=220, Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9, Schoenrich & Binney 2010
+  #mycst = my_constants(rsun=8.5,Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9)
+  #  rsun=8.34, Vc=240 from Reid 2014, U,V,Wsun from Schoenrich & Binney 2010 - as assumed in GaiaCol, Katz et al 2018
+  print('Setting solar constants...')
+  mycst = mgc3_lib.my_constants(rsun=8.34,Ugc_hel=10.3,Vgc_hel=252.6,Wgc_hel=5.9)
+  # rsun=8. Vallee 2017, Camarillo et al. 2018, from  Vc=240 from Reid 2014, U,V,Wsun from Schoenrich & Binney 2010 
+  #mycst = my_constants(rsun=8.,Ugc_hel=10.3,Vgc_hel=252.6,Wgc_hel=5.9)
+
   print('Initializing pole grid...')
-  mygrid=mgc3_lib.pole_grid(poles=survey_pars['grid_step'],pole_grid_dic=survey_pars)
+  mygrid=mgc3_lib.pole_grid(poles=survey_pars['grid_step'],pole_grid_dic=survey_pars,cst=mycst)
   
   print('Computing pole counts...')
   mygrid.mgc3(obsdata,pars=survey_pars)
@@ -128,6 +136,7 @@ for filename in file_list:
    auxl='AUX%d' % (na+1)
    ak1,ak2,ak3=auxl+'_col',auxl+'_o',auxl+'_f'
    ofile.write('#%s=%s, %s=%s, %s=%s\n' % (ak1,survey_pars[ak1]+1,ak2,survey_pars[ak2],ak3,survey_pars[ak3]))
+  ofile.write("#Rsun={rsun}, Ugc_hel={U},Vgc_hel={V},Wgc_hel={W}\n".format(rsun=mygrid.rsun,U=mygrid.Ugc_hel,V=mygrid.Vgc_hel,W=mygrid.Wgc_hel))
   ofile.write('#---------------------------------------------------------------------------\n')
   ofile.write("#%9s %10s %10s %10s %10s %10s %10s %10s\n" % ("phi","theta","np_mgc3gal","np_mgc3hel",'np_gc3gal',"np_ngc3gal","np_gc3hel",'farea'))
   scipy.savetxt(ofile,array([mygrid.l,mygrid.b,mygrid.np_mgc3,mygrid.mgc3hel,mygrid.np_gc3,mygrid.np_ngc3,mygrid.gc3hel,mygrid_foot.farea]).T,fmt='%10.3f %10.3f %10d %10d %10d %10d %10d %10.4f')

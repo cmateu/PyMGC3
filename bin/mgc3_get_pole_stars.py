@@ -71,6 +71,14 @@ if args.allow_repeats:
 outfile.write('#Stars selected according to %s criteria\n' % (args.m))
 scipy.savetxt(outfile,head,fmt='%s')
 
+#-------------Solar position and velocity----------------------------
+#as in Abedi2014: rsun=8.5; Vc=220, Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9, Schoenrich & Binney 2010
+#mycst = my_constants(rsun=8.5,Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9)
+#  rsun=8.34, Vc=240 from Reid 2014, U,V,Wsun from Schoenrich & Binney 2010 - as assumed in GaiaCol, Katz et al 2018
+mycst = mgc3_lib.my_constants(rsun=8.34,Ugc_hel=10.3,Vgc_hel=252.6,Wgc_hel=5.9)
+# rsun=8. Vallee 2017, Camarillo et al. 2018, from  Vc=240 from Reid 2014, U,V,Wsun from Schoenrich & Binney 2010 
+#mycst = my_constants(rsun=8.,Ugc_hel=10.3,Vgc_hel=252.6,Wgc_hel=5.9)
+
 #The masks associated to each pole will be combined with OR, this way, each star can only be printed once,
 #even if associated to more than one pole (unless -allow_repeats is ON)
 indep_mask=np.zeros(obsdata[:,0].size,dtype=bool)
@@ -88,7 +96,7 @@ for id_pole,phi_pole,theta_pole in polelist:
     #Store new poleid
     prev_poleid=id_pole
 
-  mygrid = mgc3_lib.pole_grid(poles=[phi_pole,theta_pole])
+  mygrid = mgc3_lib.pole_grid(poles=[phi_pole,theta_pole],cst=mycst)
   cat_mask = mygrid.mgc3_allobs_one_pole(obsdata,pars=survey_pars,return_mask=args.m)
   print('   stars associated to pole %s: %d' % (id_pole,np.sum(1*cat_mask)))
   #combine mask with OR
@@ -96,8 +104,13 @@ for id_pole,phi_pole,theta_pole in polelist:
   #label stars added to the mask in this step with current poleid
   indep_pole_ids[cat_mask] = id_pole
 
+#Print for last pole in the loop
+if args.allow_repeats:
+  #Print stored stars 
+  print_data=obsdata[indep_mask,:].T
+  scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids[indep_mask]]).T)
 #Printing is done after finishing the loop if no repetitions are allowed
-if not args.allow_repeats:
+else:
  print_data=obsdata[indep_mask,:].T
  indep_pole_ids=indep_pole_ids[indep_mask]
  scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids]).T)

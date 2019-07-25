@@ -205,28 +205,9 @@ def parse_pars(parfile):
 
   return dic
 
-#Global constants 
-def load_constants():
-  global rsun
-  global Ugc_hel
-  global Vgc_hel
-  global Wgc_hel
-  global vsun
-  global d2r
-  global Ap
-  global Av
-  rsun=8.5          #In kpc
-  Ugc_hel=10.3      #In km/s
-  Vgc_hel=232.6     #In km/s
-  Wgc_hel=5.9       #In km/s
-  vsun=np.sqrt(Ugc_hel**2 + Vgc_hel**2 + Wgc_hel**2)
-  d2r=np.pi/180.
-  Ap=1000.    #muas.kpc
-  Av=4.74047 #yr km/s
-
 class my_constants(object):
                          #kpc         km/s         km/s         km/s  muas.kpc   yr km/s
-   def __init__(self,rsun=8.5,Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9,Ap=1000.,Av=4.74047):
+   def __init__(self,rsun=8.5,Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9,Ap=1000.,Av=4.74047): #Schoenrich & Binney 2010
 
      self.rsun=rsun
      self.Ugc_hel=Ugc_hel
@@ -268,7 +249,7 @@ class pole_grid(my_constants):
 
    #Inherit my_constants object attributes 
    if cst:
-     my_constants.__init__(self,rsun=cst.rsun,Ugc_hel=cst.Ugc_hel,Vgc_hel=cst.Vgc_hel,Wgc_hel=Wgc_hel,Ap=cst.Ap,Av=cst.Av)
+     my_constants.__init__(self,rsun=cst.rsun,Ugc_hel=cst.Ugc_hel,Vgc_hel=cst.Vgc_hel,Wgc_hel=cst.Wgc_hel,Ap=cst.Ap,Av=cst.Av)
    else:
      my_constants.__init__(self)
 
