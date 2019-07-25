@@ -97,13 +97,10 @@ for filename in file_list:
   obsdata,filename=mgc3_lib.read_inputcat_for_mgc3(filename,pardic=survey_pars)
   print(('Input file shape (rows,cols): ', obsdata.shape))
   
-  #as in Abedi2014: rsun=8.5; Vc=220, Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9, Schoenrich & Binney 2010
-  #mycst = my_constants(rsun=8.5,Ugc_hel=10.3,Vgc_hel=232.6,Wgc_hel=5.9)
-  #  rsun=8.34, Vc=240 from Reid 2014, U,V,Wsun from Schoenrich & Binney 2010 - as assumed in GaiaCol, Katz et al 2018
   print('Setting solar constants...')
-  mycst = mgc3_lib.my_constants(rsun=8.34,Ugc_hel=10.3,Vgc_hel=252.6,Wgc_hel=5.9)
-  # rsun=8. Vallee 2017, Camarillo et al. 2018, from  Vc=240 from Reid 2014, U,V,Wsun from Schoenrich & Binney 2010 
-  #mycst = my_constants(rsun=8.,Ugc_hel=10.3,Vgc_hel=252.6,Wgc_hel=5.9)
+  #mycst = my_constants(rsun=8.5,Ugc_hel=10.3,Vgc_hel=220+12.6,Wgc_hel=5.9) --old defaults -changed 25/07/2019
+  #rsun=8.34, Vc=240 from Reid 2014, U,V,Wsun from Schoenrich & Binney 2010 - as assumed in GaiaCol, Katz et al 2018
+  mycst = mgc3_lib.my_constants(rsun=8.34,Ugc_hel=11.1,Vgc_hel=240.+12.24,Wgc_hel=7.25)
 
   print('Initializing pole grid...')
   mygrid=mgc3_lib.pole_grid(poles=survey_pars['grid_step'],pole_grid_dic=survey_pars,cst=mycst)
