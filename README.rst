@@ -20,6 +20,7 @@ nGC3 uses positional and proper motion data.
 
 **LATEST FEATURES:**
 
+2019/07 - Solar position and distance now printed in cts file header. Default values updated.
 
 2019/05 - New option -arep added to mgc3_get_pole_stars.py - Allows repetitions when printing out stars associated to a set of poles (a star can appear multiple times) 
 
