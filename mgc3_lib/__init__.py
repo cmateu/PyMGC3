@@ -68,7 +68,10 @@ def read_inputcat_for_mgc3(filename,pardic=None):
      filename=filename.replace('.gz','')
   else: inputfile=open(filename,'r')
 
-  obsdata = scipy.genfromtxt(inputfile,comments='#')
+  if 'csv' in filename:
+    obsdata = scipy.genfromtxt(inputfile,delimiter=',')
+  else:
+    obsdata = scipy.genfromtxt(inputfile,comments='#')
   
   #Deal with one-line files
   if np.ndim(obsdata)==1: obsdata=np.reshape(obsdata,(1,obsdata.size))
@@ -82,9 +85,9 @@ def read_inputcat_for_mgc3(filename,pardic=None):
       mykey_valf='AUX%d_f' % (NAUX)
       #Skip if col=998   
       if pardic[mykey_col]!=998:
-       print(' Cutting input catalogue with %.1f<%s[%d]<%.1f' % (pardic[mykey_valo],mykey_col,pardic[mykey_col]+1,pardic[mykey_valf]))
+       print(' Cutting input catalogue with %.1f<=%s[%d]<%.1f' % (pardic[mykey_valo],mykey_col,pardic[mykey_col]+1,pardic[mykey_valf]))
        #Create mask 
-       mask_i = (obsdata[:,pardic[mykey_col]]>pardic[mykey_valo]) & (obsdata[:,pardic[mykey_col]]<pardic[mykey_valf])
+       mask_i = (obsdata[:,pardic[mykey_col]]>pardic[mykey_valo]) & (obsdata[:,pardic[mykey_col]]<=pardic[mykey_valf])
        #Combine masks
        mask = mask & mask_i
 

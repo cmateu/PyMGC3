@@ -75,7 +75,11 @@ scipy.savetxt(outfile,head,fmt='%s')
 print('Setting solar constants...')
 #mycst = my_constants(rsun=8.5,Ugc_hel=10.3,Vgc_hel=220+12.6,Wgc_hel=5.9) --old defaults -changed 25/07/2019
 #rsun=8.34, Vc=240 from Reid 2014, U,V,Wsun from Schoenrich & Binney 2010 - as assumed in GaiaCol, Katz et al 2018
-mycst = mgc3_lib.my_constants(rsun=8.34,Ugc_hel=11.1,Vgc_hel=240.+12.24,Wgc_hel=7.25)
+#mycst = mgc3_lib.my_constants(rsun=8.,Ugc_hel=11.1,Vgc_hel=240.+12.24,Wgc_hel=7.25) #preferred by Pau - test E
+#LM10
+#mycst = mgc3_lib.my_constants(rsun=8.,Ugc_hel=9.,Vgc_hel=220.+12.,Wgc_hel=7.) # testLM - used by L&M10
+mycst = mgc3_lib.my_constants(rsun=8.,Ugc_hel=11.1,Vgc_hel=235.+12.24,Wgc_hel=7.25) #used in Belokurov2014 -- test D
+
 
 #The masks associated to each pole will be combined with OR, this way, each star can only be printed once,
 #even if associated to more than one pole (unless -allow_repeats is ON)
