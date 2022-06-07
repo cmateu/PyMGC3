@@ -327,13 +327,15 @@ for infilen in file_list:
     cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
    else:
     cblabel='%s (%s stars/pole)' % (mode_ori,factorl)
-    cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
-   if 'npa' in args.proj: 
-     #cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
-     cax.xaxis.set_label_position('top')
-   elif 'moll' in args.proj:
-     cax.set_ylabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts) 
-     cax.yaxis.set_label_position('right')
+    #cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
+    #the following lines used to be outside the else
+    if 'npa' in args.proj: 
+      #cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
+      cax.xaxis.set_label_position('top')
+      cax.set_xlabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts)
+    elif 'moll' in args.proj:
+      cax.set_ylabel(cblabel,fontsize=16.*args.ffonts,labelpad=4.*args.ffonts) 
+      cax.yaxis.set_label_position('right')
 
   if args.title:
     ax.text(0.5,1.1+0.05*args.ffonts,args.title,transform=ax.transAxes,horizontalalignment='center',verticalalignment='center',fontsize=16*args.ffonts)

@@ -117,7 +117,9 @@ for filename in file_list:
     mygrid_foot=mygrid
     mygrid_foot.farea=mygrid_foot.farea*0.+1.  
   
-  outfilename=filename.replace('.dat','')+'.'+ext_prefix+'.mgc3.cts'
+  if 'csv' in filename: iext = '.csv' 
+  else: iext = '.dat'
+  outfilename=filename.replace(iext,'')+'.'+ext_prefix+'.mgc3.cts'
   print(('Printing output file %s ...' % (outfilename)))
   ofile=open(outfilename,'w')
   ofile.write('#---------------------------Input Parameters--------------------------------\n')
