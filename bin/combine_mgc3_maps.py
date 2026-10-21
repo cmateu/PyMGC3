@@ -25,19 +25,19 @@ args = parser.parse_args()
 #Read input files
 try:
   print('Reading Input File1:',args.infile1[0])
-  #pcm1=scipy.genfromtxt(args.infile1[0])
+  #pcm1=np.genfromtxt(args.infile1[0])
   if '.gz' in args.infile1[0]: infile1=gzip.open(args.infile1[0],'r')
   else: infile1=open(args.infile1[0],'r')
-  pcm1=scipy.genfromtxt(infile1)
+  pcm1=np.genfromtxt(infile1)
 except IOError:
   print('WARNING - File not found: %s' % (args.infile1[0]))
 
 try:
   print('Reading Input File2:',args.infile2[0])
-  #pcm2=scipy.genfromtxt(args.infile2[0])
+  #pcm2=np.genfromtxt(args.infile2[0])
   if '.gz' in args.infile2[0]: infile2=gzip.open(args.infile2[0],'r')
   else: infile2=open(args.infile2[0],'r')
-  pcm2=scipy.genfromtxt(infile2)
+  pcm2=np.genfromtxt(infile2)
 except IOError:
   print('WARNING - File not found: %s' % (args.infile1[0]))
 
@@ -88,7 +88,7 @@ for head_line in heads:
 countsfmt=ncountcols*'%10d '
 print('Printing output file',ofilen)
 fmt='%10.3f %10.3f '+countsfmt+'%10.4f' 
-scipy.savetxt(ofile,pcm_sum,fmt=fmt)
+np.savetxt(ofile,pcm_sum,fmt=fmt)
 
 print('Done')
 

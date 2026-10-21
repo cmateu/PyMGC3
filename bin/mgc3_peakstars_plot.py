@@ -49,7 +49,7 @@ if not args.llist:
  file_list=[args.infile[0],]
 else:
  print('Reading input files from list file: ', args.infile[0])
- file_list=scipy.genfromtxt(args.infile[0],dtype='S')
+ file_list=np.genfromtxt(args.infile[0],dtype='S')
  if np.ndim(file_list)==0: file_list=array([file_list,])
 
 #If optional input catfile given, check consistency with infile
@@ -57,7 +57,7 @@ if args.catfile:
   if not args.llist:
      cat_list=[args.catfile[0],]
   else:
-     cat_list=scipy.genfromtxt(args.catfile[0],dtype='S')
+     cat_list=np.genfromtxt(args.catfile[0],dtype='S')
      if len(cat_list)!=len(file_list):
         sys.exit('WARNING: CAT_LIST(len=%d) must have the same length as INFILE_LIST(len=%d).\nExiting...' 
                   % (len(cat_list),len(file_list)))
@@ -77,7 +77,7 @@ for ff in range(len(file_list)):
   infilen=file_list[ff]
   if '.gz' in infilen: infile=gzip.open(infilen)
   else: infile=open(infilen)
-  dat=scipy.genfromtxt(infile,comments='#')
+  dat=np.genfromtxt(infile,comments='#')
 
   print('Plotting stars from file: ',infilen)
 
@@ -92,7 +92,7 @@ for ff in range(len(file_list)):
       cat_listf=gzip.open(cat_list[ff],'r')
     else:
       cat_listf=open(cat_list[ff],'r')
-    cdat=scipy.genfromtxt(cat_listf,comments='#')
+    cdat=np.genfromtxt(cat_listf,comments='#')
     #Apply whatever filters may be defined by the AUX pars
     mask=np.ones(cdat[:,0].size,dtype='bool')
     for NAUX in range(1,spars['NAUX']+1,1):

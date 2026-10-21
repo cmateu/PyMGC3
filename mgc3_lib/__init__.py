@@ -553,7 +553,7 @@ class pole_grid(my_constants):
     #Compute phi and theta for real survey data
     new_obs,new_pars=self.get_phi_theta_for_survey(obs,pars=pars)
     obs_lon,obs_lat=new_obs[:,new_pars['phi_col']],new_obs[:,new_pars['theta_col']]
-    scipy.savetxt('out.phitheta.dat',new_obs)
+    np.savetxt('out.phitheta.dat',new_obs)
 
     #Uniform survey
     lon,lat=myutils.uniform_spherical_data(Npts)
@@ -562,8 +562,8 @@ class pole_grid(my_constants):
     if pars['deg']: f=1.
     else: f=1./self.d2r
 
-    scipy.savetxt('.aux1',np.array([lon,lat]).T)
-    scipy.savetxt('.aux2',np.array([f*obs_lon,f*obs_lat]).T)
+    np.savetxt('.aux1',np.array([lon,lat]).T)
+    np.savetxt('.aux2',np.array([f*obs_lon,f*obs_lat]).T)
     
     #Match
     stilts_path='/Applications/TOPCAT.app/'

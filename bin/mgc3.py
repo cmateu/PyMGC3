@@ -2,6 +2,7 @@
 from numpy import array,ndim
 import sys
 import scipy
+import numpy as np
 import mgc3_lib as mgc3_lib
 import argparse
 #############################################################################
@@ -138,7 +139,7 @@ for filename in file_list:
   ofile.write("#Rsun={rsun}, Ugc_hel={U},Vgc_hel={V},Wgc_hel={W}\n".format(rsun=mygrid.rsun,U=mygrid.Ugc_hel,V=mygrid.Vgc_hel,W=mygrid.Wgc_hel))
   ofile.write('#---------------------------------------------------------------------------\n')
   ofile.write("#%9s %10s %10s %10s %10s %10s %10s %10s\n" % ("phi","theta","np_mgc3gal","np_mgc3hel",'np_gc3gal',"np_ngc3gal","np_gc3hel",'farea'))
-  scipy.savetxt(ofile,array([mygrid.l,mygrid.b,mygrid.np_mgc3,mygrid.mgc3hel,mygrid.np_gc3,mygrid.np_ngc3,mygrid.gc3hel,mygrid_foot.farea]).T,fmt='%10.3f %10.3f %10d %10d %10d %10d %10d %10.4f')
+  np.savetxt(ofile,array([mygrid.l,mygrid.b,mygrid.np_mgc3,mygrid.mgc3hel,mygrid.np_gc3,mygrid.np_ngc3,mygrid.gc3hel,mygrid_foot.farea]).T,fmt='%10.3f %10.3f %10d %10d %10d %10d %10d %10.4f')
   ofile.close()
 print('Done')
 

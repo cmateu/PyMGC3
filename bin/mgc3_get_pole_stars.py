@@ -39,7 +39,7 @@ print('Reading Parameter file %s ...' % (parfile))
 survey_pars=mgc3_lib.parse_pars(parfile)
 
 #print 'Reading input file %s ...' % (filename)
-#obsdata = scipy.genfromtxt(filename,comments='#')
+#obsdata = np.genfromtxt(filename,comments='#')
 #print 'Input file shape (rows,cols): ', obsdata.shape
 
 print('Reading input file %s ...' % (filename))
@@ -52,7 +52,7 @@ head = myutils.get_header_line(filename)
 head[-1]=head[-1]+' IDpole' 
 
 print('Reading pole list file %s ... ' % (polelistname))
-polelist=scipy.genfromtxt(polelistname,comments='#',usecols=(0,1,2))
+polelist=np.genfromtxt(polelistname,comments='#',usecols=(0,1,2))
 if np.ndim(polelist)==1: polelist=np.array([polelist,])
 
 #Figure the output filename
@@ -69,7 +69,7 @@ outfile=open(outfilename,'w')
 if args.allow_repeats:
  outfile.write('#Allow a star to be printed out multiple times if assoc to >1 pole set to %s\n' % (args.allow_repeats))
 outfile.write('#Stars selected according to %s criteria\n' % (args.m))
-scipy.savetxt(outfile,head,fmt='%s')
+np.savetxt(outfile,head,fmt='%s')
 
 #-------------Solar position and velocity----------------------------
 print('Setting solar constants...')
@@ -91,7 +91,7 @@ for id_pole,phi_pole,theta_pole in polelist:
   if id_pole!=prev_poleid and args.allow_repeats:
     #Print stored stars 
     print_data=obsdata[indep_mask,:].T
-    scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids[indep_mask]]).T)
+    np.savetxt(outfile,np.vstack([print_data,indep_pole_ids[indep_mask]]).T)
     #Reset mask
     indep_mask=np.zeros(obsdata[:,0].size,dtype=bool)
     indep_pole_ids=-1*np.ones(obsdata[:,0].size)
@@ -110,12 +110,12 @@ for id_pole,phi_pole,theta_pole in polelist:
 if args.allow_repeats:
   #Print stored stars 
   print_data=obsdata[indep_mask,:].T
-  scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids[indep_mask]]).T)
+  np.savetxt(outfile,np.vstack([print_data,indep_pole_ids[indep_mask]]).T)
 #Printing is done after finishing the loop if no repetitions are allowed
 else:
  print_data=obsdata[indep_mask,:].T
  indep_pole_ids=indep_pole_ids[indep_mask]
- scipy.savetxt(outfile,np.vstack([print_data,indep_pole_ids]).T)
+ np.savetxt(outfile,np.vstack([print_data,indep_pole_ids]).T)
 
 print('Output file written: %s' % (outfilename))
 

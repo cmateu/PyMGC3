@@ -24,26 +24,26 @@ parser.add_argument('-m',help='Plot pole count map. Default is mGC3', action='st
 parser.add_argument('-f','--fig',help='Output plot type png/eps. Default is png', action='store',default='png',choices=['png','eps','pdf'])
 parser.add_argument('-proj',help='Projection npaeqd/ortho/mollweide. Default is npaeqd', action='store',default='npaeqd',choices=['npaeqd','ortho','moll'])
 parser.add_argument('-log',help='Plot pole-count map in log-scale', action='store_true',default=False)
-parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
-parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float)
-parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=20.,type=np.float)
-parser.add_argument('-dlon',help='Spacing between meridians. Default is 20.', action='store',default=30.,type=np.float)
-parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float)
+parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float64)
+parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 90.', action='store',default=0.,type=np.float64)
+parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=20.,type=np.float64)
+parser.add_argument('-dlon',help='Spacing between meridians. Default is 20.', action='store',default=30.,type=np.float64)
+parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float64)
 parser.add_argument('-mlab','--merlabels',help='Show meridian labels. Default is False', action='store_true',default=False)
 parser.add_argument('-mlabr','--merlabelsr',help='Show meridian labels (right axes). Default is False', action='store_true',default=False)
 parser.add_argument('-plab','--parlabels',help='Show parallel labels. Default is False', action='store_true',default=False)
-parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
-parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
-parser.add_argument('-ms',help='Marker size. Default: 15/40 for npaeqd/ortho.', action='store',default=-1.,type=np.float)
+parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float64)
+parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float64)
+parser.add_argument('-ms',help='Marker size. Default: 15/40 for npaeqd/ortho.', action='store',default=-1.,type=np.float64)
 parser.add_argument('-c','--contour',help='Plot pole-count contour map instead of raw grid.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-s','--show',help='Show plot in window. Default is False', action='store_true',default=False)
 parser.add_argument('-title',help='Plot title', action='store',default=None)
 parser.add_argument('-pls',metavar='PLSFILE',help='Overplot poles from peakdetect output file (.pls)', action='store',default=None)
-parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
-parser.add_argument('-ff','--ffonts',help='Increase size tick and axes labels by factor ff. Default 1.', action='store',default=1.0,type=np.float)
-parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float)
-parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float)
+parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float64)
+parser.add_argument('-ff','--ffonts',help='Increase size tick and axes labels by factor ff. Default 1.', action='store',default=1.0,type=np.float64)
+parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float64)
+parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float64)
 parser.add_argument('-cmap',help='Choose color map (any matplotlib cm). Default is sron', action='store',default=None)
 parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional]. If given output will be infile.outfile_ext.mgc3.pst',action='store',default=['',],nargs=1)
 
@@ -56,7 +56,7 @@ if not args.llist:
  file_list=[args.infile[0],]
 else:
  print('Reading input files from list file: ', args.infile[0])
- file_list=scipy.genfromtxt(args.infile[0],dtype=str)
+ file_list=np.genfromtxt(args.infile[0],dtype=str)
  if np.ndim(file_list)==0: file_list=np.array([file_list,])
 
 #Mode-------------------------------------------
@@ -136,7 +136,7 @@ for infilen in file_list:
   if 'gz' in infilen: infile=gzip.open(infilen,'r')
   else: infile=open(infilen,'r')
 
-  phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infile,comments='#',usecols=(0,1,counts_col),unpack=True)
+  phio,thetao,pole_ctso=pdat=np.genfromtxt(infile,comments='#',usecols=(0,1,counts_col),unpack=True)
 
   figname_root=infilen.replace('.mgc3.cts',args.ext[0])  #works well if args.ext is empty
   figname='%s.%s.%s.%s.%s' % (figname_root,mode,args.proj[:3],pmode,args.fig)
@@ -174,8 +174,8 @@ for infilen in file_list:
     opts=[(1,args.lon0),] 
     proj_dict={'boundinglat':args.lat0,'resolution':'l'}
     if args.ms==-1: 
-      if 'npa' in args.proj: ms=30.    #tested
-      elif 'moll' in args.proj: ms=12. #tested
+      if 'npa' in args.proj: ms=40.    #tested
+      elif 'moll' in args.proj: ms=40. #tested
       else: ms=70.
     else: ms=args.ms
   else:
@@ -261,7 +261,7 @@ for infilen in file_list:
 
   #If given, read in pls file
   if args.pls is not None:
-   poleIDs,phis,thetas,pheight=scipy.genfromtxt(args.pls,unpack=True,usecols=(0,1,2,-1))
+   poleIDs,phis,thetas,pheight=np.genfromtxt(args.pls,unpack=True,usecols=(0,1,2,-1))
    #Make sure all poles are in northern hemisphere
    tmask=thetas<0.
    phis[tmask]=(phis[tmask]+180.) % 360.

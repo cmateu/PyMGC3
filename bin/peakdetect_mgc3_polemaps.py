@@ -9,7 +9,8 @@ import sys
 import argparse
 import scipy.ndimage
 import scipy.interpolate
-import pyfits
+#import pyfits
+import astropy.io.fits as pyfits
 import os
 import myutils
 import gzip
@@ -22,8 +23,8 @@ class xypix_converter:
     self.yo,self.yf=rangey
     self.npix=npix
 
-    self.dx=(self.xf-self.xo)/np.float(self.npix)
-    self.dy=(self.yf-self.yo)/np.float(self.npix)
+    self.dx=(self.xf-self.xo)/np.float64(self.npix)
+    self.dy=(self.yf-self.yo)/np.float64(self.npix)
 
     self.basemap_trans=m
 
@@ -54,17 +55,17 @@ parser.add_argument('-ext',metavar='outfile_ext',help='Output suffix [optional].
 parser.add_argument('-log',help='Plot detected peaks in log-count map', action='store_true',default=False)
 parser.add_argument('-nolabels',help='Plot peak ID labels', action='store_true',default=False)
 parser.add_argument('-title',help='Plot title. In list mode (-l) this is overriden and the input filename is used by default.', action='store',default=None)
-parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float)
-parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 0.', action='store',default=0.,type=np.float)
-parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float)
+parser.add_argument('-lon0',help='Longitude for Y-axis. Default is 0.', action='store',default=0.,type=np.float64)
+parser.add_argument('-lat0',help='Bounding latitude for plot. Default is 0.', action='store',default=0.,type=np.float64)
+parser.add_argument('-latmax',help='Max latitude upto which meridians are drawn. Default is 80.', action='store',default=80.,type=np.float64)
 parser.add_argument('-mlab','--merlabels',help='Show meridian labels. Default is False', action='store_true',default=False)
 parser.add_argument('-mlabr','--merlabelsr',help='Show meridian labels (right axes). Default is False', action='store_true',default=False)
 parser.add_argument('-plab','--parlabels',help='Show parallel labels. Default is False', action='store_true',default=False)
-parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float)
-parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float)
-parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=20.,type=np.float)
-parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float)
-parser.add_argument('-ms',help='Marker size. Default: 50 for npaeqd.', action='store',default=50,type=np.float)
+parser.add_argument('-vmin',help='Min counts for color-scale. Default is min(cts)', action='store',default=None,type=np.float64)
+parser.add_argument('-vmax',help='Max counts for color-scale. Default is max(cts)', action='store',default=None,type=np.float64)
+parser.add_argument('-dlat',help='Spacing between parallels. Default is 20.', action='store',default=20.,type=np.float64)
+parser.add_argument('-dlon',help='Spacing between meridians. Default is 30.', action='store',default=30.,type=np.float64)
+parser.add_argument('-ms',help='Marker size. Default: 50 for npaeqd.', action='store',default=50,type=np.float64)
 parser.add_argument('-r','--raw',help='Plot raw grid pole-count map instead of contour map.', action='store_true',default=False)
 parser.add_argument('-t','--twohemispheres',help='Plot both hemispheres in pole-count map.', action='store_true',default=False)
 parser.add_argument('-force_onehemisph',help='Force using one hemisphere allways', action='store_true',default=False)
@@ -72,21 +73,21 @@ parser.add_argument('-s','--show',help='Show plot in window. Default is False', 
 parser.add_argument('-nc','--noclumps',help='Do not plot or save poles associated to each peak.', action='store_true',default=False)
 parser.add_argument('-bw',help='Use grayscale colormap to plot PCMs. Default False (uses jet colormap)', action='store_true',default=False)
 parser.add_argument('-cmap',help='Choose color map (any matplotlib cm). Default is sron', action='store',default=None)
-parser.add_argument('-npix',help='Number of pixels to resample image for contour plotting. Default 500.', action='store',type=np.int,default=500)
-parser.add_argument('-npixmin',help='Minimum number of pixels above threshold required for peak detection. Default 5. ', action='store',type=np.int,default=5)
-parser.add_argument('-npixann',help='Annulus radius (pixels) to compute background std. dev. locally. Default 20. If 0, will not compute and assume Poisson stdev.', action='store',type=np.int,default=20)
-parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float)
+parser.add_argument('-npix',help='Number of pixels to resample image for contour plotting. Default 500.', action='store',type=np.int64,default=500)
+parser.add_argument('-npixmin',help='Minimum number of pixels above threshold required for peak detection. Default 5. ', action='store',type=np.int64,default=5)
+parser.add_argument('-npixann',help='Annulus radius (pixels) to compute background std. dev. locally. Default 20. If 0, will not compute and assume Poisson stdev.', action='store',type=np.int64,default=20)
+parser.add_argument('-mj','--maxjump',help='Fellwalker MaxJump param, neighbourhood radius to search for +gradient. Default 6.', action='store',default=6,type=np.float64)
 parser.add_argument('-md','--mindip',help='Fellwalker MinDip param, two clumps are merged if height difference <MinDip. Default 2*RMS', action='store',default=None)
-parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float)
+parser.add_argument('-al','--alpha',help='Clump transparency. Default 0.4', action='store',default=0.4,type=np.float64)
 peakargs = parser.add_mutually_exclusive_group()
-peakargs.add_argument('-fr','--frms',help='Default option. Min peak height is frms*RMS. Default fr=5.', action='store',type=np.float,default=5.)
-peakargs.add_argument('-ff','--ffrac',help='Min peak height is fmax*max_pole_counts', action='store',type=np.float)
-parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5. If -U, fx is in N-sigma units', action='store',default=0.5,type=np.float)
-parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float)
-parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float)
+peakargs.add_argument('-fr','--frms',help='Default option. Min peak height is frms*RMS. Default fr=5.', action='store',type=np.float64,default=5.)
+peakargs.add_argument('-ff','--ffrac',help='Min peak height is fmax*max_pole_counts', action='store',type=np.float64)
+parser.add_argument('-fx','--fwxm',help='Store pixels with cts>fwxm*maxpeak. Default is 0.5. If -U, fx is in N-sigma units', action='store',default=0.5,type=np.float64)
+parser.add_argument('-flab','--flabels',help='Increase size of peak labels by factor flab. Default 1.', action='store',default=1.0,type=np.float64)
+parser.add_argument('-fcirc','--fcirc',help='Increase size of peak markers by factor fcirc. Default 1.', action='store',default=1.0,type=np.float64)
 parser.add_argument('-U','--unsharp',help='Detect peaks in unsharp-masked image. Default is False', action='store_true',default=False)
-parser.add_argument('-ns','--nsigma',help='If -U is set, set N-sigma threshold for detections. Default is 3.', action='store',type=np.float,default=3.)
-parser.add_argument('-nmed',help='If -U is set, size of neighbourhood for median computation. Default is 60.', action='store',type=np.float,default=60.)
+parser.add_argument('-ns','--nsigma',help='If -U is set, set N-sigma threshold for detections. Default is 3.', action='store',type=np.float64,default=3.)
+parser.add_argument('-nmed',help='If -U is set, size of neighbourhood for median computation. Default is 60.', action='store',type=np.float64,default=60.)
 
 
 #---------Parse----------------------------
@@ -99,7 +100,7 @@ if not args.llist:
  file_list=[args.infile[0],]
 else:
  print('Reading input files from list file: ', args.infile[0])
- file_list=scipy.genfromtxt(args.infile[0],dtype='S')
+ file_list=np.genfromtxt(args.infile[0],dtype=str)
  if np.ndim(file_list)==0: file_list=np.array([file_list,])
 
 #Mode-------------------------------------------
@@ -181,7 +182,7 @@ for infilen in file_list:
     infilen=infilen.replace('.gz','')
   else: infile=open(infilen,'r')
 
-  phio,thetao,pole_ctso=pdat=scipy.genfromtxt(infile,comments='#',usecols=(0,1,counts_col),unpack=True)
+  phio,thetao,pole_ctso=pdat=np.genfromtxt(infile,comments='#',usecols=(0,1,counts_col),unpack=True)
 
   #Default title----------------------------------
   if not args.title or len(file_list)>1: args.title=infilen
@@ -290,7 +291,7 @@ for infilen in file_list:
   #-------------------------Unsharp masking-----------------------------------------------------
   if args.unsharp:
     #Compute median filtered image
-    nsm=np.int(args.nmed) #neighbourhood for median computation
+    nsm=np.int64(args.nmed) #neighbourhood for median computation
     zi_smooth=scipy.ndimage.median_filter(zi,size=(nsm,nsm),mode='wrap')
     zi_sharp=zi-zi_smooth
     #Compute standard deviation (aprox.) in an annulus around each pixel. This is done through the footprint keyword
@@ -374,7 +375,7 @@ for infilen in file_list:
                          np.mean(zi_smooth_1d[mask]),np.std(zi_smooth_1d[mask]),
                          np.median(zi_smooth_1d[mask]),np.percentile(zi_smooth_1d[mask],10),
                          np.percentile(zi_smooth_1d[mask],90)))
-    scipy.savetxt(usharp_file,np.array([pi1d[mask],ti1d[mask],zi_smooth.flatten()[mask],zi_sharp.flatten()[mask],
+    np.savetxt(usharp_file,np.array([pi1d[mask],ti1d[mask],zi_smooth.flatten()[mask],zi_sharp.flatten()[mask],
                   zi_sharp_Nsig.flatten()[mask],zi_sigma.flatten()[mask]]).T,
                   fmt='%6.3f %7.3f %8.1f %8.1f %8.1f %9.1f',header=head)
     #pi1d,ti1d,zi_smooth_1d=pi1d[mask],ti1d[mask],zi_smooth_1d[mask]
@@ -426,7 +427,7 @@ for infilen in file_list:
   if args.mindip is None:
     mindip='' #Will use Fellwalker's default
   else:
-    mindip='config="fellwalker.mindip=%f" ' % (np.float(args.mindip))
+    mindip='config="fellwalker.mindip=%f" ' % (np.float64(args.mindip))
   print('Finding clumps with Fellwalker')
   os.system('%s/cupid/findclumps in=_zpndf.sdf out=_zp_cmask method=fellwalker outcat=_zp_clumps rms=%f config="fellwalker.maxjump=%.0f" %s ' % (starlink_path,rms,args.maxjump,mindip)) 
 
@@ -551,13 +552,13 @@ for infilen in file_list:
     header_info=header_info+'#         Npix=%d   (number of pixels for image resampling in proj) )\n' % (args.npix)
     header_info=header_info+'#         Npixmin=%d   (minimum number of pixels above threshold)\n' % (args.npixmin)
     header_info=header_info+'#         Npixann=%d   (annulus radio for stdev computation, 0=Poisson std)\n' % (args.npixann)
-    if args.mindip is not None: header_info=header_info+'#         MinDip=%-4.1f (Nsigma-units)\n' % (np.float(args.mindip))
+    if args.mindip is not None: header_info=header_info+'#         MinDip=%-4.1f (Nsigma-units)\n' % (np.float64(args.mindip))
   else:
    if args.frms is not None: 
      header_info=header_info+'#         MinHeight=%d (=%.1f*RMS)\n' % (minheight,args.frms)
    else: 
     header_info=header_info+'#         MinHeight=%d (=%.2f*max_cts)\n' % (minheight,args.ffrac)
-   if args.mindip is not None: header_info=header_info+'#         MinDip=%-4.1f (cts)\n' % (np.float(args.mindip))
+   if args.mindip is not None: header_info=header_info+'#         MinDip=%-4.1f (cts)\n' % (np.float64(args.mindip))
   if args.unsharp: header_info=header_info+'#         Nmedian=%d\n' % (args.nmed)
   header_info=header_info+'#         FWXM=%.4f (stored pixels associated to each clump)\n' % (args.fwxm)
   header_info=header_info+'#-----------------------------------------------------------------------------------\n'
@@ -601,7 +602,7 @@ for infilen in file_list:
      if pmask.any():
       Nsm,Nsh=np.sum(u_smooth_cts_1d[pmask]),np.sum(u_sharp_cts_1d[pmask])
       Nsigma=np.max(u_sharp_cts_1d[pmask].astype(float)/u_sigma_cts_1d[pmask])  #Use local estimate of sigma
-      exp_purity=Nsh/np.float(Nsh+Nsm)
+      exp_purity=Nsh/np.float64(Nsh+Nsm)
      else:
       Nsm,Nsh=0.,0.
       Nsigma,exp_purity=0.,-1
@@ -676,7 +677,7 @@ for infilen in file_list:
       #Sum smoothed counts over each clump
       if args.unsharp: Nsm,Nsh=u_smooth_cts_1d[pmask],u_sharp_cts_1d[pmask]
       else: Nsm,Nsh=np.zeros_like(u_phicmask[pmask]),np.zeros_like(u_phicmask[pmask])
-      scipy.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask],Nsm,Nsh]).T,
+      np.savetxt(file_clumppixfname,np.array([u_newid_cmask,u_phicmask[pmask],u_thetacmask[pmask],Nsm,Nsh]).T,
                     fmt='%7d %10.4f %10.4f %10.1f %10.1f')
 
     cfigname='%s.%s.%s.%s.pls.%s' % (figname_root,mode,proj[:3],pmode,args.fig)
