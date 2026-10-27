@@ -120,6 +120,9 @@ Plot the mGC3 pole count map in a north-polar-azimuthal equidistant projection::
 
     mgc3_plot_polemaps.py example_data.test01.mgc3.cts -m mGC3
 
+Note: If you haven't installed BaseMap, you can also use Topcat for a quick plot of the pole count maps
+and to select the poles in a local maximum by hand. The .pls file must be named .gc3/ngc3/mgc3.pls depending
+on which method was used and it should have this structure: ID pole_phi pole_theta.
 
 Program mgc3.py
 ---------------
