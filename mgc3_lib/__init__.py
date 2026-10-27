@@ -69,9 +69,9 @@ def read_inputcat_for_mgc3(filename,pardic=None):
   else: inputfile=open(filename,'r')
 
   if 'csv' in filename:
-    obsdata = scipy.genfromtxt(inputfile,delimiter=',')
+    obsdata = np.genfromtxt(inputfile,delimiter=',')
   else:
-    obsdata = scipy.genfromtxt(inputfile,comments='#')
+    obsdata = np.genfromtxt(inputfile,comments='#')
   
   #Deal with one-line files
   if np.ndim(obsdata)==1: obsdata=np.reshape(obsdata,(1,obsdata.size))
@@ -191,7 +191,7 @@ class print_parfile_action(argparse.Action):
 
 #Parse parameter file
 def parse_pars(parfile):
-  pf=scipy.genfromtxt(parfile,comments='#',dtype=str)
+  pf=np.genfromtxt(parfile,comments='#',dtype=str)
 
   naux,dic=0,{}
   for line in pf:
@@ -569,7 +569,7 @@ class pole_grid(my_constants):
     stilts_path='/Applications/TOPCAT.app/'
     os.system('%s/stilts -Xmx1024M -disk tskymatch2 in1=.aux1 in2=.aux2 ifmt1=ascii ifmt2=ascii ofmt=ascii out=.match ra1=col1 dec1=col2 ra2=col1 dec2=col2 error=1800 join=1and2 find=best' % (stilts_path))
 
-    foot_lon,foot_lat=scipy.genfromtxt('.match',unpack=True,usecols=(0,1))
+    foot_lon,foot_lat=np.genfromtxt('.match',unpack=True,usecols=(0,1))
     print('Matches',foot_lon.size)
 
     #Create new survey object
